@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>Congregación Valle Hermoso — Agenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#EFF3F2;
+  --surface:#FFFFFF;
+  --surface-2:#F6FAF9;
+  --ink:#16242A;
+  --ink-soft:#5B6B6E;
+  --border:#DCE6E4;
+  --accent:#1F6F6B;
+  --accent-dark:#154F4C;
+  --accent-soft:#DCEEEC;
+  --highlight:#E2932E;
+  --highlight-soft:#FCEBD3;
+  --danger:#C0392B;
+  --danger-soft:#F8E2DF;
+  --tesoros:#51697A;
+  --seamos:#A8762A;
+  --vida:#7C2C3B;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(22,36,42,.06), 0 4px 14px rgba(22,36,42,.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:60px;
+}
+h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif; margin:0; font-weight:600;}
+.hidden{display:none !important;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  background:linear-gradient(135deg,var(--accent-dark),var(--accent));
+  color:#fff;
+  padding:18px 16px 16px;
+  position:sticky; top:0; z-index:30;
+  box-shadow:0 2px 12px rgba(21,79,76,.25);
+}
+.topbar-inner{
+  max-width:760px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.brand{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.brand-name{font-size:1.15rem; font-weight:600; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.brand-sub{font-size:.74rem; color:#CFE9E6; letter-spacing:.4px; text-transform:uppercase;}
+.status-pill{
+  font-size:.68rem; color:#CFE9E6; letter-spacing:.3px;
+  display:flex; align-items:center; gap:5px; margin-top:1px;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#7FD9CE;}
+
+.btn{
+  border:none; border-radius:999px; padding:9px 16px; font-size:.82rem; font-weight:600;
+  display:inline-flex; align-items:center; gap:6px; transition:transform .12s, opacity .12s;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.96);}
+.btn-edit{
+  background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.35);
+}
+.btn-edit.is-on{background:var(--highlight); border-color:var(--highlight); color:#22150a;}
+.btn-accent{background:var(--accent); color:#fff;}
+.btn-accent:hover{background:var(--accent-dark);}
+.btn-ghost{background:transparent; color:var(--ink-soft); border:1px solid var(--border);}
+.btn-danger{background:var(--danger-soft); color:var(--danger);}
+.btn-sm{padding:6px 11px; font-size:.74rem; border-radius:8px;}
+.btn-icon{padding:7px 9px; border-radius:8px; line-height:1;}
+
+/* ---------- Tabs ---------- */
+.tabs{
+  max-width:760px; margin:14px auto 0; padding:0 16px;
+  display:flex; gap:8px;
+}
+.tab{
+  flex:1; background:var(--surface); border:1px solid var(--border); border-radius:11px;
+  padding:11px 8px; font-size:.86rem; font-weight:600; color:var(--ink-soft);
+  text-align:center;
+}
+.tab.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+/* ---------- Main ---------- */
+main{max-width:760px; margin:0 auto; padding:18px 16px 40px;}
+.view{display:none;}
+.view.active{display:block;}
+.view-header{
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:14px;
+}
+.view-header h2{font-size:1.25rem; color:var(--accent-dark);}
+.tip{
+  background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-sm);
+  padding:10px 13px; font-size:.78rem; color:var(--ink-soft); margin-bottom:14px; line-height:1.45;
+}
+.tip b{color:var(--ink);}
+
+.empty-state{
+  background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius);
+  padding:30px 18px; text-align:center; color:var(--ink-soft); font-size:.88rem;
+}
+
+/* ---------- Day card (Salidas) ---------- */
+.day-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  margin-bottom:14px; overflow:hidden; box-shadow:var(--shadow);
+}
+.day-card.is-today{border-color:var(--highlight);}
+.day-head{
+  display:flex; align-items:center; gap:12px; padding:13px 14px;
+  background:var(--surface-2); border-bottom:1px solid var(--border);
+}
+.date-tab{
+  background:var(--accent-dark); color:#fff; border-radius:9px;
+  min-width:54px; text-align:center; padding:6px 4px; line-height:1.1;
+}
+.day-card.is-today .date-tab{background:var(--highlight); color:#22150a;}
+.date-tab .dnum{font-family:'Fraunces',serif; font-size:1.05rem; font-weight:700; display:block;}
+.date-tab .dlabel{font-size:.6rem; letter-spacing:.5px; text-transform:uppercase; opacity:.85;}
+.day-head h3{font-size:1.02rem; color:var(--ink); flex:1; min-width:0;}
+.today-flag{
+  font-size:.65rem; font-weight:700; color:#22150a; background:var(--highlight-soft); border:1px solid var(--highlight);
+  padding:2px 8px; border-radius:999px; letter-spacing:.3px;
+}
+.day-head-edit{display:flex; gap:6px; flex:1; flex-wrap:wrap;}
+.day-head-edit input{
+  border:1px solid var(--border); border-radius:7px; padding:7px 9px; font-size:.85rem; color:var(--ink);
+}
+.day-head-edit input.dia-input{flex:1; min-width:90px; font-weight:600;}
+.day-head-edit input.fecha-input{width:80px;}
+
+.entries{padding:6px 8px 10px;}
+.entry-row{
+  display:grid; grid-template-columns:60px 1.6fr 1fr 1fr 70px; gap:8px; align-items:center;
+  padding:9px 6px; border-bottom:1px solid var(--border); font-size:.84rem;
+}
+.entry-row:last-child{border-bottom:none;}
+.entry-row .f-hora{font-weight:700; color:var(--accent-dark);}
+.entry-row .f-lugar{font-weight:600; color:var(--ink);}
+.entry-row .f-grupo{color:var(--ink-soft); font-size:.78rem;}
+.entry-row .f-conductor{color:var(--ink-soft); font-size:.78rem;}
+.entry-row .f-territorio{
+  font-size:.74rem; font-weight:700; color:var(--accent-dark); background:var(--accent-soft);
+  border-radius:7px; padding:3px 6px; text-align:center;
+}
+.entry-row input{
+  width:100%; border:1px solid var(--border); border-radius:7px; padding:6px 7px; font-size:.8rem; color:var(--ink);
+}
+.entry-row .del-entry{justify-self:end;}
+.card-actions{padding:8px 12px 12px; display:flex; gap:8px; flex-wrap:wrap;}
+
+@media (max-width:560px){
+  .entry-row{grid-template-columns:1fr; gap:4px; padding:11px 8px;}
+  .entry-row > div, .entry-row > input{width:100%;}
+  .entry-row .micro-label{font-size:.62rem; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-soft); display:block; margin-bottom:1px;}
+  .entry-row .field-line{display:flex; justify-content:space-between; gap:8px; align-items:baseline;}
+  .entry-row .del-entry{justify-self:end; margin-top:2px;}
+}
+
+/* ---------- Week card (Vida y Ministerio) ---------- */
+.week-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  margin-bottom:18px; overflow:hidden; box-shadow:var(--shadow);
+}
+.week-card.is-actual{border-color:var(--highlight);}
+.week-head{padding:15px 16px 12px; border-bottom:1px solid var(--border); background:var(--surface-2);}
+.week-head-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.week-head h3{font-size:1.08rem; color:var(--accent-dark);}
+.week-lectura{font-size:.84rem; color:var(--ink-soft); margin-top:3px;}
+.actual-flag{
+  font-size:.65rem; font-weight:700; color:#22150a; background:var(--highlight-soft); border:1px solid var(--highlight);
+  padding:2px 8px; border-radius:999px; letter-spacing:.3px; white-space:nowrap;
+}
+.week-meta{display:flex; flex-wrap:wrap; gap:10px 18px; margin-top:10px; font-size:.78rem;}
+.week-meta .meta-item b{display:block; color:var(--ink-soft); font-weight:600; font-size:.66rem; text-transform:uppercase; letter-spacing:.4px;}
+.week-meta .meta-item span{color:var(--ink);}
+.week-edit-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;}
+.week-edit-grid label{display:flex; flex-direction:column; gap:3px; font-size:.68rem; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.3px;}
+.week-edit-grid input{border:1px solid var(--border); border-radius:7px; padding:7px 8px; font-size:.83rem; color:var(--ink); font-weight:500; text-transform:none;}
+.week-edit-grid .span2{grid-column:1/-1;}
+.week-toggle-actual{display:flex; align-items:center; gap:6px; font-size:.76rem; color:var(--ink-soft); margin-top:10px;}
+
+.section-bar{
+  padding:7px 16px; font-size:.72rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:#fff;
+}
+.section-bar.tesoros{background:var(--tesoros);}
+.section-bar.seamos{background:var(--seamos);}
+.section-bar.vida{background:var(--vida);}
+.section-body{padding:6px 14px 12px;}
+.song-line{
+  padding:9px 16px; font-size:.83rem; font-weight:600; color:var(--accent-dark); background:var(--accent-soft);
+  display:flex; align-items:center; gap:6px;
+}
+.song-line input{border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:.82rem; width:70px;}
+
+.part-row{padding:10px 4px; border-bottom:1px solid var(--border);}
+.part-row:last-child{border-bottom:none;}
+.part-view-top{display:flex; gap:8px; align-items:baseline;}
+.part-num{font-family:'Fraunces',serif; font-weight:700; color:var(--ink-soft); font-size:.85rem; min-width:18px;}
+.part-titulo{font-weight:600; font-size:.87rem; color:var(--ink); flex:1;}
+.part-min{font-size:.74rem; color:var(--ink-soft); white-space:nowrap;}
+.part-asig{margin-top:3px; padding-left:26px; font-size:.78rem; color:var(--ink-soft); display:flex; flex-wrap:wrap; gap:10px;}
+.part-asig b{color:var(--ink); font-weight:600;}
+
+.part-edit-grid{display:grid; grid-template-columns:34px 1fr 60px; gap:6px;}
+.part-edit-grid input{border:1px solid var(--border); border-radius:7px; padding:6px 7px; font-size:.8rem; color:var(--ink);}
+.part-edit-row2{display:grid; grid-template-columns:1fr 1fr 1fr 32px; gap:6px; margin-top:5px; padding-left:0;}
+.part-edit-row2 input{border:1px solid var(--border); border-radius:7px; padding:6px 7px; font-size:.78rem; color:var(--ink); min-width:0;}
+.part-edit-row2 input::placeholder{color:#9DABB0;}
+@media (max-width:640px){
+  .part-edit-row2{grid-template-columns:1fr 1fr; grid-template-areas:"a b" "c del";}
+  .part-edit-row2 input:nth-child(1){grid-area:a;}
+  .part-edit-row2 input:nth-child(2){grid-area:b;}
+  .part-edit-row2 input:nth-child(3){grid-area:c;}
+  .part-edit-row2 button{grid-area:del; justify-self:end;}
+}
+.add-part-btn{margin-top:6px;}
+
+.week-foot{padding:12px 16px 14px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; font-size:.83rem; border-top:1px solid var(--border);}
+.week-foot .meta-item b{display:block; color:var(--ink-soft); font-weight:600; font-size:.66rem; text-transform:uppercase; letter-spacing:.4px;}
+.week-card-actions{padding:0 16px 14px; display:flex; gap:8px; flex-wrap:wrap;}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(20,30,33,.55); display:flex; align-items:center; justify-content:center;
+  padding:18px; z-index:100;
+}
+.modal-card{
+  background:var(--surface); border-radius:16px; padding:22px 20px; width:100%; max-width:340px;
+  box-shadow:0 10px 40px rgba(0,0,0,.25);
+}
+.modal-card h3{font-size:1.05rem; margin-bottom:6px; color:var(--accent-dark);}
+.modal-card p.desc{font-size:.82rem; color:var(--ink-soft); margin:0 0 14px;}
+.modal-card input{
+  width:100%; border:1px solid var(--border); border-radius:9px; padding:11px 12px; font-size:1rem;
+  margin-bottom:8px; letter-spacing:2px; text-align:center;
+}
+.modal-card input.left{letter-spacing:normal; text-align:left;}
+.modal-actions{display:flex; gap:8px; margin-top:10px;}
+.modal-actions .btn{flex:1; justify-content:center;}
+.modal-error{color:var(--danger); font-size:.78rem; margin:4px 0 0; text-align:center;}
+
+/* ---------- Footer ---------- */
+.app-footer{max-width:760px; margin:0 auto; padding:0 16px 20px; text-align:center; color:var(--ink-soft); font-size:.72rem;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-name">Cong. Valle Hermoso</span>
+      <span class="brand-sub">Agenda de actividades</span>
+      <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
+    </div>
+    <button id="editToggleBtn" class="btn btn-edit">🔒 Modo edición</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="salidas">Salidas a predicar</button>
+  <button class="tab" data-tab="vida">Vida y Ministerio</button>
+</div>
+
+<main>
+  <section id="salidasView" class="view active">
+    <div class="view-header">
+      <h2>Salidas de predicación</h2>
+    </div>
+    <div class="tip edit-only hidden">💡 Tocá un campo para escribir. Los cambios se guardan solos a los pocos segundos.</div>
+    <div id="salidasList"></div>
+    <button id="addDayBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;">+ Agregar día</button>
+  </section>
+
+  <section id="vidaView" class="view">
+    <div class="view-header">
+      <h2>Vida y Ministerio Cristiano</h2>
+    </div>
+    <div class="tip edit-only hidden">💡 Completá los campos de cada parte. "Auxiliar" es opcional (para sala auxiliar o ayudante).</div>
+    <div id="vidaList"></div>
+    <button id="addWeekBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;">+ Agregar semana</button>
+  </section>
+</main>
+
+<div class="app-footer">
+  Consulta de uso libre para la congregación · La edición requiere código de acceso.
+</div>
+
+<!-- PIN modal -->
+<div id="pinModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3>Código de edición</h3>
+    <p class="desc">Ingresá el código para activar el modo edición.</p>
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••">
+    <p id="pinError" class="modal-error hidden">Código incorrecto. Probá de nuevo.</p>
+    <div class="modal-actions">
+      <button id="pinCancelBtn" class="btn btn-ghost">Cancelar</button>
+      <button id="pinConfirmBtn" class="btn btn-accent">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div id="confirmModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3 id="confirmTitle">¿Eliminar?</h3>
+    <p class="desc" id="confirmDesc">Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button id="confirmCancelBtn" class="btn btn-ghost">Cancelar</button>
+      <button id="confirmOkBtn" class="btn btn-danger">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change PIN modal -->
+<div id="changePinModalBackdrop" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3>Cambiar código</h3>
+    <p class="desc">Elegí un nuevo código para editar la agenda.</p>
+    <input type="text" id="newPinInput" class="left" inputmode="numeric" maxlength="12" placeholder="Nuevo código">
+    <p id="changePinError" class="modal-error hidden">Escribí al menos 4 caracteres.</p>
+    <div class="modal-actions">
+      <button id="changePinCancelBtn" class="btn btn-ghost">Cancelar</button>
+      <button id="changePinOkBtn" class="btn btn-accent">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   ESTADO Y DATOS
+   ============================================================ */
+let state = { editing:false, tab:'salidas' };
+let data = { salidas:[], vidaymin:[] };
+let config = { pin:'2026' };
+let saveTimers = {};
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){
+  return (s===undefined||s===null?'':String(s))
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ============================================================
+   DATOS DE EJEMPLO (semilla inicial, solo si no hay nada guardado)
+   ============================================================ */
+function seedSalidas(){
+  return [
+    { id:uid(), dia:'Viernes', fecha:'26/6', entries:[
+      {id:uid(), hora:'10:00', lugar:'Entrada a Vallecito', grupo:'Congregacional', conductor:'Severo Flores', territorio:'25'},
+      {id:uid(), hora:'16:30', lugar:'Ruta 38 y Julio Roca', grupo:'Congregacional', conductor:'Ricardo García', territorio:'67'}
+    ]},
+    { id:uid(), dia:'Sábado', fecha:'27/6', entries:[
+      {id:uid(), hora:'10:00', lugar:'Familia Gauna', grupo:'Grupo 1', conductor:'Hugo Ceballos', territorio:'1'},
+      {id:uid(), hora:'10:00', lugar:'Familia Hidalgo (Visita Stte. de Servicio)', grupo:'Grupo 2', conductor:'Ricardo García', territorio:'28'},
+      {id:uid(), hora:'10:00', lugar:'Familia Moreyra', grupo:'Grupo 3', conductor:'Iván Rodas', territorio:'50'},
+      {id:uid(), hora:'10:00', lugar:'Familia Vargas', grupo:'Grupo 4', conductor:'Hugo Vargas', territorio:'47'},
+      {id:uid(), hora:'10:00', lugar:'Familia Gallo', grupo:'Grupo 5', conductor:'Antonio Vega', territorio:'44, 45'},
+      {id:uid(), hora:'16:00', lugar:'Familia Lodi', grupo:'Grupo 6 y 4', conductor:'Daniel Rojo', territorio:'91, 92'},
+      {id:uid(), hora:'10:00', lugar:'Eva Perón y salesianos', grupo:'Grupo 7', conductor:'Iván Aoki', territorio:'40'},
+      {id:uid(), hora:'17:00', lugar:'Familia Juárez', grupo:'Grupo 8', conductor:'Luis García', territorio:'77'},
+      {id:uid(), hora:'16:30', lugar:'Eva Perón y salesianos', grupo:'Congregacional', conductor:'Sergio Marín', territorio:'31, 32'}
+    ]},
+    { id:uid(), dia:'Lunes', fecha:'29/06', entries:[
+      {id:uid(), hora:'9:30', lugar:'Zoom', grupo:'Cong.', conductor:'Martín Reynard', territorio:''},
+      {id:uid(), hora:'16:30', lugar:'Ruta 38 y Julio Roca', grupo:'Cong.', conductor:'Julián Moreyara', territorio:'68'},
+      {id:uid(), hora:'16:30', lugar:'Santa Teresa y Perón', grupo:'Grupo 5', conductor:'Antonio Vega', territorio:'27'}
+    ]},
+    { id:uid(), dia:'Martes', fecha:'30/06', entries:[
+      {id:uid(), hora:'16:00', lugar:'Zoom', grupo:'Cong.', conductor:'Aníbal Martín', territorio:''},
+      {id:uid(), hora:'16:30', lugar:'Familia Gauna', grupo:'Grupo 1', conductor:'Ariel Gauna', territorio:'3'},
+      {id:uid(), hora:'Consultar', lugar:'Consultar con su superintendente de grupo hora y punto de encuentro', grupo:'Grupo 2', conductor:'Tomás Mendoza', territorio:''},
+      {id:uid(), hora:'17:00', lugar:'Familia Varela', grupo:'Grupo 3', conductor:'Ricardo García', territorio:'55'},
+      {id:uid(), hora:'16:30', lugar:'Familia Wagner', grupo:'Grupo 4 y 5', conductor:'Hugo Vargas', territorio:'29'},
+      {id:uid(), hora:'16:30', lugar:'Casa Hna. Tini', grupo:'Grupo 7', conductor:'Gastón Pais', territorio:'51'},
+      {id:uid(), hora:'17:00', lugar:'LUMASA (Ruta 38 y Virrey Loreto)', grupo:'Grupo 8', conductor:'Hugo Mendoza', territorio:'66'}
+    ]},
+    { id:uid(), dia:'Miércoles', fecha:'1/7', entries:[
+      {id:uid(), hora:'10:00', lugar:'Arturo Illia y San Diego', grupo:'Cong.', conductor:'Hugo Vargas', territorio:'9'},
+      {id:uid(), hora:'16:30', lugar:'Victorino de la Plaza y Carlos Pellegrini', grupo:'Cong.', conductor:'Fernando Varela', territorio:'62'},
+      {id:uid(), hora:'16:45', lugar:'Ruta 38 y 9 de Julio (Churrería)', grupo:'Grupo 6', conductor:'Daniel Rojo', territorio:'78'}
+    ]},
+    { id:uid(), dia:'Jueves', fecha:'02/07', entries:[
+      {id:uid(), hora:'10:00', lugar:'Sta. Cruz y Ferrarini', grupo:'Cong.', conductor:'Severo Flores', territorio:'5'}
+    ]}
+  ];
+}
+
+function seedVida(){
+  return [
+    { id:uid(), actual:true, rango:'22-28 de junio', lectura:'Jeremías 9, 10',
+      presidente:'Ricardo García', consejero:'Ariel Gauna',
+      cancionInicial:'5', oracionInicial:'Severo Flores',
+      tesoros:[
+        {id:uid(), numero:'1', titulo:'¿De qué presumirá usted?', minutos:'10', principal:'Sergio Martin', auxiliar:'', auxiliar2:''},
+        {id:uid(), numero:'2', titulo:'Busquemos perlas escondidas', minutos:'10', principal:'Luis Gallo', auxiliar:'', auxiliar2:''},
+        {id:uid(), numero:'3', titulo:'Lectura de la Biblia', minutos:'4', principal:'Benjamin Juarez', auxiliar:'Hector Rodriguez (estudiante)', auxiliar2:''}
+      ],
+      seamos:[
+        {id:uid(), numero:'4', titulo:'Empiece la conversación', minutos:'4', principal:'Mabel B. / M. Varela', auxiliar:'Evelyn A. / Paula C.', auxiliar2:''},
+        {id:uid(), numero:'5', titulo:'Empiece la conversación', minutos:'4', principal:'Beatriz C. / Karen M.', auxiliar:'Sumie A. / Jana Z.', auxiliar2:''},
+        {id:uid(), numero:'6', titulo:'Haga revisitas', minutos:'4', principal:'Carolina C. / Gladys V.', auxiliar:'Oriana J. / Nathalie V.', auxiliar2:''}
+      ],
+      cancionMedia:'48',
+      vidaCristiana:[
+        {id:uid(), numero:'7', titulo:'No nos dejemos engañar...', minutos:'', principal:'Pablo Montini', auxiliar:'', auxiliar2:''},
+        {id:uid(), numero:'9', titulo:'Estudio bíblico de la congregación', minutos:'30', principal:'Luis García / E. Olivera', auxiliar:'', auxiliar2:''}
+      ],
+      cancionFinal:'58', oracionFinal:'Matías Flores'
+    }
+  ];
+}
+
+/* ============================================================
+   ALMACENAMIENTO — Firebase Firestore (compartido y en vivo)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDT53K04QVX6NmjddcEZsGyBI_HYkepYr4",
+  authDomain: "congregacion-valle-hermoso.firebaseapp.com",
+  projectId: "congregacion-valle-hermoso",
+  storageBucket: "congregacion-valle-hermoso.firebasestorage.app",
+  messagingSenderId: "113389506138",
+  appId: "1:113389506138:web:f9bef4699eed440bf51263"
+};
+let db = null;
+let col = null;
+try{
+  if(typeof firebase === 'undefined'){
+    throw new Error('El SDK de Firebase no se cargó (revisá tu conexión o un bloqueador de anuncios).');
+  }
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  col = db.collection('agenda');
+}catch(e){
+  console.error('No se pudo iniciar Firebase:', e);
+}
+
+let suppressEcho = { salidas:false, vida:false, config:false };
+let pendingRemote = { salidas:false, vida:false };
+let firstLoad = { salidas:false, vida:false, config:false };
+
+function setStatus(text, isError){
+  const el = document.getElementById('statusText');
+  el.textContent = text;
+  el.parentElement.querySelector('.status-dot').style.background = isError ? '#E07A6B' : '#7FD9CE';
+}
+
+function isTypingInside(containerId){
+  const el = document.activeElement;
+  const cont = document.getElementById(containerId);
+  return !!(el && cont && cont.contains(el) && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'));
+}
+
+/* Reintenta aplicar una actualización remota apenas el usuario deja de escribir */
+['salidasList','vidaList'].forEach(id=>{
+  document.getElementById(id).addEventListener('focusout', ()=>{
+    setTimeout(()=>{
+      if(id==='salidasList' && pendingRemote.salidas && !isTypingInside('salidasList')){
+        pendingRemote.salidas = false; renderSalidas();
+      }
+      if(id==='vidaList' && pendingRemote.vida && !isTypingInside('vidaList')){
+        pendingRemote.vida = false; renderVida();
+      }
+    }, 120);
+  });
+});
+
+function loadAll(){
+  if(!col){
+    setStatus('Sin conexión a la base de datos', true);
+    data.salidas = seedSalidas();
+    data.vidaymin = seedVida();
+    render();
+    return;
+  }
+  setStatus('Conectando…');
+
+  col.doc('salidas').onSnapshot((doc)=>{
+    if(suppressEcho.salidas){ suppressEcho.salidas = false; return; }
+    if(doc.exists && doc.data().items){
+      data.salidas = doc.data().items;
+    } else if(!firstLoad.salidas){
+      data.salidas = seedSalidas();
+      suppressEcho.salidas = true;
+      col.doc('salidas').set({ items:data.salidas }).catch(()=>{ suppressEcho.salidas = false; });
+    }
+    firstLoad.salidas = true;
+    if(isTypingInside('salidasList')){ pendingRemote.salidas = true; }
+    else { renderSalidas(); }
+    setStatus('Conectado');
+  }, (err)=>{ setStatus('Sin conexión a la base de datos', true); });
+
+  col.doc('vida').onSnapshot((doc)=>{
+    if(suppressEcho.vida){ suppressEcho.vida = false; return; }
+    if(doc.exists && doc.data().items){
+      data.vidaymin = doc.data().items;
+    } else if(!firstLoad.vida){
+      data.vidaymin = seedVida();
+      suppressEcho.vida = true;
+      col.doc('vida').set({ items:data.vidaymin }).catch(()=>{ suppressEcho.vida = false; });
+    }
+    firstLoad.vida = true;
+    if(isTypingInside('vidaList')){ pendingRemote.vida = true; }
+    else { renderVida(); }
+    setStatus('Conectado');
+  }, (err)=>{ setStatus('Sin conexión a la base de datos', true); });
+
+  col.doc('config').onSnapshot((doc)=>{
+    if(suppressEcho.config){ suppressEcho.config = false; return; }
+    if(doc.exists && doc.data().pin){
+      config.pin = doc.data().pin;
+    } else if(!firstLoad.config){
+      col.doc('config').set({pin:'2026'}).catch(()=>{});
+      config.pin = '2026';
+    }
+    firstLoad.config = true;
+  }, (err)=>{});
+}
+
+function scheduleSave(key, getValue, flag){
+  if(!col){ setStatus('Sin conexión a la base de datos', true); return; }
+  clearTimeout(saveTimers[key]);
+  setStatus('Guardando…');
+  saveTimers[key] = setTimeout(async ()=>{
+    try{
+      suppressEcho[flag] = true;
+      await col.doc(key).set({ items: getValue() });
+      setStatus('Guardado ✓');
+    }catch(e){
+      suppressEcho[flag] = false;
+      setStatus('No se pudo guardar', true);
+    }
+  }, 650);
+}
+
+function saveSalidas(){ scheduleSave('salidas', ()=>data.salidas, 'salidas'); }
+function saveVida(){ scheduleSave('vida', ()=>data.vidaymin, 'vida'); }
+function saveConfig(){
+  if(!col){ setStatus('Sin conexión a la base de datos', true); return; }
+  clearTimeout(saveTimers.config);
+  setStatus('Guardando…');
+  saveTimers.config = setTimeout(async ()=>{
+    try{
+      suppressEcho.config = true;
+      await col.doc('config').set({ pin: config.pin });
+      setStatus('Guardado ✓');
+    }catch(e){
+      suppressEcho.config = false;
+      setStatus('No se pudo guardar', true);
+    }
+  }, 400);
+}
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+function getDay(id){ return data.salidas.find(d=>d.id===id); }
+function getEntry(day, id){ return day.entries.find(e=>e.id===id); }
+function getWeek(id){ return data.vidaymin.find(w=>w.id===id); }
+function getPart(week, section, id){ return week[section].find(p=>p.id===id); }
+
+function parseFecha(fecha){
+  const m = String(fecha||'').match(/^(\d{1,2})\/(\d{1,2})/);
+  if(!m) return null;
+  return { d:parseInt(m[1],10), m:parseInt(m[2],10) };
+}
+function isToday(fecha){
+  const f = parseFecha(fecha);
+  if(!f) return false;
+  const now = new Date();
+  return f.d === now.getDate() && f.m === (now.getMonth()+1);
+}
+
+/* ============================================================
+   RENDER — SALIDAS
+   ============================================================ */
+function renderSalidas(){
+  const cont = document.getElementById('salidasList');
+  if(data.salidas.length === 0){
+    cont.innerHTML = '<div class="empty-state">Todavía no hay salidas registradas.</div>';
+    return;
+  }
+  cont.innerHTML = data.salidas.map(day => dayCardHTML(day)).join('');
+}
+
+function dayCardHTML(day){
+  const today = isToday(day.fecha);
+  const head = state.editing ? `
+    <div class="day-head-edit">
+      <input class="dia-input" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día">
+      <input class="fecha-input" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm">
+      <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button>
+    </div>
+  ` : `
+    <div class="date-tab"><span class="dnum">${esc((day.fecha||'').split('/')[0]||'')}</span><span class="dlabel">${esc((day.fecha||'').split('/')[1]||'')}</span></div>
+    <h3>${esc(day.dia)}</h3>
+    ${today ? '<span class="today-flag">HOY</span>' : ''}
+  `;
+
+  const entries = day.entries.map(en => entryRowHTML(day, en)).join('');
+
+  const actions = state.editing ? `
+    <div class="card-actions edit-only">
+      <button class="btn btn-sm btn-accent" data-action="add-entry" data-day-id="${day.id}">+ Agregar salida</button>
+    </div>
+  ` : '';
+
+  return `<div class="day-card ${today?'is-today':''}" data-day-id="${day.id}">
+    <div class="day-head">${head}</div>
+    <div class="entries">${entries || '<div class="empty-state" style="padding:16px;">Sin salidas este día</div>'}</div>
+    ${actions}
+  </div>`;
+}
+
+function entryRowHTML(day, en){
+  if(state.editing){
+    return `<div class="entry-row" data-entry-id="${en.id}" style="grid-template-columns:60px 1.6fr 1fr 1fr 70px 28px;">
+      <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="hora" value="${esc(en.hora)}" placeholder="Hora">
+      <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="lugar" value="${esc(en.lugar)}" placeholder="Lugar">
+      <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="grupo" value="${esc(en.grupo)}" placeholder="Cong./Grupo">
+      <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="conductor" value="${esc(en.conductor)}" placeholder="Conductor">
+      <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="territorio" value="${esc(en.territorio)}" placeholder="Territorio">
+      <button class="btn btn-icon btn-danger del-entry" data-action="delete-entry" data-day-id="${day.id}" data-entry-id="${en.id}" title="Eliminar">✕</button>
+    </div>`;
+  }
+  return `<div class="entry-row">
+    <div class="f-hora">${esc(en.hora)}</div>
+    <div class="f-lugar">${esc(en.lugar)}</div>
+    <div class="f-grupo">${esc(en.grupo)}</div>
+    <div class="f-conductor">${esc(en.conductor)}</div>
+    <div class="f-territorio">${esc(en.territorio)||'—'}</div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER — VIDA Y MINISTERIO
+   ============================================================ */
+function renderVida(){
+  const cont = document.getElementById('vidaList');
+  if(data.vidaymin.length === 0){
+    cont.innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+    return;
+  }
+  cont.innerHTML = data.vidaymin.map(week => weekCardHTML(week)).join('');
+}
+
+function weekMetaEditHTML(week){
+  return `<div class="week-edit-grid">
+    <label class="span2">Semana (rango de fechas)
+      <input data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio">
+    </label>
+    <label class="span2">Lectura de la Biblia
+      <input data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10">
+    </label>
+    <label>Presidente
+      <input data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}">
+    </label>
+    <label>Consejero sala auxiliar
+      <input data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}">
+    </label>
+    <label>Canción inicial
+      <input data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}">
+    </label>
+    <label>Oración inicial
+      <input data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}">
+    </label>
+  </div>
+  <label class="week-toggle-actual">
+    <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual?'checked':''}> Marcar como semana actual
+  </label>`;
+}
+
+function weekMetaViewHTML(week){
+  return `<div class="week-head-top">
+      <div>
+        <h3>Semana ${esc(week.rango)}</h3>
+        <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div>
+      </div>
+      ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''}
+    </div>
+    <div class="week-meta">
+      <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente)||'—'}</span></div>
+      <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero)||'—'}</span></div>
+      <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial)||'—'}</span></div>
+      <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial)||'—'}</span></div>
+    </div>`;
+}
+
+function partRowHTML(week, section, part){
+  if(state.editing){
+    return `<div class="part-row" data-part-id="${part.id}">
+      <div class="part-edit-grid">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min">
+      </div>
+      <div class="part-edit-row2">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)">
+        <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)">
+        <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="part-row">
+    <div class="part-view-top">
+      <span class="part-num">${esc(part.numero)}.</span>
+      <span class="part-titulo">${esc(part.titulo)}</span>
+      ${part.minutos ? `<span class="part-min">${esc(part.minutos)} min</span>` : ''}
+    </div>
+    ${(part.principal || part.auxiliar || part.auxiliar2) ? `<div class="part-asig">
+      ${part.principal ? `<span>Auditorio principal: <b>${esc(part.principal)}</b></span>` : ''}
+      ${part.auxiliar ? `<span>Sala auxiliar 1: <b>${esc(part.auxiliar)}</b></span>` : ''}
+      ${part.auxiliar2 ? `<span>Sala auxiliar 2: <b>${esc(part.auxiliar2)}</b></span>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+
+function sectionHTML(week, section, label, barClass){
+  const items = week[section].map(p => partRowHTML(week, section, p)).join('');
+  const addBtn = state.editing ? `<button class="btn btn-sm btn-accent add-part-btn" data-action="add-part" data-week-id="${week.id}" data-section="${section}">+ Agregar parte</button>` : '';
+  return `<div class="section-bar ${barClass}">${label}</div>
+    <div class="section-body">
+      ${items || '<div class="empty-state" style="padding:14px; margin:8px 0;">Sin partes</div>'}
+      ${addBtn}
+    </div>`;
+}
+
+function songLineHTML(week){
+  if(state.editing){
+    return `<div class="song-line">🎵 Canción <input data-role="week-field" data-week-id="${week.id}" data-field="cancionMedia" value="${esc(week.cancionMedia)}" placeholder="n°"></div>`;
+  }
+  return `<div class="song-line">🎵 Canción ${esc(week.cancionMedia)||'—'}</div>`;
+}
+
+function weekFootHTML(week){
+  if(state.editing){
+    return `<div class="week-foot">
+      <div class="week-edit-grid" style="flex:1;">
+        <label>Canción final
+          <input data-role="week-field" data-week-id="${week.id}" data-field="cancionFinal" value="${esc(week.cancionFinal)}">
+        </label>
+        <label>Oración final
+          <input data-role="week-field" data-week-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}">
+        </label>
+      </div>
+    </div>`;
+  }
+  return `<div class="week-foot">
+    <div class="meta-item"><b>Canción final</b><span>${esc(week.cancionFinal)||'—'}</span></div>
+    <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal)||'—'}</span></div>
+  </div>`;
+}
+
+function weekCardHTML(week){
+  const headBody = state.editing ? weekMetaEditHTML(week) : weekMetaViewHTML(week);
+  const deleteBtn = state.editing ? `<div class="week-card-actions edit-only">
+      <button class="btn btn-sm btn-danger" data-action="delete-week" data-week-id="${week.id}">🗑 Eliminar esta semana</button>
+    </div>` : '';
+
+  return `<div class="week-card ${week.actual?'is-actual':''}" data-week-id="${week.id}">
+    <div class="week-head">${headBody}</div>
+    ${sectionHTML(week,'tesoros','Tesoros de la Biblia','tesoros')}
+    ${sectionHTML(week,'seamos','Seamos mejores maestros','seamos')}
+    ${songLineHTML(week)}
+    ${sectionHTML(week,'vidaCristiana','Nuestra vida cristiana','vida')}
+    ${weekFootHTML(week)}
+    ${deleteBtn}
+  </div>`;
+}
+
+/* ============================================================
+   RENDER GENERAL
+   ============================================================ */
+function render(){
+  document.body.classList.toggle('editing', state.editing);
+  document.querySelectorAll('.edit-only').forEach(el => el.classList.toggle('hidden', !state.editing));
+  const editBtn = document.getElementById('editToggleBtn');
+  editBtn.classList.toggle('is-on', state.editing);
+  editBtn.innerHTML = state.editing ? '🔓 Editando — tocá para salir' : '🔒 Modo edición';
+  renderSalidas();
+  renderVida();
+}
+
+/* ============================================================
+   MODALES
+   ============================================================ */
+function showPinModal(){
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').classList.add('hidden');
+  document.getElementById('pinModalBackdrop').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('pinInput').focus(), 50);
+}
+function hidePinModal(){ document.getElementById('pinModalBackdrop').classList.add('hidden'); }
+
+function showConfirm(title, desc, onOk){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmDesc').textContent = desc;
+  document.getElementById('confirmModalBackdrop').classList.remove('hidden');
+  const okBtn = document.getElementById('confirmOkBtn');
+  const handler = function(){
+    document.getElementById('confirmModalBackdrop').classList.add('hidden');
+    okBtn.removeEventListener('click', handler);
+    onOk();
+  };
+  okBtn.addEventListener('click', handler);
+}
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmModalBackdrop').classList.add('hidden');
+});
+
+function showChangePin(){
+  document.getElementById('newPinInput').value = '';
+  document.getElementById('changePinError').classList.add('hidden');
+  document.getElementById('changePinModalBackdrop').classList.remove('hidden');
+}
+document.getElementById('changePinCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('changePinModalBackdrop').classList.add('hidden');
+});
+document.getElementById('changePinOkBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('newPinInput').value.trim();
+  if(val.length < 4){
+    document.getElementById('changePinError').classList.remove('hidden');
+    return;
+  }
+  config.pin = val;
+  saveConfig();
+  document.getElementById('changePinModalBackdrop').classList.add('hidden');
+});
+
+/* ============================================================
+   EVENTOS — TOPBAR / TABS
+   ============================================================ */
+document.getElementById('editToggleBtn').addEventListener('click', ()=>{
+  if(state.editing){
+    state.editing = false;
+    render();
+  } else {
+    showPinModal();
+  }
+});
+document.getElementById('pinCancelBtn').addEventListener('click', hidePinModal);
+document.getElementById('pinConfirmBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('pinInput').value;
+  if(val === config.pin){
+    state.editing = true;
+    hidePinModal();
+    render();
+  } else {
+    document.getElementById('pinError').classList.remove('hidden');
+  }
+});
+document.getElementById('pinInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('pinConfirmBtn').click();
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab+'View').classList.add('active');
+    state.tab = tab.dataset.tab;
+  });
+});
+
+document.getElementById('addDayBtn').addEventListener('click', ()=>{
+  data.salidas.push({id:uid(), dia:'Nuevo día', fecha:'', entries:[]});
+  saveSalidas();
+  renderSalidas();
+});
+document.getElementById('addWeekBtn').addEventListener('click', ()=>{
+  data.vidaymin.unshift({
+    id:uid(), actual:false, rango:'', lectura:'', presidente:'', consejero:'',
+    cancionInicial:'', oracionInicial:'', tesoros:[], seamos:[], cancionMedia:'', vidaCristiana:[],
+    cancionFinal:'', oracionFinal:''
+  });
+  saveVida();
+  renderVida();
+});
+
+/* ============================================================
+   EVENTOS — DELEGADOS (inputs)
+   ============================================================ */
+document.getElementById('salidasList').addEventListener('input', (e)=>{
+  const t = e.target;
+  if(t.dataset.role === 'day-field'){
+    const day = getDay(t.dataset.dayId);
+    if(day){ day[t.dataset.field] = t.value; saveSalidas(); }
+  } else if(t.dataset.role === 'entry-field'){
+    const day = getDay(t.dataset.dayId);
+    if(day){
+      const entry = getEntry(day, t.dataset.entryId);
+      if(entry){ entry[t.dataset.field] = t.value; saveSalidas(); }
+    }
+  }
+});
+
+document.getElementById('vidaList').addEventListener('input', (e)=>{
+  const t = e.target;
+  if(t.dataset.role === 'week-field'){
+    const week = getWeek(t.dataset.weekId);
+    if(week){ week[t.dataset.field] = t.value; saveVida(); }
+  } else if(t.dataset.role === 'part-field'){
+    const week = getWeek(t.dataset.weekId);
+    if(week){
+      const part = getPart(week, t.dataset.section, t.dataset.partId);
+      if(part){ part[t.dataset.field] = t.value; saveVida(); }
+    }
+  }
+});
+document.getElementById('vidaList').addEventListener('change', (e)=>{
+  const t = e.target;
+  if(t.dataset.role === 'week-actual'){
+    const week = getWeek(t.dataset.weekId);
+    if(week){ week.actual = t.checked; saveVida(); renderVida(); }
+  }
+});
+
+/* ============================================================
+   EVENTOS — DELEGADOS (botones de acción)
+   ============================================================ */
+document.getElementById('salidasList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const action = btn.dataset.action;
+
+  if(action === 'add-entry'){
+    const day = getDay(btn.dataset.dayId);
+    if(day){
+      day.entries.push({id:uid(), hora:'', lugar:'', grupo:'', conductor:'', territorio:''});
+      saveSalidas(); renderSalidas();
+    }
+  } else if(action === 'delete-entry'){
+    const day = getDay(btn.dataset.dayId);
+    showConfirm('Eliminar salida', '¿Eliminar esta salida de predicación?', ()=>{
+      if(day){
+        day.entries = day.entries.filter(en => en.id !== btn.dataset.entryId);
+        saveSalidas(); renderSalidas();
+      }
+    });
+  } else if(action === 'delete-day'){
+    showConfirm('Eliminar día', '¿Eliminar este día completo, con todas sus salidas?', ()=>{
+      data.salidas = data.salidas.filter(d => d.id !== btn.dataset.dayId);
+      saveSalidas(); renderSalidas();
+    });
+  }
+});
+
+document.getElementById('vidaList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const week = btn.dataset.weekId ? getWeek(btn.dataset.weekId) : null;
+
+  if(action === 'add-part'){
+    if(week){
+      week[btn.dataset.section].push({id:uid(), numero:'', titulo:'', minutos:'', principal:'', auxiliar:'', auxiliar2:''});
+      saveVida(); renderVida();
+    }
+  } else if(action === 'delete-part'){
+    showConfirm('Eliminar parte', '¿Eliminar esta parte del programa?', ()=>{
+      if(week){
+        week[btn.dataset.section] = week[btn.dataset.section].filter(p => p.id !== btn.dataset.partId);
+        saveVida(); renderVida();
+      }
+    });
+  } else if(action === 'delete-week'){
+    showConfirm('Eliminar semana', '¿Eliminar todo el programa de esta semana?', ()=>{
+      data.vidaymin = data.vidaymin.filter(w => w.id !== btn.dataset.weekId);
+      saveVida(); renderVida();
+    });
+  }
+});
+
+/* Botón para cambiar código: se agrega dinámicamente junto al botón de edición cuando se activa el modo edición */
+const editBtnWrap = document.querySelector('.topbar-inner');
+const changePinBtn = document.createElement('button');
+changePinBtn.className = 'btn btn-ghost btn-sm edit-only hidden';
+changePinBtn.style.marginLeft = '6px';
+changePinBtn.textContent = '🔑 Cambiar código';
+changePinBtn.addEventListener('click', showChangePin);
+editBtnWrap.appendChild(changePinBtn);
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+loadAll();
+
+})();
+</script>
+</body>
+</html>
