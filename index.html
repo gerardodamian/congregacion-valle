@@ -1076,10 +1076,12 @@
             }
 
             window.compartirPagina = function() {
+                console.log("🔵 Función compartirPagina() llamada");
 
                 const url = "https://gerardodamian.github.io/congregacion-valle/";
 
                 if (navigator.share) {
+                    console.log("✅ navigator.share disponible");
 
                     navigator.share({
                         title: "Congregación Valle Hermoso",
@@ -1091,6 +1093,7 @@
                     });
 
                 } else {
+                    console.log("❌ navigator.share NO disponible, usando clipboard");
 
                     navigator.clipboard.writeText(url)
                         .then(() => {
