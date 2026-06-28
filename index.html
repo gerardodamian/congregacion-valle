@@ -286,26 +286,43 @@
         .topbar {
             background: linear-gradient(135deg,var(--accent-dark),var(--accent));
             color: #fff;
-            padding: 16px;
+            padding: 0;
             position: sticky;
             top: 0;
             z-index: 30;
             box-shadow: 0 2px 12px rgba(21,79,76,.25);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-logo-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            background: linear-gradient(135deg,var(--accent-dark),var(--accent));
+        }
+
+        .brand-logo-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: contain;
         }
 
         .topbar-inner {
-            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            padding: 14px 16px;
             gap: 10px;
         }
 
         .topbar-buttons {
             width: 100%;
-            padding: 14px 16px 2px;
+            padding: 12px 16px 14px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -329,6 +346,7 @@
             flex-direction: column;
             gap: 2px;
             min-width: 0;
+            text-align: center;
         }
 
         .brand-name {
@@ -349,16 +367,27 @@
 
         @media (max-width: 600px) {
             .topbar {
+                padding: 0;
+            }
+
+            .topbar-logo-section {
                 padding: 12px;
             }
 
+            .brand-logo-large {
+                width: 60px;
+                height: 60px;
+            }
+
             .topbar-inner {
-                gap: 8px;
+                padding: 10px 8px;
+                gap: 6px;
             }
 
             .brand {
                 gap: 8px;
                 flex: 1;
+                justify-content: center;
             }
 
             .brand-logo {
@@ -382,13 +411,21 @@
             }
 
             .topbar-buttons {
-                padding: 10px 8px 0;
+                padding: 10px 8px 8px;
                 gap: 8px;
             }
 
             .btn-whatsapp {
                 font-size: 0.75rem;
                 padding: 8px 12px;
+            }
+
+            .btn-action {
+                font-size: 0.7rem;
+            }
+
+            .btn-action-label {
+                font-size: 0.65rem;
             }
         }
 
@@ -1123,16 +1160,15 @@
 <body>
 
     <div class="topbar">
+        <div class="topbar-logo-section">
+            <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large">
+        </div>
         <div class="topbar-inner">
-            <div class="brand">
-                <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo">
-                <div class="brand-text">
-                    <span class="brand-name">Congregación Valle Hermoso</span>
-                    <span class="brand-sub">Agenda de actividades</span>
-                    <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
-                </div>
+            <div class="brand-text">
+                <span class="brand-name">Congregación Valle Hermoso</span>
+                <span class="brand-sub">Agenda de actividades</span>
+                <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
             </div>
-            <div></div>
         </div>
         <div class="topbar-buttons">
             <button id="editToggleBtn" class="btn-action btn-action-edit">
