@@ -80,8 +80,8 @@
             font-family: inherit;
         }
 
-        #btnCompartir {
-            background: #0f4c3a;
+        .btn-whatsapp {
+            background: #25D366;
             color: white;
             border: none;
             padding: 10px 18px;
@@ -90,13 +90,18 @@
             font-size: 15px;
             font-weight: bold;
             transition: .3s;
-            display: block;
-            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-            #btnCompartir:hover {
-                background: #166a53;
+            .btn-whatsapp:hover {
+                background: #1FAD4F;
                 transform: translateY(-2px);
+            }
+
+            .btn-whatsapp svg {
+                display: inline-block;
             }
 
       
@@ -105,7 +110,7 @@
         .topbar {
             background: linear-gradient(135deg,var(--accent-dark),var(--accent));
             color: #fff;
-            padding: 18px 16px 16px;
+            padding: 16px;
             position: sticky;
             top: 0;
             z-index: 30;
@@ -113,15 +118,37 @@
         }
 
         .topbar-inner {
-            max-width: 760px;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
         }
 
+        .topbar-buttons {
+            width: 100%;
+            padding: 12px 16px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-logo {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 8px;
+        }
+
+        .brand-text {
             display: flex;
             flex-direction: column;
             gap: 2px;
@@ -435,6 +462,12 @@
                 font-size: .78rem;
             }
 
+            .entry-row .f-conductor .field-label {
+                color: var(--ink);
+                font-weight: 600;
+                margin-right: 2px;
+            }
+
             .entry-row .f-territorio {
                 font-size: .74rem;
                 font-weight: 700;
@@ -443,6 +476,12 @@
                 border-radius: 7px;
                 padding: 3px 6px;
                 text-align: center;
+            }
+
+            .entry-row .f-territorio .field-label {
+                color: var(--accent-dark);
+                font-weight: 600;
+                margin-right: 2px;
             }
 
             .entry-row input {
@@ -877,15 +916,24 @@
     <div class="topbar">
         <div class="topbar-inner">
             <div class="brand">
-                <span class="brand-name">Cong. Valle Hermoso</span>
-                <span class="brand-sub">Agenda de actividades</span>
-                <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
+                <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo">
+                <div class="brand-text">
+                    <span class="brand-name">Congregación Valle Hermoso</span>
+                    <span class="brand-sub">Agenda de actividades</span>
+                    <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
+                </div>
             </div>
-            <button id="editToggleBtn" class="btn btn-edit">🔒 Modo edición</button>
+            <div></div>
         </div>
-        <button id="btnCompartir" onclick="compartirPagina()">
-            📤 Compartir
-        </button>
+        <div class="topbar-buttons">
+            <button id="editToggleBtn" class="btn btn-edit">🔒 Modo edición</button>
+            <button id="btnCompartir" onclick="compartirPagina()" class="btn-whatsapp">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766"/>
+                </svg>
+                Compartir por WhatsApp
+            </button>
+        </div>
     </div>
 
     
@@ -1323,8 +1371,8 @@
         <div class="f-hora">${esc(en.hora)}</div>
         <div class="f-lugar">${esc(en.lugar)}</div>
         <div class="f-grupo">${esc(en.grupo)}</div>
-        <div class="f-conductor">${esc(en.conductor)}</div>
-        <div class="f-territorio">${esc(en.territorio) || '—'}</div>
+        <div class="f-conductor"><span class="field-label">Conductor:</span> ${esc(en.conductor)}</div>
+        <div class="f-territorio"><span class="field-label">Territorio nº</span> ${esc(en.territorio) || '—'}</div>
       </div>`;
             }
 
