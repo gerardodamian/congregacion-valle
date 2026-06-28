@@ -101,8 +101,122 @@
             }
 
             .btn-whatsapp svg {
-                display: inline-block;
+                    display: inline-block;
+                }
+
+            /* ---------- Modal QR ---------- */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.6);
+                animation: fadeIn 0.3s ease;
             }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .modal.active {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background-color: var(--surface);
+                border-radius: var(--radius);
+                box-shadow: 0 8px 32px rgba(21, 79, 76, 0.3);
+                max-width: 400px;
+                width: 90%;
+                position: relative;
+                animation: slideUp 0.3s ease;
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(50px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: var(--danger-soft);
+                color: var(--danger);
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 0.2s;
+            }
+
+                .modal-close:hover {
+                    background: var(--danger);
+                    color: white;
+                }
+
+            .modal-body {
+                padding: 30px 20px;
+                text-align: center;
+            }
+
+                .modal-body h2 {
+                    margin: 0 0 8px;
+                    color: var(--accent-dark);
+                    font-size: 1.5rem;
+                }
+
+                .modal-body p {
+                    margin: 0 0 20px;
+                    color: var(--ink-soft);
+                    font-size: 0.9rem;
+                }
+
+            .qr-image {
+                max-width: 100%;
+                width: 280px;
+                height: auto;
+                border-radius: var(--radius-sm);
+                border: 2px solid var(--border);
+            }
+
+            .btn-qr {
+                background: var(--accent);
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 15px;
+                font-weight: bold;
+                transition: .3s;
+            }
+
+                .btn-qr:hover {
+                    background: var(--accent-dark);
+                    transform: translateY(-2px);
+                }
 
       
 
@@ -927,6 +1041,7 @@
         </div>
         <div class="topbar-buttons">
             <button id="editToggleBtn" class="btn btn-edit">🔒 Modo edición</button>
+            <button id="btnQR" class="btn btn-qr">📱 QR</button>
             <button id="btnCompartir" onclick="compartirPagina()" class="btn-whatsapp">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766"/>
@@ -936,7 +1051,17 @@
         </div>
     </div>
 
-    
+    <!-- Modal QR -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeQRModal()">✕</button>
+            <div class="modal-body">
+                <h2>Código QR</h2>
+                <p>Escanea este código QR para acceder a la agenda</p>
+                <img src="QR_Congregacion_Valle_Hermoso.png" alt="QR Congregación Valle Hermoso" class="qr-image">
+            </div>
+        </div>
+    </div>
 
     <div class="tabs">
         <button class="tab active" data-tab="salidas">Salidas a predicar</button>
@@ -1154,6 +1279,35 @@
                 }
 
             };
+
+            window.openQRModal = function() {
+                const modal = document.getElementById('qrModal');
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            };
+
+            window.closeQRModal = function() {
+                const modal = document.getElementById('qrModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            };
+
+            // Cerrar modal al hacer clic afuera
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('qrModal');
+                if (event.target === modal) {
+                    closeQRModal();
+                }
+            });
+
+            // Cerrar modal con tecla Escape
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeQRModal();
+                }
+            });
 
             /* ============================================================
                ALMACENAMIENTO — Firebase Firestore (compartido y en vivo)
@@ -1584,6 +1738,7 @@
                     showPinModal();
                 }
             });
+            document.getElementById('btnQR').addEventListener('click', openQRModal);
             document.getElementById('pinCancelBtn').addEventListener('click', hidePinModal);
             document.getElementById('pinConfirmBtn').addEventListener('click', () => {
                 const val = document.getElementById('pinInput').value;
