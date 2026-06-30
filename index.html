@@ -1,49 +1,49 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <link rel="manifest" href="manifest.json">
+<!DOCTYPE html >
+<html lang="es" >
+<head >
+<link rel="manifest" href="manifest.json" >
 
-    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png" >
 
-    <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" >
 
-    <meta name="theme-color" content="#0f4c3a">
+<meta name="theme-color" content="#0f4c3a" >
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" >
 
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="default" >
 
-    <meta name="apple-mobile-web-app-title" content="Congregación Valle Hermoso">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-    <title>Congregación Valle Hermoso — Agenda</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <style>
-        :root {
-            --bg: #8de1cc;
-            --surface: #FFFFFF;
-            --surface-2: #F6FAF9;
-            --ink: #16242A;
-            --ink-soft: #5B6B6E;
-            --border: #DCE6E4;
-            --accent: #1F6F6B;
-            --accent-dark: #154F4C;
-            --accent-soft: #eb9e7a;
-            --highlight: #E2932E;
-            --highlight-soft: #78b3a4;
-            --danger: #C0392B;
-            --danger-soft: #F8E2DF;
-            --tesoros: #51697A;
-            --seamos: #A8762A;
-            --vida: #7C2C3B;
-            --radius: 14px;
-            --radius-sm: 9px;
-            --shadow: 0 1px 2px rgba(22,36,42,.06), 0 4px 14px rgba(22,36,42,.06);
-            --font-scale: 1.15;
-        }
+<meta name="apple-mobile-web-app-title" content="Congregación Valle Hermoso" >
+<meta charset="UTF-8" >
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" >
+<title > Congregación Valle Hermoso — Agenda</title >
+<link rel="preconnect" href="https://fonts.googleapis.com" >
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" >
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" > </script >
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" > </script >
+<style >
+:root {
+    --bg: #8de1cc;
+    --surface: #FFFFFF;
+    --surface-2: #F6FAF9;
+    --ink: #0fc3e1;
+    --ink-soft: #5B6B6E;
+    --border: #DCE6E4;
+    --accent: #1F6F6B;
+    --accent-dark: #154F4C;
+    --accent-soft: #eb9e7a;
+    --highlight: #E2932E;
+    --highlight-soft: #78b3a4;
+    --danger: #C0392B;
+    --danger-soft: #F8E2DF;
+    --tesoros: #51697A;
+    --seamos: #A8762A;
+    --vida: #7C2C3B;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 1px 2px rgba(22,36,42,.06), 0 4px 14px rgba(22,36,42,.06);
+    --font-scale: 1.15;
+}
 
         * {
             box-sizing: border-box;
@@ -163,6 +163,19 @@
                 border-color: rgba(255,255,255,.5);
                 box-shadow: 0 6px 18px rgba(15,77,40,.4);
             }
+
+/* Modo Oscuro */
+body.dark-mode {
+    --bg: #0d1b1e;
+    --surface: #1a2a2d;
+    --surface-2: #243538;
+    --ink: #e0e6e7;
+    --ink-soft: #a0b0b3;
+    --border: #2d3e41;
+    --accent: #2a8c87;
+    --accent-dark: #1f6f6b;
+    --shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
 
         /* ---------- Modal QR ---------- */
         .modal {
@@ -1155,137 +1168,136 @@
             color: var(--ink-soft);
             font-size: .72rem;
         }
-    </style>
-</head>
-<body>
+</style >
+</head >
+<body >
 
-    <div class="topbar">
-        <div class="topbar-logo-section">
-            <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large">
-        </div>
-        <div class="topbar-inner">
-            <div class="brand-text">
-                <span class="brand-name">Congregación Valle Hermoso</span>
-                <span class="brand-sub">Agenda de actividades</span>
-                <span class="status-pill"><span class="status-dot"></span><span id="statusText">Conectado</span></span>
-            </div>
-        </div>
-        <div class="topbar-buttons">
-            <button id="editToggleBtn" class="btn-action btn-action-edit">
-                <span class="btn-action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        <rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2" />
-                    </svg>
-                </span>
-                <span class="btn-action-label">Modo edición</span>
-            </button>
-            <button id="btnQR" class="btn-action btn-action-qr">
-                <span class="btn-action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
-                        <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
-                        <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
-                        <path d="M14 14h3v3h-3z" fill="currentColor" />
-                        <path d="M19.5 14h1.5M14 19.5v1.5M19.5 21v-3.5M21 17.5h-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                    </svg>
-                </span>
-                <span class="btn-action-label">Código QR</span>
-            </button>
-            <button id="btnCompartir" onclick="compartirPagina()" class="btn-action btn-action-share">
-                <span class="btn-action-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766" />
-                    </svg>
-                </span>
-                <span class="btn-action-label">Compartir</span>
-            </button>
-        </div>
-    </div>
+<div class="topbar" >
+<div class="topbar-logo-section" >
+<img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large" >
+</div >
+<div class="topbar-inner" >
+<div class="brand-text" >
+<span class="brand-name" > Congregación Valle Hermoso</span >
+<span class="brand-sub" > Agenda de actividades</span >
+<span class="status-pill" > <span class="status-dot" > </span > <span id="statusText" > Conectado</span > </span >
+</div >
+</div >
+<div class="topbar-buttons" >
+<button id="editToggleBtn" class="btn-action btn-action-edit" >
+<span class="btn-action-icon" >
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
+<path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" / >
+<rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2" / >
+</svg >
+</span >
+<span class="btn-action-label" > Modo edición</span >
+</button >
+<button class="btn-action" onclick="toggleDarkMode()" >
+<span id="darkLabel" > 🌙 Oscuro</span >
+</button >
+<button id="btnQR" class="btn-action btn-action-qr" >
+<span class="btn-action-icon" >
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
+<rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<path d="M14 14h3v3h-3z" fill="currentColor" / >
+<path d="M19.5 14h1.5M14 19.5v1.5M19.5 21v-3.5M21 17.5h-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" / >
+</svg >
+</span >
+<span class="btn-action-label" > Código QR</span >
+</button >
+<button id="btnCompartir" onclick="compartirPagina()" class="btn-action btn-action-share" >
+<span class="btn-action-icon" >
+<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" >
+<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766" / >
+</svg >
+</span >
+<span class="btn-action-label" > Compartir</span >
+</button >
+</div >
+</div >
+<!-- Modal QR -->
+<div id="qrModal" class="modal" >
+<div class="modal-content" >
+<button class="modal-close" onclick="closeQRModal()" > ✕</button >
+<div class="modal-body" >
+<h2 > Código QR</h2 >
+<p > Escanea este código QR para acceder a la agenda</p >
+<img src="QR_Congregacion_Valle_Hermoso.png" alt="QR Congregación Valle Hermoso" class="qr-image" >
+</div >
+</div >
+</div >
 
-    <!-- Modal QR -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeQRModal()">✕</button>
-            <div class="modal-body">
-                <h2>Código QR</h2>
-                <p>Escanea este código QR para acceder a la agenda</p>
-                <img src="QR_Congregacion_Valle_Hermoso.png" alt="QR Congregación Valle Hermoso" class="qr-image">
-            </div>
-        </div>
-    </div>
+<div class="tabs" >
+<button class="tab active" data-tab="salidas" > Salidas a predicar</button >
+<button class="tab" data-tab="vida" > Vida y Ministerio</button >
+</div >
 
-    <div class="tabs">
-        <button class="tab active" data-tab="salidas">Salidas a predicar</button>
-        <button class="tab" data-tab="vida">Vida y Ministerio</button>
-    </div>
+<main >
+<section id="salidasView" class="view active" >
+<div class="view-header" >
+<h2 > Salidas de predicación</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Tocá un campo para escribir. Los cambios se guardan solos a los pocos segundos.</div >
+<div id="salidasList" > </div >
+<button id="addDayBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar día</button >
+</section >
 
-    <main>
-        <section id="salidasView" class="view active">
-            <div class="view-header">
-                <h2>Salidas de predicación</h2>
-            </div>
-            <div class="tip edit-only hidden">💡 Tocá un campo para escribir. Los cambios se guardan solos a los pocos segundos.</div>
-            <div id="salidasList"></div>
-            <button id="addDayBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;">+ Agregar día</button>
-        </section>
+<section id="vidaView" class="view" >
+<div class="view-header" >
+<h2 > Vida y Ministerio Cristiano</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Completá los campos de cada parte. "Auxiliar" es opcional (para sala auxiliar o ayudante).</div >
+<div id="vidaList" > </div >
+<button id="addWeekBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
+</main >
 
-        <section id="vidaView" class="view">
-            <div class="view-header">
-                <h2>Vida y Ministerio Cristiano</h2>
-            </div>
-            <div class="tip edit-only hidden">💡 Completá los campos de cada parte. "Auxiliar" es opcional (para sala auxiliar o ayudante).</div>
-            <div id="vidaList"></div>
-            <button id="addWeekBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;">+ Agregar semana</button>
-        </section>
-    </main>
+<div class="app-footer" >
+Consulta de uso libre para la congregación · La edición requiere código de acceso.
+</div >
+<!-- PIN modal -->
+<div id="pinModalBackdrop" class="modal-backdrop hidden" >
+<div class="modal-card" >
+<h3 > Código de edición</h3 >
+<p class="desc" > Ingresá el código para activar el modo edición.</p >
+<input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••" >
+<p id="pinError" class="modal-error hidden" > Código incorrecto. Probá de nuevo.</p >
+<div class="modal-actions" >
+<button id="pinCancelBtn" class="btn btn-ghost" > Cancelar</button >
+<button id="pinConfirmBtn" class="btn btn-accent" > Entrar</button >
+</div >
+</div >
+</div >
+<!-- Confirm modal -->
+<div id="confirmModalBackdrop" class="modal-backdrop hidden" >
+<div class="modal-card" >
+<h3 id="confirmTitle" > ¿Eliminar?</h3 >
+<p class="desc" id="confirmDesc" > Esta acción no se puede deshacer.</p >
+<div class="modal-actions" >
+<button id="confirmCancelBtn" class="btn btn-ghost" > Cancelar</button >
+<button id="confirmOkBtn" class="btn btn-danger" > Eliminar</button >
+</div >
+</div >
+</div >
+<!-- Change PIN modal -->
+<div id="changePinModalBackdrop" class="modal-backdrop hidden" >
+<div class="modal-card" >
+<h3 > Cambiar código</h3 >
+<p class="desc" > Elegí un nuevo código para editar la agenda.</p >
+<input type="text" id="newPinInput" class="left" inputmode="numeric" maxlength="12" placeholder="Nuevo código" >
+<p id="changePinError" class="modal-error hidden" > Escribí al menos 4 caracteres.</p >
+<div class="modal-actions" >
+<button id="changePinCancelBtn" class="btn btn-ghost" > Cancelar</button >
+<button id="changePinOkBtn" class="btn btn-accent" > Guardar</button >
+</div >
+</div >
+</div >
 
-    <div class="app-footer">
-        Consulta de uso libre para la congregación · La edición requiere código de acceso.
-    </div>
-
-    <!-- PIN modal -->
-    <div id="pinModalBackdrop" class="modal-backdrop hidden">
-        <div class="modal-card">
-            <h3>Código de edición</h3>
-            <p class="desc">Ingresá el código para activar el modo edición.</p>
-            <input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••">
-            <p id="pinError" class="modal-error hidden">Código incorrecto. Probá de nuevo.</p>
-            <div class="modal-actions">
-                <button id="pinCancelBtn" class="btn btn-ghost">Cancelar</button>
-                <button id="pinConfirmBtn" class="btn btn-accent">Entrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm modal -->
-    <div id="confirmModalBackdrop" class="modal-backdrop hidden">
-        <div class="modal-card">
-            <h3 id="confirmTitle">¿Eliminar?</h3>
-            <p class="desc" id="confirmDesc">Esta acción no se puede deshacer.</p>
-            <div class="modal-actions">
-                <button id="confirmCancelBtn" class="btn btn-ghost">Cancelar</button>
-                <button id="confirmOkBtn" class="btn btn-danger">Eliminar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Change PIN modal -->
-    <div id="changePinModalBackdrop" class="modal-backdrop hidden">
-        <div class="modal-card">
-            <h3>Cambiar código</h3>
-            <p class="desc">Elegí un nuevo código para editar la agenda.</p>
-            <input type="text" id="newPinInput" class="left" inputmode="numeric" maxlength="12" placeholder="Nuevo código">
-            <p id="changePinError" class="modal-error hidden">Escribí al menos 4 caracteres.</p>
-            <div class="modal-actions">
-                <button id="changePinCancelBtn" class="btn btn-ghost">Cancelar</button>
-                <button id="changePinOkBtn" class="btn btn-accent">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        (function () {
+<script >
+(function () {
             "use strict";
 
             /* ============================================================
@@ -1432,6 +1444,8 @@
 
             };
 
+
+
             window.openQRModal = function() {
                 const modal = document.getElementById('qrModal');
                 if (modal) {
@@ -1460,6 +1474,12 @@
                     closeQRModal();
                 }
             });
+
+                 window.toggleDarkMode = function() {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDark);
+                document.getElementById('darkLabel').textContent = isDark ? '☀️ Claro' : '🌙 Oscuro';
+            };
 
             /* ============================================================
                ALMACENAMIENTO — Firebase Firestore (compartido y en vivo)
