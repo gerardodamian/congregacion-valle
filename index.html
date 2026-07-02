@@ -1250,6 +1250,29 @@ main {
         }
 }
 
+/* Ensure part edit grids and week edit grids stack on small screens */
+@media (max-width:640px) {
+    .part-edit-grid {
+        grid-template-columns: 34px 1fr;
+        gap: 8px;
+    }
+
+    .part-edit-grid input {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .week-edit-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .week-edit-grid .span2 {
+        grid-column: 1 / -1;
+    }
+}
+
 .add-part-btn {
     margin-top: 6px;
 }
