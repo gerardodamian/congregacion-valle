@@ -89,6 +89,19 @@ body.editing input, body.editing textarea, body.editing select {
     color: var(--accent-dark);
 }
 
+/* Screen-reader only labels */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 /* ---------- Botones de acción de la topbar (Edición / QR / Compartir) ---------- */
 .btn-action {
     display: inline-flex;
@@ -1423,7 +1436,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
 <h3 > Código de edición</h3 >
 <p class="desc" > Ingresá el código para activar el modo edición.</p >
 <form id="pinForm" onsubmit="return false;">
-    <input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••" >
+    <label class="sr-only" for="pinInput">Código de edición</label>
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••" aria-label="Código de edición">
 </form>
 <p id="pinError" class="modal-error hidden" > Código incorrecto. Probá de nuevo.</p >
 <div class="modal-actions" >
@@ -1448,7 +1462,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
 <div class="modal-card" >
 <h3 > Cambiar código</h3 >
 <p class="desc" > Elegí un nuevo código para editar la agenda.</p >
-<input type="text" id="newPinInput" class="left" inputmode="numeric" maxlength="12" placeholder="Nuevo código" >
+<label class="sr-only" for="newPinInput">Nuevo código</label>
+<input type="text" id="newPinInput" class="left" inputmode="numeric" maxlength="12" placeholder="Nuevo código" aria-label="Nuevo código">
 <p id="changePinError" class="modal-error hidden" > Escribí al menos 4 caracteres.</p >
 <div class="modal-actions" >
 <button id="changePinCancelBtn" class="btn btn-ghost" > Cancelar</button >
@@ -1879,7 +1894,7 @@ function sectionHTML(week, section, label, barClass) {
 
 function songLineHTML(week) {
     if (state.editing) {
-        return `<div class="song-line">🎵 Canción <input data-role="week-field" data-week-id="${week.id}" data-field="cancionMedia" value="${esc(week.cancionMedia)}" placeholder="n°"></div>`;
+        return `<div class="song-line">🎵 Canción <input aria-label="Canción media" data-role="week-field" data-week-id="${week.id}" data-field="cancionMedia" value="${esc(week.cancionMedia)}" placeholder="n°"></div>`;
     }
     return `<div class="song-line"> 🎵 Canción ${esc(week.cancionMedia) || '—'}</div>`;
 }
@@ -1907,8 +1922,9 @@ function renderSalidas() {
 function dayCardHTML(day) {
     const today = isToday(day.fecha);
 
+        : `<div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span> <span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div> <h3>${esc(day.dia)}</h3> ${today ? '<span class="today-flag">HOY</span>' : ''}`;
     const head = state.editing ?
-        `<div class="day-head-edit"> <input class="dia-input" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día"> <input class="fecha-input" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm"> <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button> </div>`
+        `<div class="day-head-edit"> <input class="dia-input" aria-label="Día" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día"> <input class="fecha-input" aria-label="Fecha" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm"> <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button> </div>`
         : `<div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span> <span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div> <h3>${esc(day.dia)}</h3> ${today ? '<span class="today-flag">HOY</span>' : ''}`;
     const entries = day.entries.map(en => entryRowHTML(day, en)).join('');
     const actions = state.editing ? ` <div class="card-actions edit-only"> <button class="btn btn-sm btn-accent" data-action="add-entry" data-day-id="${day.id}">+ Agregar salida</button> </div> ` : '';
@@ -1918,7 +1934,7 @@ function dayCardHTML(day) {
 
 function entryRowHTML(day, en) {
     if (state.editing) {
-        return `<div class="entry-row" data-entry-id="${en.id}" style="grid-template-columns:60px 1.6fr 1fr 1fr 70px 28px;"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="hora" value="${esc(en.hora)}" placeholder="Hora"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="lugar" value="${esc(en.lugar)}" placeholder="Lugar"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="grupo" value="${esc(en.grupo)}" placeholder="Cong./Grupo"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="conductor" value="${esc(en.conductor)}" placeholder="Conductor"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="territorio" value="${esc(en.territorio)}" placeholder="Territorio"> <button class="btn btn-icon btn-danger del-entry" data-action="delete-entry" data-day-id="${day.id}" data-entry-id="${en.id}" title="Eliminar">✕</button> </div>`;
+        return `<div class="entry-row" data-entry-id="${en.id}" style="grid-template-columns:60px 1.6fr 1fr 1fr 70px 28px;"> <input aria-label="Hora" data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="hora" value="${esc(en.hora)}" placeholder="Hora"> <input aria-label="Lugar" data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="lugar" value="${esc(en.lugar)}" placeholder="Lugar"> <input aria-label="Cong./Grupo" data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="grupo" value="${esc(en.grupo)}" placeholder="Cong./Grupo"> <input aria-label="Conductor" data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="conductor" value="${esc(en.conductor)}" placeholder="Conductor"> <input aria-label="Territorio" data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="territorio" value="${esc(en.territorio)}" placeholder="Territorio"> <button class="btn btn-icon btn-danger del-entry" data-action="delete-entry" data-day-id="${day.id}" data-entry-id="${en.id}" title="Eliminar">✕</button> </div>`;
     }
 
     return `<div class="entry-row"> <div class="f-hora">${esc(en.hora)}</div> <div class="f-lugar">${esc(en.lugar)}</div> <div class="f-grupo">${esc(en.grupo)}</div> <div class="f-conductor"><span class="field-label">Conductor:</span> ${esc(en.conductor)}</div> <div class="f-territorio"><span class="field-label">Territorio nº</span> ${esc(en.territorio) || '—'}</div> </div>`;
@@ -1939,7 +1955,7 @@ function renderVida() {
 }
 
 function weekMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label class="span2">Lectura de la Biblia <input data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function weekMetaViewHTML(week) {
@@ -1948,7 +1964,7 @@ function weekMetaViewHTML(week) {
 
 function partRowHTML(week, section, part) {
     if (state.editing) {
-        return `<div class="part-row" data-part-id="${part.id}"> <div class="part-edit-grid"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min"> </div> <div class="part-edit-row2"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)"> <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button> </div> </div>`;
+        return `<div class="part-row" data-part-id="${part.id}"> <div class="part-edit-grid"> <input aria-label="Número" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#"> <input aria-label="Título de la parte" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte"> <input aria-label="Minutos" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min"> </div> <div class="part-edit-row2"> <input aria-label="Auditorio principal" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal"> <input aria-label="Sala auxiliar 1" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)"> <input aria-label="Sala auxiliar 2" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)"> <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button> </div> </div>`;
     }
 
     const asignaciones = [];
@@ -1974,7 +1990,7 @@ function renderFinde() {
 }
 
 function findeMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Presidente <input data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Conductor de La Atalaya <input data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function findeMetaViewHTML(week) {
