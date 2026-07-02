@@ -11,6 +11,8 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes" >
 
+<meta name="mobile-web-app-capable" content="yes" >
+
 <meta name="apple-mobile-web-app-status-bar-style" content="default" >
 
 <meta name="apple-mobile-web-app-title" content="Congregación Valle Hermoso" >
@@ -45,124 +47,267 @@
     --font-scale: 1.15;
 }
 
-        * {
-            box-sizing: border-box;
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-size: calc(16px * var(--font-scale));
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 96px;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Fraunces',Georgia,serif;
+    margin: 0;
+    font-weight: 600;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+input, select, textarea {
+    font-family: inherit;
+}
+
+/* Modo edición: campos editables en verde oscuro */
+body.editing input, body.editing textarea, body.editing select {
+    color: var(--accent-dark);
+}
+
+/* ---------- Botones de acción de la topbar (Edición / QR / Compartir) ---------- */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.10);
+    color: #fff;
+    padding: 8px 16px 8px 8px;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: .1px;
+    cursor: pointer;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    transition: transform .15s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+    .btn-action:hover {
+        background: rgba(255,255,255,.18);
+        border-color: rgba(255,255,255,.42);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0,0,0,.18);
+    }
+
+    .btn-action:active {
+        transform: translateY(0) scale(.96);
+    }
+
+.btn-action-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.16);
+}
+
+    .btn-action-icon svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+
+/* Edición: cambia a color de acento cuando está activa */
+.btn-action-edit.is-on {
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: #2a1a09;
+    box-shadow: 0 4px 14px rgba(226,147,46,.35);
+}
+
+    .btn-action-edit.is-on .btn-action-icon {
+        background: rgba(42,26,9,.18);
+    }
+
+    .btn-action-edit.is-on:hover {
+        background: #ec9d23;
+    }
+
+/* Compartir por WhatsApp: color de marca, mismo lenguaje visual */
+.btn-action-share {
+    background: linear-gradient(135deg,#27D966,#1FAD4F);
+    border-color: rgba(255,255,255,.28);
+}
+
+    .btn-action-share .btn-action-icon {
+        background: rgba(255,255,255,.24);
+    }
+
+    .btn-action-share:hover {
+        background: linear-gradient(135deg,#2CE873,#22BD57);
+        border-color: rgba(255,255,255,.5);
+        box-shadow: 0 6px 18px rgba(15,77,40,.4);
+    }
+
+/* ---------- Toggle modo oscuro (mini, arriba) ---------- */
+.dark-toggle-mini {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    padding: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background .15s ease, transform .15s ease;
+    z-index: 5;
+}
+
+    .dark-toggle-mini:hover {
+        background: rgba(255,255,255,.2);
+    }
+
+    .dark-toggle-mini:active {
+        transform: scale(.92);
+    }
+
+/* ---------- Barra de acciones inferior (Edición / QR / Compartir) ---------- */
+.bottom-actionbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 14px rgba(22,36,42,.10);
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+
+.bottom-actionbar-inner {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+}
+
+.bab-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: .66rem;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 4px 10px;
+    flex: 1;
+    max-width: 120px;
+}
+
+.bab-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+}
+
+    .bab-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+.bab-edit.is-on {
+    color: var(--highlight);
+}
+
+    .bab-edit.is-on .bab-icon {
+        background: var(--highlight);
+        color: #2a1a09;
+    }
+
+.bab-qr {
+    transform: translateY(-14px);
+}
+
+    .bab-qr .bab-icon {
+        width: 58px;
+        height: 58px;
+        background: linear-gradient(135deg,var(--accent),var(--accent-dark));
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(31,111,107,.4);
+        border: 4px solid var(--surface);
+    }
+
+        .bab-qr .bab-icon svg {
+            width: 24px;
+            height: 24px;
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-size: calc(16px * var(--font-scale));
-        }
+    .bab-qr .bab-label {
+        color: var(--accent);
+    }
 
-        body {
-            background: var(--bg);
-            color: var(--ink);
-            font-family: 'Inter',system-ui,-apple-system,sans-serif;
-            -webkit-font-smoothing: antialiased;
-            padding-bottom: 60px;
-        }
+.bab-share .bab-icon {
+    color: #1FAD4F;
+}
 
-        h1, h2, h3, h4 {
-            font-family: 'Fraunces',Georgia,serif;
-            margin: 0;
-            font-weight: 600;
-        }
+@media (max-width: 600px) {
+    .bab-btn {
+        font-size: .6rem;
+    }
 
-        .hidden {
-            display: none !important;
-        }
+    .bab-icon {
+        width: 30px;
+        height: 30px;
+    }
 
-        button {
-            font-family: inherit;
-            cursor: pointer;
-        }
-
-        input, select, textarea {
-            font-family: inherit;
-        }
-
-        /* ---------- Botones de acción de la topbar (Edición / QR / Compartir) ---------- */
-        .btn-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            border: 1px solid rgba(255,255,255,.22);
-            background: rgba(255,255,255,.10);
-            color: #fff;
-            padding: 8px 16px 8px 8px;
-            border-radius: 999px;
-            font-size: .82rem;
-            font-weight: 600;
-            font-family: inherit;
-            letter-spacing: .1px;
-            cursor: pointer;
-            white-space: nowrap;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 1px 2px rgba(0,0,0,.08);
-            transition: transform .15s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
-        }
-
-            .btn-action:hover {
-                background: rgba(255,255,255,.18);
-                border-color: rgba(255,255,255,.42);
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(0,0,0,.18);
-            }
-
-            .btn-action:active {
-                transform: translateY(0) scale(.96);
-            }
-
-        .btn-action-icon {
-            width: 26px;
-            height: 26px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,.16);
-        }
-
-            .btn-action-icon svg {
-                width: 14px;
-                height: 14px;
-                display: block;
-            }
-
-        /* Edición: cambia a color de acento cuando está activa */
-        .btn-action-edit.is-on {
-            background: var(--highlight);
-            border-color: var(--highlight);
-            color: #2a1a09;
-            box-shadow: 0 4px 14px rgba(226,147,46,.35);
-        }
-
-            .btn-action-edit.is-on .btn-action-icon {
-                background: rgba(42,26,9,.18);
-            }
-
-            .btn-action-edit.is-on:hover {
-                background: #ec9d23;
-            }
-
-        /* Compartir por WhatsApp: color de marca, mismo lenguaje visual */
-        .btn-action-share {
-            background: linear-gradient(135deg,#27D966,#1FAD4F);
-            border-color: rgba(255,255,255,.28);
-        }
-
-            .btn-action-share .btn-action-icon {
-                background: rgba(255,255,255,.24);
-            }
-
-            .btn-action-share:hover {
-                background: linear-gradient(135deg,#2CE873,#22BD57);
-                border-color: rgba(255,255,255,.5);
-                box-shadow: 0 6px 18px rgba(15,77,40,.4);
-            }
+    .bab-qr .bab-icon {
+        width: 52px;
+        height: 52px;
+    }
+}
 
 /* Modo Oscuro */
 body.dark-mode {
@@ -177,997 +322,998 @@ body.dark-mode {
     --shadow: 0 4px 14px rgba(0,0,0,0.4);
 }
 
-        /* ---------- Modal QR ---------- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            animation: fadeIn 0.3s ease;
-        }
+/* ---------- Modal QR ---------- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.3s ease;
+}
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
 
-            to {
-                opacity: 1;
-            }
-        }
+    to {
+        opacity: 1;
+    }
+}
 
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .modal-content {
-            background-color: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: 0 8px 32px rgba(21, 79, 76, 0.3);
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-            animation: slideUp 0.3s ease;
-        }
+.modal-content {
+    background-color: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(21, 79, 76, 0.3);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
 
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--danger-soft);
-            color: var(--danger);
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
 
-            .modal-close:hover {
-                background: var(--danger);
-                color: white;
-            }
+    .modal-close:hover {
+        background: var(--danger);
+        color: white;
+    }
 
-        .modal-body {
-            padding: 30px 20px;
-            text-align: center;
-        }
+.modal-body {
+    padding: 30px 20px;
+    text-align: center;
+}
 
-            .modal-body h2 {
-                margin: 0 0 8px;
-                color: var(--accent-dark);
-                font-size: 1.5rem;
-            }
+    .modal-body h2 {
+        margin: 0 0 8px;
+        color: var(--accent-dark);
+        font-size: 1.5rem;
+    }
 
-            .modal-body p {
-                margin: 0 0 20px;
-                color: var(--ink-soft);
-                font-size: 0.9rem;
-            }
+    .modal-body p {
+        margin: 0 0 20px;
+        color: var(--ink-soft);
+        font-size: 0.9rem;
+    }
 
-        .qr-image {
-            max-width: 100%;
-            width: 280px;
-            height: auto;
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--border);
-        }
+.qr-image {
+    max-width: 100%;
+    width: 280px;
+    height: auto;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+}
 
-        .btn-qr {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            transition: .3s;
-        }
+.btn-qr {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: .3s;
+}
 
-            .btn-qr:hover {
-                background: var(--accent-dark);
-                transform: translateY(-2px);
-            }
+    .btn-qr:hover {
+        background: var(--accent-dark);
+        transform: translateY(-2px);
+    }
 
 
 
-        /* ---------- Topbar ---------- */
-        .topbar {
-            background: linear-gradient(135deg,var(--accent-dark),var(--accent));
-            color: #fff;
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            box-shadow: 0 2px 12px rgba(21,79,76,.25);
-            display: flex;
-            flex-direction: column;
-        }
+/* ---------- Topbar ---------- */
+.topbar {
+    background: linear-gradient(135deg,var(--accent-dark),var(--accent));
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    box-shadow: 0 2px 12px rgba(21,79,76,.25);
+    display: flex;
+    flex-direction: column;
+}
 
-        .topbar-logo-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-            background: linear-gradient(135deg,var(--accent-dark),var(--accent));
-        }
+.topbar-logo-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg,var(--accent-dark),var(--accent));
+}
 
-        .brand-logo-large {
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            object-fit: contain;
-        }
+.brand-logo-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: contain;
+}
 
-        .topbar-inner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 16px;
-            gap: 10px;
-        }
+.topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 16px;
+    gap: 10px;
+    position: relative;
+}
 
-        .topbar-buttons {
-            width: 100%;
-            padding: 12px 16px 14px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+.topbar-buttons {
+    width: 100%;
+    padding: 12px 16px 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-        }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
 
-        .brand-logo {
-            width: 50px;
-            height: 50px;
-            flex-shrink: 0;
-            border-radius: 8px;
-        }
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 8px;
+}
 
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-            text-align: center;
-        }
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    text-align: center;
+}
 
-        .brand-name {
-            font-size: 1.15rem;
+.brand-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: .2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.brand-sub {
+    font-size: .74rem;
+    color: #CFE9E6;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        padding: 0;
+    }
+
+    .topbar-logo-section {
+        padding: 12px;
+    }
+
+    .brand-logo-large {
+        width: 90px;
+        height: 90px;
+    }
+
+    .topbar-inner {
+        padding: 10px 8px;
+        gap: 6px;
+    }
+
+    .brand {
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .brand-logo {
+        width: 40px;
+        height: 40px;
+    }
+
+    .brand-name {
+        font-size: 0.95rem;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .brand-sub {
+        font-size: 0.65rem;
+    }
+
+    .btn {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+
+    .topbar-buttons {
+        padding: 10px 8px 8px;
+        gap: 8px;
+    }
+
+    .btn-whatsapp {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+
+    .btn-action {
+        font-size: 0.7rem;
+    }
+
+    .btn-action-label {
+        font-size: 0.65rem;
+    }
+}
+
+.status-pill {
+    font-size: .68rem;
+    color: #CFE9E6;
+    letter-spacing: .3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 1px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7FD9CE;
+}
+
+.btn {
+    border: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: .82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform .12s, opacity .12s;
+    white-space: nowrap;
+}
+
+    .btn:active {
+        transform: scale(.96);
+    }
+
+.btn-accent {
+    background: var(--accent);
+    color: #fff;
+}
+
+    .btn-accent:hover {
+        background: var(--accent-dark);
+    }
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+}
+
+.btn-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.btn-sm {
+    padding: 6px 11px;
+    font-size: .74rem;
+    border-radius: 8px;
+}
+
+.btn-icon {
+    padding: 7px 9px;
+    border-radius: 8px;
+    line-height: 1;
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+    max-width: 760px;
+    margin: 14px auto 0;
+    padding: 0 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.tab {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 11px 6px;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .tab {
+        font-size: .68rem;
+        padding: 9px 4px;
+    }
+}
+
+.tab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+/* ---------- Main ---------- */
+main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+}
+
+.view {
+    display: none;
+}
+
+    .view.active {
+        display: block;
+    }
+
+.view-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+    .view-header h2 {
+        font-size: 1.25rem;
+        color: var(--accent-dark);
+    }
+
+.tip {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 13px;
+    font-size: .78rem;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    line-height: 1.45;
+}
+
+    .tip b {
+        color: var(--ink);
+    }
+
+.empty-state {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 30px 18px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: .88rem;
+}
+
+/* ---------- Day card (Salidas) ---------- */
+.day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+    .day-card.is-today {
+        border-color: var(--highlight);
+    }
+
+.day-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.date-tab {
+    background: var(--accent-dark);
+    color: #fff;
+    border-radius: 9px;
+    min-width: 54px;
+    text-align: center;
+    padding: 6px 4px;
+    line-height: 1.1;
+}
+
+.day-card.is-today .date-tab {
+    background: var(--highlight);
+    color: #22150a;
+}
+
+.date-tab .dnum {
+    font-family: 'Fraunces',serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: block;
+}
+
+.date-tab .dlabel {
+    font-size: .6rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    opacity: .85;
+}
+
+.day-head h3 {
+    font-size: 1.02rem;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+}
+
+.today-flag {
+    font-size: .65rem;
+    font-weight: 700;
+    color: #22150a;
+    background: var(--highlight-soft);
+    border: 1px solid var(--highlight);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: .3px;
+}
+
+.day-head-edit {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+    .day-head-edit input {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 7px 9px;
+        font-size: .85rem;
+        color: var(--ink);
+    }
+
+        .day-head-edit input.dia-input {
+            flex: 1;
+            min-width: 90px;
             font-weight: 600;
-            letter-spacing: .2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .brand-sub {
-            font-size: .74rem;
-            color: #CFE9E6;
+        .day-head-edit input.fecha-input {
+            width: 80px;
+        }
+
+.entries {
+    padding: 6px 8px 10px;
+}
+
+.entry-row {
+    display: grid;
+    grid-template-columns: 60px 1.6fr 1fr 1fr 70px;
+    gap: 8px;
+    align-items: center;
+    padding: 9px 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: .84rem;
+}
+
+    .entry-row:last-child {
+        border-bottom: none;
+    }
+
+    .entry-row .f-hora {
+        font-weight: 700;
+        color: var(--accent-dark);
+    }
+
+    .entry-row .f-lugar {
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .entry-row .f-grupo {
+        color: var(--ink-soft);
+        font-size: .78rem;
+    }
+
+    .entry-row .f-conductor {
+        color: var(--ink-soft);
+        font-size: .78rem;
+    }
+
+        .entry-row .f-conductor .field-label {
+            color: var(--ink);
+            font-weight: 600;
+            margin-right: 2px;
+        }
+
+    .entry-row .f-territorio {
+        font-size: .74rem;
+        font-weight: 700;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        border-radius: 7px;
+        padding: 3px 6px;
+        text-align: center;
+    }
+
+        .entry-row .f-territorio .field-label {
+            color: var(--accent-dark);
+            font-weight: 600;
+            margin-right: 2px;
+        }
+
+    .entry-row input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 6px 7px;
+        font-size: .8rem;
+        color: var(--ink);
+    }
+
+    .entry-row .del-entry {
+        justify-self: end;
+    }
+
+.card-actions {
+    padding: 8px 12px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+@media (max-width:560px) {
+    .entry-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 11px 8px;
+    }
+
+        .entry-row > div, .entry-row > input {
+            width: 100%;
+        }
+
+        .entry-row .micro-label {
+            font-size: .62rem;
+            text-transform: uppercase;
             letter-spacing: .4px;
-            text-transform: uppercase;
-        }
-
-        @media (max-width: 600px) {
-            .topbar {
-                padding: 0;
-            }
-
-            .topbar-logo-section {
-                padding: 12px;
-            }
-
-            .brand-logo-large {
-                width: 90px;
-                height: 90px;
-            }
-
-            .topbar-inner {
-                padding: 10px 8px;
-                gap: 6px;
-            }
-
-            .brand {
-                gap: 8px;
-                flex: 1;
-                justify-content: center;
-            }
-
-            .brand-logo {
-                width: 40px;
-                height: 40px;
-            }
-
-            .brand-name {
-                font-size: 0.95rem;
-                white-space: normal;
-                word-break: break-word;
-            }
-
-            .brand-sub {
-                font-size: 0.65rem;
-            }
-
-            .btn {
-                font-size: 0.75rem;
-                padding: 8px 12px;
-            }
-
-            .topbar-buttons {
-                padding: 10px 8px 8px;
-                gap: 8px;
-            }
-
-            .btn-whatsapp {
-                font-size: 0.75rem;
-                padding: 8px 12px;
-            }
-
-            .btn-action {
-                font-size: 0.7rem;
-            }
-
-            .btn-action-label {
-                font-size: 0.65rem;
-            }
-        }
-
-        .status-pill {
-            font-size: .68rem;
-            color: #CFE9E6;
-            letter-spacing: .3px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 1px;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #7FD9CE;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 999px;
-            padding: 9px 16px;
-            font-size: .82rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: transform .12s, opacity .12s;
-            white-space: nowrap;
-        }
-
-            .btn:active {
-                transform: scale(.96);
-            }
-
-        .btn-accent {
-            background: var(--accent);
-            color: #fff;
-        }
-
-            .btn-accent:hover {
-                background: var(--accent-dark);
-            }
-
-        .btn-ghost {
-            background: transparent;
             color: var(--ink-soft);
-            border: 1px solid var(--border);
-        }
-
-        .btn-danger {
-            background: var(--danger-soft);
-            color: var(--danger);
-        }
-
-        .btn-sm {
-            padding: 6px 11px;
-            font-size: .74rem;
-            border-radius: 8px;
-        }
-
-        .btn-icon {
-            padding: 7px 9px;
-            border-radius: 8px;
-            line-height: 1;
-        }
-
-        /* ---------- Tabs ---------- */
-        .tabs {
-            max-width: 760px;
-            margin: 14px auto 0;
-            padding: 0 16px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .tab {
-            flex: 1;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 11px;
-            padding: 11px 8px;
-            font-size: .86rem;
-            font-weight: 600;
-            color: var(--ink-soft);
-            text-align: center;
-        }
-
-            .tab.active {
-                background: var(--accent);
-                color: #fff;
-                border-color: var(--accent);
-            }
-
-        /* ---------- Main ---------- */
-        main {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 18px 16px 40px;
-        }
-
-        .view {
-            display: none;
-        }
-
-            .view.active {
-                display: block;
-            }
-
-        .view-header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-            .view-header h2 {
-                font-size: 1.25rem;
-                color: var(--accent-dark);
-            }
-
-        .tip {
-            background: var(--surface);
-            border: 1px dashed var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 13px;
-            font-size: .78rem;
-            color: var(--ink-soft);
-            margin-bottom: 14px;
-            line-height: 1.45;
-        }
-
-            .tip b {
-                color: var(--ink);
-            }
-
-        .empty-state {
-            background: var(--surface);
-            border: 1px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 30px 18px;
-            text-align: center;
-            color: var(--ink-soft);
-            font-size: .88rem;
-        }
-
-        /* ---------- Day card (Salidas) ---------- */
-        .day-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            margin-bottom: 14px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-            .day-card.is-today {
-                border-color: var(--highlight);
-            }
-
-        .day-head {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 13px 14px;
-            background: var(--surface-2);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .date-tab {
-            background: var(--accent-dark);
-            color: #fff;
-            border-radius: 9px;
-            min-width: 54px;
-            text-align: center;
-            padding: 6px 4px;
-            line-height: 1.1;
-        }
-
-        .day-card.is-today .date-tab {
-            background: var(--highlight);
-            color: #22150a;
-        }
-
-        .date-tab .dnum {
-            font-family: 'Fraunces',serif;
-            font-size: 1.05rem;
-            font-weight: 700;
             display: block;
+            margin-bottom: 1px;
         }
 
-        .date-tab .dlabel {
-            font-size: .6rem;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-            opacity: .85;
-        }
-
-        .day-head h3 {
-            font-size: 1.02rem;
-            color: var(--ink);
-            flex: 1;
-            min-width: 0;
-        }
-
-        .today-flag {
-            font-size: .65rem;
-            font-weight: 700;
-            color: #22150a;
-            background: var(--highlight-soft);
-            border: 1px solid var(--highlight);
-            padding: 2px 8px;
-            border-radius: 999px;
-            letter-spacing: .3px;
-        }
-
-        .day-head-edit {
-            display: flex;
-            gap: 6px;
-            flex: 1;
-            flex-wrap: wrap;
-        }
-
-            .day-head-edit input {
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 7px 9px;
-                font-size: .85rem;
-                color: var(--ink);
-            }
-
-                .day-head-edit input.dia-input {
-                    flex: 1;
-                    min-width: 90px;
-                    font-weight: 600;
-                }
-
-                .day-head-edit input.fecha-input {
-                    width: 80px;
-                }
-
-        .entries {
-            padding: 6px 8px 10px;
-        }
-
-        .entry-row {
-            display: grid;
-            grid-template-columns: 60px 1.6fr 1fr 1fr 70px;
-            gap: 8px;
-            align-items: center;
-            padding: 9px 6px;
-            border-bottom: 1px solid var(--border);
-            font-size: .84rem;
-        }
-
-            .entry-row:last-child {
-                border-bottom: none;
-            }
-
-            .entry-row .f-hora {
-                font-weight: 700;
-                color: var(--accent-dark);
-            }
-
-            .entry-row .f-lugar {
-                font-weight: 600;
-                color: var(--ink);
-            }
-
-            .entry-row .f-grupo {
-                color: var(--ink-soft);
-                font-size: .78rem;
-            }
-
-            .entry-row .f-conductor {
-                color: var(--ink-soft);
-                font-size: .78rem;
-            }
-
-                .entry-row .f-conductor .field-label {
-                    color: var(--ink);
-                    font-weight: 600;
-                    margin-right: 2px;
-                }
-
-            .entry-row .f-territorio {
-                font-size: .74rem;
-                font-weight: 700;
-                color: var(--accent-dark);
-                background: var(--accent-soft);
-                border-radius: 7px;
-                padding: 3px 6px;
-                text-align: center;
-            }
-
-                .entry-row .f-territorio .field-label {
-                    color: var(--accent-dark);
-                    font-weight: 600;
-                    margin-right: 2px;
-                }
-
-            .entry-row input {
-                width: 100%;
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 6px 7px;
-                font-size: .8rem;
-                color: var(--ink);
-            }
-
-            .entry-row .del-entry {
-                justify-self: end;
-            }
-
-        .card-actions {
-            padding: 8px 12px 12px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        @media (max-width:560px) {
-            .entry-row {
-                grid-template-columns: 1fr;
-                gap: 4px;
-                padding: 11px 8px;
-            }
-
-                .entry-row > div, .entry-row > input {
-                    width: 100%;
-                }
-
-                .entry-row .micro-label {
-                    font-size: .62rem;
-                    text-transform: uppercase;
-                    letter-spacing: .4px;
-                    color: var(--ink-soft);
-                    display: block;
-                    margin-bottom: 1px;
-                }
-
-                .entry-row .field-line {
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 8px;
-                    align-items: baseline;
-                }
-
-                .entry-row .del-entry {
-                    justify-self: end;
-                    margin-top: 2px;
-                }
-        }
-
-        /* ---------- Week card (Vida y Ministerio) ---------- */
-        .week-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            margin-bottom: 18px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-            .week-card.is-actual {
-                border-color: var(--highlight);
-            }
-
-        .week-head {
-            padding: 15px 16px 12px;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface-2);
-        }
-
-        .week-head-top {
+        .entry-row .field-line {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .week-head h3 {
-            font-size: 1.08rem;
-            color: var(--accent-dark);
-        }
-
-        .week-lectura {
-            font-size: .84rem;
-            color: var(--ink-soft);
-            margin-top: 3px;
-        }
-
-        .actual-flag {
-            font-size: .65rem;
-            font-weight: 700;
-            color: #22150a;
-            background: var(--highlight-soft);
-            border: 1px solid var(--highlight);
-            padding: 2px 8px;
-            border-radius: 999px;
-            letter-spacing: .3px;
-            white-space: nowrap;
-        }
-
-        .week-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px 18px;
-            margin-top: 10px;
-            font-size: .78rem;
-        }
-
-            .week-meta .meta-item b {
-                display: block;
-                color: var(--ink-soft);
-                font-weight: 600;
-                font-size: .66rem;
-                text-transform: uppercase;
-                letter-spacing: .4px;
-            }
-
-            .week-meta .meta-item span {
-                color: var(--ink);
-            }
-
-        .week-edit-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-            .week-edit-grid label {
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-                font-size: .68rem;
-                color: var(--ink-soft);
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: .3px;
-            }
-
-            .week-edit-grid input {
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 7px 8px;
-                font-size: .83rem;
-                color: var(--ink);
-                font-weight: 500;
-                text-transform: none;
-            }
-
-            .week-edit-grid .span2 {
-                grid-column: 1/-1;
-            }
-
-        .week-toggle-actual {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: .76rem;
-            color: var(--ink-soft);
-            margin-top: 10px;
-        }
-
-        .section-bar {
-            padding: 7px 16px;
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .6px;
-            text-transform: uppercase;
-            color: #fff;
-        }
-
-            .section-bar.tesoros {
-                background: var(--tesoros);
-            }
-
-            .section-bar.seamos {
-                background: var(--seamos);
-            }
-
-            .section-bar.vida {
-                background: var(--vida);
-            }
-
-        .section-body {
-            padding: 6px 14px 12px;
-        }
-
-        .song-line {
-            padding: 9px 16px;
-            font-size: .83rem;
-            font-weight: 600;
-            color: var(--accent-dark);
-            background: var(--accent-soft);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-            .song-line input {
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 5px 8px;
-                font-size: .82rem;
-                width: 70px;
-            }
-
-        .part-row {
-            padding: 10px 4px;
-            border-bottom: 1px solid var(--border);
-        }
-
-            .part-row:last-child {
-                border-bottom: none;
-            }
-
-        .part-view-top {
-            display: flex;
             gap: 8px;
             align-items: baseline;
         }
 
-        .part-num {
-            font-family: 'Fraunces',serif;
-            font-weight: 700;
-            color: var(--ink-soft);
-            font-size: .85rem;
-            min-width: 18px;
+        .entry-row .del-entry {
+            justify-self: end;
+            margin-top: 2px;
+        }
+}
+
+/* ---------- Week card (Vida y Ministerio) ---------- */
+.week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+    .week-card.is-actual {
+        border-color: var(--highlight);
+    }
+
+.week-head {
+    padding: 15px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+}
+
+.week-head-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.week-head h3 {
+    font-size: 1.08rem;
+    color: var(--accent-dark);
+}
+
+.week-lectura {
+    font-size: .84rem;
+    color: var(--ink-soft);
+    margin-top: 3px;
+}
+
+.actual-flag {
+    font-size: .65rem;
+    font-weight: 700;
+    color: #22150a;
+    background: var(--highlight-soft);
+    border: 1px solid var(--highlight);
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+}
+
+.week-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 10px;
+    font-size: .78rem;
+}
+
+    .week-meta .meta-item b {
+        display: block;
+        color: var(--ink-soft);
+        font-weight: 600;
+        font-size: .66rem;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .week-meta .meta-item span {
+        color: var(--ink);
+    }
+
+.week-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+    .week-edit-grid label {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        font-size: .68rem;
+        color: var(--ink-soft);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+    }
+
+    .week-edit-grid input {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 7px 8px;
+        font-size: .83rem;
+        color: var(--ink);
+        font-weight: 500;
+        text-transform: none;
+    }
+
+    .week-edit-grid .span2 {
+        grid-column: 1/-1;
+    }
+
+.week-toggle-actual {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .76rem;
+    color: var(--ink-soft);
+    margin-top: 10px;
+}
+
+.section-bar {
+    padding: 7px 16px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+    .section-bar.tesoros {
+        background: var(--tesoros);
+    }
+
+    .section-bar.seamos {
+        background: var(--seamos);
+    }
+
+    .section-bar.vida {
+        background: var(--vida);
+    }
+
+.section-body {
+    padding: 6px 14px 12px;
+}
+
+.song-line {
+    padding: 9px 16px;
+    font-size: .83rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .song-line input {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 5px 8px;
+        font-size: .82rem;
+        width: 70px;
+    }
+.part-row {
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+    .part-row:last-child {
+        border-bottom: none;
+    }
+
+.part-view-top {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.part-num {
+    font-family: 'Fraunces',serif;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: .85rem;
+    min-width: 18px;
+}
+
+.part-titulo {
+    font-weight: 600;
+    font-size: .87rem;
+    color: var(--ink);
+    flex: 1;
+}
+
+.part-min {
+    font-size: .74rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+}
+
+.part-asig {
+    margin-top: 3px;
+    padding-left: 26px;
+    font-size: .78rem;
+    color: var(--ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+    .part-asig b {
+        color: var(--ink);
+        font-weight: 600;
+    }
+
+.part-edit-grid {
+    display: grid;
+    grid-template-columns: 34px 1fr 60px;
+    gap: 6px;
+}
+
+    .part-edit-grid input {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 6px 7px;
+        font-size: .8rem;
+        color: var(--ink);
+    }
+
+.part-edit-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 32px;
+    gap: 6px;
+    margin-top: 5px;
+    padding-left: 0;
+}
+
+    .part-edit-row2 input {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 6px 7px;
+        font-size: .78rem;
+        color: var(--ink);
+        min-width: 0;
+    }
+
+        .part-edit-row2 input::placeholder {
+            color: #9DABB0;
         }
 
-        .part-titulo {
-            font-weight: 600;
-            font-size: .87rem;
-            color: var(--ink);
-            flex: 1;
+@media (max-width:640px) {
+    .part-edit-row2 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: "a b" "c del";
+    }
+
+        .part-edit-row2 input:nth-child(1) {
+            grid-area: a;
         }
 
-        .part-min {
-            font-size: .74rem;
-            color: var(--ink-soft);
-            white-space: nowrap;
+        .part-edit-row2 input:nth-child(2) {
+            grid-area: b;
         }
 
-        .part-asig {
-            margin-top: 3px;
-            padding-left: 26px;
-            font-size: .78rem;
-            color: var(--ink-soft);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        .part-edit-row2 input:nth-child(3) {
+            grid-area: c;
         }
 
-            .part-asig b {
-                color: var(--ink);
-                font-weight: 600;
-            }
+        .part-edit-row2 button {
+            grid-area: del;
+            justify-self: end;
+        }
+}
 
-        .part-edit-grid {
-            display: grid;
-            grid-template-columns: 34px 1fr 60px;
-            gap: 6px;
+.add-part-btn {
+    margin-top: 6px;
+}
+
+.week-foot {
+    padding: 12px 16px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    font-size: .83rem;
+    border-top: 1px solid var(--border);
+}
+
+    .week-foot .meta-item b {
+        display: block;
+        color: var(--ink-soft);
+        font-weight: 600;
+        font-size: .66rem;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+/* ---------- Modal ---------- */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,30,33,.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 100;
+}
+
+.modal-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 22px 20px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+
+    .modal-card h3 {
+        font-size: 1.05rem;
+        margin-bottom: 6px;
+        color: var(--accent-dark);
+    }
+
+    .modal-card p.desc {
+        font-size: .82rem;
+        color: var(--ink-soft);
+        margin: 0 0 14px;
+    }
+
+    .modal-card input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 11px 12px;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+
+        .modal-card input.left {
+            letter-spacing: normal;
+            text-align: left;
         }
 
-            .part-edit-grid input {
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 6px 7px;
-                font-size: .8rem;
-                color: var(--ink);
-            }
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
 
-        .part-edit-row2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 32px;
-            gap: 6px;
-            margin-top: 5px;
-            padding-left: 0;
-        }
+    .modal-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
 
-            .part-edit-row2 input {
-                border: 1px solid var(--border);
-                border-radius: 7px;
-                padding: 6px 7px;
-                font-size: .78rem;
-                color: var(--ink);
-                min-width: 0;
-            }
+.modal-error {
+    color: var(--danger);
+    font-size: .78rem;
+    margin: 4px 0 0;
+    text-align: center;
+}
 
-                .part-edit-row2 input::placeholder {
-                    color: #9DABB0;
-                }
+/* ---------- Footer ---------- */
+.app-footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 16px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: .72rem;
+}
 
-        @media (max-width:640px) {
-            .part-edit-row2 {
-                grid-template-columns: 1fr 1fr;
-                grid-template-areas: "a b" "c del";
-            }
-
-                .part-edit-row2 input:nth-child(1) {
-                    grid-area: a;
-                }
-
-                .part-edit-row2 input:nth-child(2) {
-                    grid-area: b;
-                }
-
-                .part-edit-row2 input:nth-child(3) {
-                    grid-area: c;
-                }
-
-                .part-edit-row2 button {
-                    grid-area: del;
-                    justify-self: end;
-                }
-        }
-
-        .add-part-btn {
-            margin-top: 6px;
-        }
-
-        .week-foot {
-            padding: 12px 16px 14px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            align-items: center;
-            font-size: .83rem;
-            border-top: 1px solid var(--border);
-        }
-
-            .week-foot .meta-item b {
-                display: block;
-                color: var(--ink-soft);
-                font-weight: 600;
-                font-size: .66rem;
-                text-transform: uppercase;
-                letter-spacing: .4px;
-            }
-
-        .week-card-actions {
-            padding: 0 16px 14px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* ---------- Modal ---------- */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(20,30,33,.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            z-index: 100;
-        }
-
-        .modal-card {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 22px 20px;
-            width: 100%;
-            max-width: 340px;
-            box-shadow: 0 10px 40px rgba(0,0,0,.25);
-        }
-
-            .modal-card h3 {
-                font-size: 1.05rem;
-                margin-bottom: 6px;
-                color: var(--accent-dark);
-            }
-
-            .modal-card p.desc {
-                font-size: .82rem;
-                color: var(--ink-soft);
-                margin: 0 0 14px;
-            }
-
-            .modal-card input {
-                width: 100%;
-                border: 1px solid var(--border);
-                border-radius: 9px;
-                padding: 11px 12px;
-                font-size: 1rem;
-                margin-bottom: 8px;
-                letter-spacing: 2px;
-                text-align: center;
-            }
-
-                .modal-card input.left {
-                    letter-spacing: normal;
-                    text-align: left;
-                }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-            .modal-actions .btn {
-                flex: 1;
-                justify-content: center;
-            }
-
-        .modal-error {
-            color: var(--danger);
-            font-size: .78rem;
-            margin: 4px 0 0;
-            text-align: center;
-        }
-
-        /* ---------- Footer ---------- */
-        .app-footer {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 0 16px 20px;
-            text-align: center;
-            color: var(--ink-soft);
-            font-size: .72rem;
-        }
 </style >
 </head >
 <body >
@@ -1177,45 +1323,14 @@ body.dark-mode {
 <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large" >
 </div >
 <div class="topbar-inner" >
+<button id="darkToggleBtn" class="dark-toggle-mini" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro" >
+<span id="darkIcon" > 🌙</span >
+</button >
 <div class="brand-text" >
 <span class="brand-name" > Congregación Valle Hermoso</span >
 <span class="brand-sub" > Agenda de actividades</span >
 <span class="status-pill" > <span class="status-dot" > </span > <span id="statusText" > Conectado</span > </span >
 </div >
-</div >
-<div class="topbar-buttons" >
-<button id="editToggleBtn" class="btn-action btn-action-edit" >
-<span class="btn-action-icon" >
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
-<path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" / >
-<rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2" / >
-</svg >
-</span >
-<span class="btn-action-label" > Modo edición</span >
-</button >
-<button class="btn-action" onclick="toggleDarkMode()" >
-<span id="darkLabel" > 🌙 Oscuro</span >
-</button >
-<button id="btnQR" class="btn-action btn-action-qr" >
-<span class="btn-action-icon" >
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
-<rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
-<rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
-<rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
-<path d="M14 14h3v3h-3z" fill="currentColor" / >
-<path d="M19.5 14h1.5M14 19.5v1.5M19.5 21v-3.5M21 17.5h-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" / >
-</svg >
-</span >
-<span class="btn-action-label" > Código QR</span >
-</button >
-<button id="btnCompartir" onclick="compartirPagina()" class="btn-action btn-action-share" >
-<span class="btn-action-icon" >
-<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" >
-<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766" / >
-</svg >
-</span >
-<span class="btn-action-label" > Compartir</span >
-</button >
 </div >
 </div >
 <!-- Modal QR -->
@@ -1233,6 +1348,7 @@ body.dark-mode {
 <div class="tabs" >
 <button class="tab active" data-tab="salidas" > Salidas a predicar</button >
 <button class="tab" data-tab="vida" > Vida y Ministerio</button >
+<button class="tab" data-tab="finde" > Reunión de Fin de Semana</button >
 </div >
 
 <main >
@@ -1253,17 +1369,62 @@ body.dark-mode {
 <div id="vidaList" > </div >
 <button id="addWeekBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
 </section >
+
+<section id="findeView" class="view" >
+<div class="view-header" >
+<h2 > Reunión de Fin de Semana</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Esta es la reunión del domingo. Completá presidente, conferenciante, título del discurso, conductor de La Atalaya y lector.</div >
+<div id="findeList" > </div >
+<button id="addFindeBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
 </main >
 
 <div class="app-footer" >
 Consulta de uso libre para la congregación · La edición requiere código de acceso.
+</div >
+
+<div class="bottom-actionbar" >
+<div class="bottom-actionbar-inner" >
+<button id="editToggleBtn" class="bab-btn bab-edit" >
+<span class="bab-icon" >
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
+<path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" / >
+<rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2" / >
+</svg >
+</span >
+<span class="bab-label" > Modo edición</span >
+</button >
+<button id="btnQR" class="bab-btn bab-qr" >
+<span class="bab-icon" >
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
+<rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" / >
+<path d="M14 14h3v3h-3z" fill="currentColor" / >
+<path d="M19.5 14h1.5M14 19.5v1.5M19.5 21v-3.5M21 17.5h-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" / >
+</svg >
+</span >
+<span class="bab-label" > Código QR</span >
+</button >
+<button id="btnCompartir" onclick="compartirPagina()" class="bab-btn bab-share" >
+<span class="bab-icon" >
+<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" >
+<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.928 1.227l-.344-.544C5.486 2.735 8.351.646 11.98.646c5.411 0 9.8 4.389 9.8 9.8 0 3.364-1.697 6.358-4.287 8.105l.531.346c1.263-1.524 2.523-3.79 2.523-6.451 0-4.597-3.75-8.342-8.35-8.342m5.371 5.462c-.25-1.41-1.161-2.69-2.469-3.545l-.532.346c.79.52 1.446 1.258 1.869 2.135l.132-.009c0-.264-.024-.52-.066-.766" / >
+</svg >
+</span >
+<span class="bab-label" > Compartir</span >
+</button >
+</div >
 </div >
 <!-- PIN modal -->
 <div id="pinModalBackdrop" class="modal-backdrop hidden" >
 <div class="modal-card" >
 <h3 > Código de edición</h3 >
 <p class="desc" > Ingresá el código para activar el modo edición.</p >
-<input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••" >
+<form id="pinForm" onsubmit="return false;">
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="12" placeholder="••••" >
+</form>
 <p id="pinError" class="modal-error hidden" > Código incorrecto. Probá de nuevo.</p >
 <div class="modal-actions" >
 <button id="pinCancelBtn" class="btn btn-ghost" > Cancelar</button >
@@ -1304,7 +1465,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                ESTADO Y DATOS
                ============================================================ */
             let state = { editing: false, tab: 'salidas' };
-            let data = { salidas: [], vidaymin: [] };
+            let data = { salidas: [], vidaymin: [], finde: [] };
             let config = { pin: '2026' };
             let saveTimers = {};
 
@@ -1412,6 +1573,31 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 ];
             }
 
+            function seedFinde() {
+                return [
+                    {
+                        id: uid(), actual: true, rango: '29 de junio a 5 de julio',
+                        presidente: '', conferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: ''
+                    },
+                    {
+                        id: uid(), actual: false, rango: '6-12 de julio',
+                        presidente: '', conferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: ''
+                    },
+                    {
+                        id: uid(), actual: false, rango: '13-19 de julio',
+                        presidente: '', conferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: ''
+                    },
+                    {
+                        id: uid(), actual: false, rango: '20-26 de julio',
+                        presidente: '', conferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: ''
+                    }
+                ];
+            }
+
             window.compartirPagina = function() {
                 console.log("🔵 Función compartirPagina() llamada");
 
@@ -1478,8 +1664,14 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                  window.toggleDarkMode = function() {
                 const isDark = document.body.classList.toggle('dark-mode');
                 localStorage.setItem('darkMode', isDark);
-                document.getElementById('darkLabel').textContent = isDark ? '☀️ Claro' : '🌙 Oscuro';
+                document.getElementById('darkIcon').textContent = isDark ? '☀️' : '🌙';
             };
+
+            // Aplica el modo oscuro guardado apenas carga la página
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkIcon').textContent = '☀️';
+            }
 
             /* ============================================================
                ALMACENAMIENTO — Firebase Firestore (compartido y en vivo)
@@ -1505,9 +1697,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 console.error('No se pudo iniciar Firebase:', e);
             }
 
-            let suppressEcho = { salidas: false, vida: false, config: false };
-            let pendingRemote = { salidas: false, vida: false };
-            let firstLoad = { salidas: false, vida: false, config: false };
+            let suppressEcho = { salidas: false, vida: false, finde: false, config: false };
+            let pendingRemote = { salidas: false, vida: false, finde: false };
+            let firstLoad = { salidas: false, vida: false, finde: false, config: false };
 
             function setStatus(text, isError) {
                 const el = document.getElementById('statusText');
@@ -1522,7 +1714,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             }
 
             /* Reintenta aplicar una actualización remota apenas el usuario deja de escribir */
-            ['salidasList', 'vidaList'].forEach(id => {
+            ['salidasList', 'vidaList', 'findeList'].forEach(id => {
                 document.getElementById(id).addEventListener('focusout', () => {
                     setTimeout(() => {
                         if (id === 'salidasList' && pendingRemote.salidas && !isTypingInside('salidasList')) {
@@ -1530,6 +1722,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         }
                         if (id === 'vidaList' && pendingRemote.vida && !isTypingInside('vidaList')) {
                             pendingRemote.vida = false; renderVida();
+                        }
+                        if (id === 'findeList' && pendingRemote.finde && !isTypingInside('findeList')) {
+                            pendingRemote.finde = false; renderFinde();
                         }
                     }, 120);
                 });
@@ -1540,6 +1735,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     setStatus('Sin conexión a la base de datos', true);
                     data.salidas = seedSalidas();
                     data.vidaymin = seedVida();
+                    data.finde = seedFinde();
                     render();
                     return;
                 }
@@ -1575,6 +1771,21 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     setStatus('Conectado');
                 }, (err) => { setStatus('Sin conexión a la base de datos', true); });
 
+                col.doc('finde').onSnapshot((doc) => {
+                    if (suppressEcho.finde) { suppressEcho.finde = false; return; }
+                    if (doc.exists && doc.data().items) {
+                        data.finde = doc.data().items;
+                    } else if (!firstLoad.finde) {
+                        data.finde = seedFinde();
+                        suppressEcho.finde = true;
+                        col.doc('finde').set({ items: data.finde }).catch(() => { suppressEcho.finde = false; });
+                    }
+                    firstLoad.finde = true;
+                    if (isTypingInside('findeList')) { pendingRemote.finde = true; }
+                    else { renderFinde(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
+
                 col.doc('config').onSnapshot((doc) => {
                     if (suppressEcho.config) { suppressEcho.config = false; return; }
                     if (doc.exists && doc.data().pin) {
@@ -1605,6 +1816,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
 
             function saveSalidas() { scheduleSave('salidas', () => data.salidas, 'salidas'); }
             function saveVida() { scheduleSave('vida', () => data.vidaymin, 'vida'); }
+            function saveFinde() { scheduleSave('finde', () => data.finde, 'finde'); }
             function saveConfig() {
                 if (!col) { setStatus('Sin conexión a la base de datos', true); return; }
                 clearTimeout(saveTimers.config);
@@ -1627,271 +1839,216 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function getDay(id) { return data.salidas.find(d => d.id === id); }
             function getEntry(day, id) { return day.entries.find(e => e.id === id); }
             function getWeek(id) { return data.vidaymin.find(w => w.id === id); }
-            function getPart(week, section, id) { return week[section].find(p => p.id === id); }
+            function getPart(weak, section, id) { return weak[section].find(p => p.id === id); }
+            function getFinde(id) { return data.finde.find(w => w.id === id); }
 
             function parseFecha(fecha) {
-                const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/);
-                if (!m) return null;
-                return { d: parseInt(m[1], 10), m: parseInt(m[2], 10) };
-            }
-            function isToday(fecha) {
-                const f = parseFecha(fecha);
-                if (!f) return false;
-                const now = new Date();
-                return f.d === now.getDate() && f.m === (now.getMonth() + 1);
-            }
+                const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/)
+;
+if (!m) return null
+;
 
-            /* ============================================================
+return {
+    d: parseInt(m[1], 10), m: parseInt(m[2], 10)
+}
+
+;
+}
+
+function isToday(fecha) {
+    const f = parseFecha(fecha);
+    if (!f) return false;
+    const now = new Date();
+    return f.d === now.getDate() && f.m === (now.getMonth() + 1);
+}
+
+/* Helper: render remaining parts of a week card */
+function weekFootHTML(week) {
+    if (state.editing) {
+        return `<div class="week-foot"> <div class="week-edit-grid" style="flex:1;"> <label>Canción final <input data-role="week-field" data-week-id="${week.id}" data-field="cancionFinal" value="${esc(week.cancionFinal)}"> </label> <label>Oración final <input data-role="week-field" data-week-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> </div>`;
+    }
+
+    return `<div class="week-foot"> <div class="meta-item"><b>Canción final</b><span>${esc(week.cancionFinal) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
+}
+
+function sectionHTML(week, section, label, barClass) {
+    const items = (week[section] || []).map(p => partRowHTML(week, section, p)).join('');
+    const addBtn = state.editing ? `<button class="btn btn-sm btn-accent add-part-btn" data-action="add-part" data-week-id="${week.id}" data-section="${section}">+ Agregar parte</button>` : '';
+    return `<div class="section-bar ${barClass}">${label}</div> <div class="section-body">${items || '<div class="empty-state" style="padding:14px; margin:8px 0;">Sin partes</div>'}${addBtn}</div>`;
+}
+
+function songLineHTML(week) {
+    if (state.editing) {
+        return `<div class="song-line">🎵 Canción <input data-role="week-field" data-week-id="${week.id}" data-field="cancionMedia" value="${esc(week.cancionMedia)}" placeholder="n°"></div>`;
+    }
+    return `<div class="song-line"> 🎵 Canción ${esc(week.cancionMedia) || '—'}</div>`;
+}
+
+function weekCardHTML(week) {
+    const headBody = state.editing ? weekMetaEditHTML(week) : weekMetaViewHTML(week);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-week" data-week-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
+    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${sectionHTML(week, 'tesoros', 'Tesoros de la Biblia', 'tesoros')} ${sectionHTML(week, 'seamos', 'Seamos mejores maestros', 'seamos')} ${songLineHTML(week)} ${sectionHTML(week, 'vidaCristiana', 'Nuestra vida cristiana', 'vida')} ${weekFootHTML(week)} ${deleteBtn}</div>`;
+}
+
+/* ============================================================
                RENDER — SALIDAS
                ============================================================ */
-            function renderSalidas() {
-                const cont = document.getElementById('salidasList');
-                if (data.salidas.length === 0) {
-                    cont.innerHTML = '<div class="empty-state">Todavía no hay salidas registradas.</div>';
-                    return;
-                }
-                cont.innerHTML = data.salidas.map(day => dayCardHTML(day)).join('');
-            }
+function renderSalidas() {
+    const cont = document.getElementById('salidasList');
 
-            function dayCardHTML(day) {
-                const today = isToday(day.fecha);
-                const head = state.editing ? `
-        <div class="day-head-edit">
-          <input class="dia-input" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día">
-          <input class="fecha-input" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm">
-          <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button>
-        </div>
-      ` : `
-        <div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span><span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div>
-        <h3>${esc(day.dia)}</h3>
-        ${today ? '<span class="today-flag">HOY</span>' : ''}
-      `;
+    if (data.salidas.length === 0) {
+        cont .innerHTML = '<div class="empty-state">Todavía no hay salidas registradas.</div>';
+        return;
+    }
 
-                const entries = day.entries.map(en => entryRowHTML(day, en)).join('');
+    cont .innerHTML = data.salidas.map(day => dayCardHTML(day)).join('');
+}
 
-                const actions = state.editing ? `
-        <div class="card-actions edit-only">
-          <button class="btn btn-sm btn-accent" data-action="add-entry" data-day-id="${day.id}">+ Agregar salida</button>
-        </div>
-      ` : '';
+function dayCardHTML(day) {
+    const today = isToday(day.fecha);
 
-                return `<div class="day-card ${today ? 'is-today' : ''}" data-day-id="${day.id}">
-        <div class="day-head">${head}</div>
-        <div class="entries">${entries || '<div class="empty-state" style="padding:16px;">Sin salidas este día</div>'}</div>
-        ${actions}
-      </div>`;
-            }
+    const head = state.editing ?
+        `<div class="day-head-edit"> <input class="dia-input" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día"> <input class="fecha-input" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm"> <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button> </div>`
+        : `<div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span> <span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div> <h3>${esc(day.dia)}</h3> ${today ? '<span class="today-flag">HOY</span>' : ''}`;
+    const entries = day.entries.map(en => entryRowHTML(day, en)).join('');
+    const actions = state.editing ? ` <div class="card-actions edit-only"> <button class="btn btn-sm btn-accent" data-action="add-entry" data-day-id="${day.id}">+ Agregar salida</button> </div> ` : '';
 
-            function entryRowHTML(day, en) {
-                if (state.editing) {
-                    return `<div class="entry-row" data-entry-id="${en.id}" style="grid-template-columns:60px 1.6fr 1fr 1fr 70px 28px;">
-          <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="hora" value="${esc(en.hora)}" placeholder="Hora">
-          <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="lugar" value="${esc(en.lugar)}" placeholder="Lugar">
-          <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="grupo" value="${esc(en.grupo)}" placeholder="Cong./Grupo">
-          <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="conductor" value="${esc(en.conductor)}" placeholder="Conductor">
-          <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="territorio" value="${esc(en.territorio)}" placeholder="Territorio">
-          <button class="btn btn-icon btn-danger del-entry" data-action="delete-entry" data-day-id="${day.id}" data-entry-id="${en.id}" title="Eliminar">✕</button>
-        </div>`;
-                }
-                return `<div class="entry-row">
-        <div class="f-hora">${esc(en.hora)}</div>
-        <div class="f-lugar">${esc(en.lugar)}</div>
-        <div class="f-grupo">${esc(en.grupo)}</div>
-        <div class="f-conductor"><span class="field-label">Conductor:</span> ${esc(en.conductor)}</div>
-        <div class="f-territorio"><span class="field-label">Territorio nº</span> ${esc(en.territorio) || '—'}</div>
-      </div>`;
-            }
+    return `<div class="day-card ${today ? 'is-today' : ''}" data-day-id="${day.id}"> <div class="day-head">${head}</div> <div class="entries">${entries || '<div class="empty-state" style="padding:16px;">Sin salidas este día</div>'}</div> ${actions}</div>`;
+}
 
-            /* ============================================================
+function entryRowHTML(day, en) {
+    if (state.editing) {
+        return `<div class="entry-row" data-entry-id="${en.id}" style="grid-template-columns:60px 1.6fr 1fr 1fr 70px 28px;"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="hora" value="${esc(en.hora)}" placeholder="Hora"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="lugar" value="${esc(en.lugar)}" placeholder="Lugar"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="grupo" value="${esc(en.grupo)}" placeholder="Cong./Grupo"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="conductor" value="${esc(en.conductor)}" placeholder="Conductor"> <input data-role="entry-field" data-day-id="${day.id}" data-entry-id="${en.id}" data-field="territorio" value="${esc(en.territorio)}" placeholder="Territorio"> <button class="btn btn-icon btn-danger del-entry" data-action="delete-entry" data-day-id="${day.id}" data-entry-id="${en.id}" title="Eliminar">✕</button> </div>`;
+    }
+
+    return `<div class="entry-row"> <div class="f-hora">${esc(en.hora)}</div> <div class="f-lugar">${esc(en.lugar)}</div> <div class="f-grupo">${esc(en.grupo)}</div> <div class="f-conductor"><span class="field-label">Conductor:</span> ${esc(en.conductor)}</div> <div class="f-territorio"><span class="field-label">Territorio nº</span> ${esc(en.territorio) || '—'}</div> </div>`;
+}
+
+/* ============================================================
                RENDER — VIDA Y MINISTERIO
                ============================================================ */
-            function renderVida() {
-                const cont = document.getElementById('vidaList');
-                if (data.vidaymin.length === 0) {
-                    cont.innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
-                    return;
-                }
-                cont.innerHTML = data.vidaymin.map(week => weekCardHTML(week)).join('');
-            }
+function renderVida() {
+    const cont = document.getElementById('vidaList');
 
-            function weekMetaEditHTML(week) {
-                return `<div class="week-edit-grid">
-        <label class="span2">Semana (rango de fechas)
-          <input data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio">
-        </label>
-        <label class="span2">Lectura de la Biblia
-          <input data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10">
-        </label>
-        <label>Presidente
-          <input data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}">
-        </label>
-        <label>Consejero sala auxiliar
-          <input data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}">
-        </label>
-        <label>Canción inicial
-          <input data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}">
-        </label>
-        <label>Oración inicial
-          <input data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}">
-        </label>
-      </div>
-      <label class="week-toggle-actual">
-        <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual
-      </label>`;
-            }
+    if (data.vidaymin.length === 0) {
+        cont .innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+        return;
+    }
 
-            function weekMetaViewHTML(week) {
-                return `<div class="week-head-top">
-          <div>
-            <h3>Semana ${esc(week.rango)}</h3>
-            <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div>
-          </div>
-          ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''}
-        </div>
-        <div class="week-meta">
-          <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div>
-          <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div>
-          <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div>
-          <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div>
-        </div>`;
-            }
+    cont .innerHTML = data.vidaymin.map(week => weekCardHTML(week)).join('');
+}
 
-            function partRowHTML(week, section, part) {
-                if (state.editing) {
-                    return `<div class="part-row" data-part-id="${part.id}">
-          <div class="part-edit-grid">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min">
-          </div>
-          <div class="part-edit-row2">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)">
-            <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)">
-            <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button>
-          </div>
-        </div>`;
-                }
-                return `<div class="part-row">
-        <div class="part-view-top">
-          <span class="part-num">${esc(part.numero)}.</span>
-          <span class="part-titulo">${esc(part.titulo)}</span>
-          ${part.minutos ? `<span class="part-min">${esc(part.minutos)} min</span>` : ''}
-        </div>
-        ${(part.principal || part.auxiliar || part.auxiliar2) ? `<div class="part-asig">
-          ${part.principal ? `<span>Auditorio principal: <b>${esc(part.principal)}</b></span>` : ''}
-          ${part.auxiliar ? `<span>Sala auxiliar 1: <b>${esc(part.auxiliar)}</b></span>` : ''}
-          ${part.auxiliar2 ? `<span>Sala auxiliar 2: <b>${esc(part.auxiliar2)}</b></span>` : ''}
-        </div>` : ''}
-      </div>`;
-            }
+function weekMetaEditHTML(week) {
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label class="span2">Lectura de la Biblia <input data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+}
 
+function weekMetaViewHTML(week) {
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
+}
 
-            function sectionHTML(week, section, label, barClass) {
-                const items = week[section].map(p => partRowHTML(week, section, p)).join('');
-                const addBtn = state.editing ? `<button class="btn btn-sm btn-accent add-part-btn" data-action="add-part" data-week-id="${week.id}" data-section="${section}">+ Agregar parte</button>` : '';
-                return `<div class="section-bar ${barClass}">${label}</div>
-        <div class="section-body">
-          ${items || '<div class="empty-state" style="padding:14px; margin:8px 0;">Sin partes</div>'}
-          ${addBtn}
-        </div>`;
-            }
+function partRowHTML(week, section, part) {
+    if (state.editing) {
+        return `<div class="part-row" data-part-id="${part.id}"> <div class="part-edit-grid"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min"> </div> <div class="part-edit-row2"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)"> <input data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)"> <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button> </div> </div>`;
+    }
 
-            function songLineHTML(week) {
-                if (state.editing) {
-                    return `<div class="song-line">🎵 Canción <input data-role="week-field" data-week-id="${week.id}" data-field="cancionMedia" value="${esc(week.cancionMedia)}" placeholder="n°"></div>`;
-                }
-                return `<div class="song-line">🎵 Canción ${esc(week.cancionMedia) || '—'}</div>`;
-            }
+    const asignaciones = [];
+    if (part.principal) asignaciones.push(`<span>Auditorio principal: <b>${esc(part.principal)}</b></span>`);
+    if (part.auxiliar) asignaciones.push(`<span>Sala auxiliar 1: <b>${esc(part.auxiliar)}</b></span>`);
+    if (part.auxiliar2) asignaciones.push(`<span>Sala auxiliar 2: <b>${esc(part.auxiliar2)}</b></span>`);
 
-            function weekFootHTML(week) {
-                if (state.editing) {
-                    return `<div class="week-foot">
-          <div class="week-edit-grid" style="flex:1;">
-            <label>Canción final
-              <input data-role="week-field" data-week-id="${week.id}" data-field="cancionFinal" value="${esc(week.cancionFinal)}">
-            </label>
-            <label>Oración final
-              <input data-role="week-field" data-week-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}">
-            </label>
-          </div>
-        </div>`;
-                }
-                return `<div class="week-foot">
-        <div class="meta-item"><b>Canción final</b><span>${esc(week.cancionFinal) || '—'}</span></div>
-        <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div>
-      </div>`;
-            }
+    return `<div class="part-row"> <div class="part-view-top"> <span class="part-num">${esc(part.numero)}.</span> <span class="part-titulo">${esc(part.titulo)}</span> ${part.minutos ? `<span class="part-min"> ${esc(part.minutos)} min</span>` : ''} </div> ${asignaciones.length ? `<div class="part-asig">${asignaciones.join('')}</div>` : ''} </div>`;
+}
 
-            function weekCardHTML(week) {
-                const headBody = state.editing ? weekMetaEditHTML(week) : weekMetaViewHTML(week);
-                const deleteBtn = state.editing ? `<div class="week-card-actions edit-only">
-          <button class="btn btn-sm btn-danger" data-action="delete-week" data-week-id="${week.id}">🗑 Eliminar esta semana</button>
-        </div>` : '';
+/* ============================================================
+               RENDER — REUNIÓN DE FIN DE SEMANA
+               ============================================================ */
+function renderFinde() {
+    const cont = document.getElementById('findeList');
 
-                return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}">
-        <div class="week-head">${headBody}</div>
-        ${sectionHTML(week, 'tesoros', 'Tesoros de la Biblia', 'tesoros')}
-        ${sectionHTML(week, 'seamos', 'Seamos mejores maestros', 'seamos')}
-        ${songLineHTML(week)}
-        ${sectionHTML(week, 'vidaCristiana', 'Nuestra vida cristiana', 'vida')}
-        ${weekFootHTML(week)}
-        ${deleteBtn}
-      </div>`;
-            }
+    if (data.finde.length === 0) {
+        cont .innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+        return;
+    }
 
-            /* ============================================================
+    cont .innerHTML = data.finde.map(week => findeCardHTML(week)).join('');
+}
+
+function findeMetaEditHTML(week) {
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Presidente <input data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Conductor de La Atalaya <input data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+}
+
+function findeMetaViewHTML(week) {
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">${esc(week.tituloConferencia) || 'Sin título de conferencia'}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> </div>`;
+}
+
+function findeCardHTML(week) {
+    const headBody = state.editing ? findeMetaEditHTML(week) : findeMetaViewHTML(week);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-finde" data-finde-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
+
+    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-finde-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+}
+
+/* ============================================================
                RENDER GENERAL
                ============================================================ */
-            function render() {
-                document.body.classList.toggle('editing', state.editing);
-                document.querySelectorAll('.edit-only').forEach(el => el.classList.toggle('hidden', !state.editing));
-                const editBtn = document.getElementById('editToggleBtn');
-                editBtn.classList.toggle('is-on', state.editing);
-                editBtn.querySelector('.btn-action-label').textContent = state.editing ? 'Editando — tocá para salir' : 'Modo edición';
-                editBtn.querySelector('.btn-action-icon').innerHTML = state.editing
-                    ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 10.5V8a5 5 0 0 1 9.6-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2"/></svg>'
-                    : '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2"/></svg>';
-                renderSalidas();
-                renderVida();
-            }
+function render() {
+    document .body.classList.toggle('editing', state.editing);
+    document .querySelectorAll('.edit-only').forEach(el => el.classList.toggle('hidden', !state.editing));
+    const editBtn = document.getElementById('editToggleBtn');
+    editBtn .classList.toggle('is-on', state.editing);
+    editBtn .querySelector('.bab-label').textContent = state.editing ? 'Editando' : 'Modo edición';
+    editBtn .querySelector('.bab-icon').innerHTML = state.editing ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 10.5V8a5 5 0 0 1 9.6-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.4" stroke="currentColor" stroke-width="2"/></svg>';
+    renderSalidas();
+    renderVida();
+    renderFinde();
+}
 
-            /* ============================================================
+/* ============================================================
                MODALES
                ============================================================ */
-            function showPinModal() {
-                document.getElementById('pinInput').value = '';
-                document.getElementById('pinError').classList.add('hidden');
-                document.getElementById('pinModalBackdrop').classList.remove('hidden');
-                setTimeout(() => document.getElementById('pinInput').focus(), 50);
-            }
-            function hidePinModal() { document.getElementById('pinModalBackdrop').classList.add('hidden'); }
+function showPinModal() {
+    document .getElementById('pinInput').value = '';
+    document .getElementById('pinError').classList.add('hidden');
+    document .getElementById('pinModalBackdrop').classList.remove('hidden');
+    setTimeout(() => document.getElementById('pinInput').focus(), 50);
+}
 
-            function showConfirm(title, desc, onOk) {
-                document.getElementById('confirmTitle').textContent = title;
-                document.getElementById('confirmDesc').textContent = desc;
-                document.getElementById('confirmModalBackdrop').classList.remove('hidden');
-                const okBtn = document.getElementById('confirmOkBtn');
-                const handler = function () {
-                    document.getElementById('confirmModalBackdrop').classList.add('hidden');
-                    okBtn.removeEventListener('click', handler);
-                    onOk();
-                };
-                okBtn.addEventListener('click', handler);
-            }
-            document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+function hidePinModal() {
+    document .getElementById('pinModalBackdrop').classList.add('hidden');
+}
+
+function showConfirm(title, desc, onOk) {
+    document .getElementById('confirmTitle').textContent = title;
+    document .getElementById('confirmDesc').textContent = desc;
+    document .getElementById('confirmModalBackdrop').classList.remove('hidden');
+    const okBtn = document.getElementById('confirmOkBtn');
+
+    const handler = function () {
+        document .getElementById('confirmModalBackdrop').classList.add('hidden');
+        okBtn .removeEventListener('click', handler);
+        onOk();
+    }
+
+    ;
+    okBtn .addEventListener('click', handler);
+}
+
+document.getElementById('confirmCancelBtn').addEventListener('click', () => {
                 document.getElementById('confirmModalBackdrop').classList.add('hidden');
-            });
+            })
+;
 
-            function showChangePin() {
-                document.getElementById('newPinInput').value = '';
-                document.getElementById('changePinError').classList.add('hidden');
-                document.getElementById('changePinModalBackdrop').classList.remove('hidden');
-            }
-            document.getElementById('changePinCancelBtn').addEventListener('click', () => {
+function showChangePin() {
+    document .getElementById('newPinInput').value = '';
+    document .getElementById('changePinError').classList.add('hidden');
+    document .getElementById('changePinModalBackdrop').classList.remove('hidden');
+}
+
+document.getElementById('changePinCancelBtn').addEventListener('click', () => {
                 document.getElementById('changePinModalBackdrop').classList.add('hidden');
-            });
-            document.getElementById('changePinOkBtn').addEventListener('click', () => {
+            })
+;
+document.getElementById('changePinOkBtn').addEventListener('click', () => {
                 const val = document.getElementById('newPinInput').value.trim();
                 if (val.length < 4) {
                     document.getElementById('changePinError').classList.remove('hidden');
@@ -1900,22 +2057,26 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 config.pin = val;
                 saveConfig();
                 document.getElementById('changePinModalBackdrop').classList.add('hidden');
-            });
+            })
+;
 
-            /* ============================================================
+/* ============================================================
                EVENTOS — TOPBAR / TABS
                ============================================================ */
-            document.getElementById('editToggleBtn').addEventListener('click', () => {
+document.getElementById('editToggleBtn').addEventListener('click', () => {
                 if (state.editing) {
                     state.editing = false;
                     render();
                 } else {
                     showPinModal();
                 }
-            });
-            document.getElementById('btnQR').addEventListener('click', openQRModal);
-            document.getElementById('pinCancelBtn').addEventListener('click', hidePinModal);
-            document.getElementById('pinConfirmBtn').addEventListener('click', () => {
+            })
+;
+document.getElementById('btnQR').addEventListener('click', openQRModal)
+;
+document.getElementById('pinCancelBtn').addEventListener('click', hidePinModal)
+;
+document.getElementById('pinConfirmBtn').addEventListener('click', () => {
                 const val = document.getElementById('pinInput').value;
                 if (val === config.pin) {
                     state.editing = true;
@@ -1924,12 +2085,14 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 } else {
                     document.getElementById('pinError').classList.remove('hidden');
                 }
-            });
-            document.getElementById('pinInput').addEventListener('keydown', (e) => {
+            })
+;
+document.getElementById('pinInput').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') document.getElementById('pinConfirmBtn').click();
-            });
+            })
+;
 
-            document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1937,14 +2100,16 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     document.getElementById(tab.dataset.tab + 'View').classList.add('active');
                     state.tab = tab.dataset.tab;
                 });
-            });
+            })
+;
 
-            document.getElementById('addDayBtn').addEventListener('click', () => {
+document.getElementById('addDayBtn').addEventListener('click', () => {
                 data.salidas.push({ id: uid(), dia: 'Nuevo día', fecha: '', entries: [] });
                 saveSalidas();
                 renderSalidas();
-            });
-            document.getElementById('addWeekBtn').addEventListener('click', () => {
+            })
+;
+document.getElementById('addWeekBtn').addEventListener('click', () => {
                 data.vidaymin.unshift({
                     id: uid(), actual: false, rango: '', lectura: '', presidente: '', consejero: '',
                     cancionInicial: '', oracionInicial: '', tesoros: [], seamos: [], cancionMedia: '', vidaCristiana: [],
@@ -1952,12 +2117,22 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 });
                 saveVida();
                 renderVida();
-            });
+            })
+;
+document.getElementById('addFindeBtn').addEventListener('click', () => {
+                data.finde.unshift({
+                    id: uid(), actual: false, rango: '', presidente: '', conferenciante: '',
+                    tituloConferencia: '', conductorAtalaya: '', lector: ''
+                });
+                saveFinde();
+                renderFinde();
+            })
+;
 
-            /* ============================================================
+/* ============================================================
                EVENTOS — DELEGADOS (inputs)
                ============================================================ */
-            document.getElementById('salidasList').addEventListener('input', (e) => {
+document.getElementById('salidasList').addEventListener('input', (e) => {
                 const t = e.target;
                 if (t.dataset.role === 'day-field') {
                     const day = getDay(t.dataset.dayId);
@@ -1969,9 +2144,10 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         if (entry) { entry[t.dataset.field] = t.value; saveSalidas(); }
                     }
                 }
-            });
+            })
+;
 
-            document.getElementById('vidaList').addEventListener('input', (e) => {
+document.getElementById('vidaList').addEventListener('input', (e) => {
                 const t = e.target;
                 if (t.dataset.role === 'week-field') {
                     const week = getWeek(t.dataset.weekId);
@@ -1983,19 +2159,49 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         if (part) { part[t.dataset.field] = t.value; saveVida(); }
                     }
                 }
-            });
-            document.getElementById('vidaList').addEventListener('change', (e) => {
+            })
+;
+document.getElementById('vidaList').addEventListener('change', (e) => {
                 const t = e.target;
                 if (t.dataset.role === 'week-actual') {
                     const week = getWeek(t.dataset.weekId);
                     if (week) { week.actual = t.checked; saveVida(); renderVida(); }
                 }
-            });
+            })
+;
 
-            /* ============================================================
+document.getElementById('findeList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'finde-field') {
+                    const week = getFinde(t.dataset.findeId);
+                    if (week) { week[t.dataset.field] = t.value; saveFinde(); }
+                }
+            })
+;
+document.getElementById('findeList').addEventListener('change', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'finde-actual') {
+                    const week = getFinde(t.dataset.findeId);
+                    if (week) { week.actual = t.checked; saveFinde(); renderFinde(); }
+                }
+            })
+;
+document.getElementById('findeList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                if (btn.dataset.action === 'delete-finde') {
+                    showConfirm('Eliminar semana', '¿Eliminar el programa de esta reunión de fin de semana?', () => {
+                        data.finde = data.finde.filter(w => w.id !== btn.dataset.findeId);
+                        saveFinde(); renderFinde();
+                    });
+                }
+            })
+;
+
+/* ============================================================
                EVENTOS — DELEGADOS (botones de acción)
                ============================================================ */
-            document.getElementById('salidasList').addEventListener('click', (e) => {
+document.getElementById('salidasList').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-action]');
                 if (!btn) return;
                 const action = btn.dataset.action;
@@ -2003,7 +2209,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 if (action === 'add-entry') {
                     const day = getDay(btn.dataset.dayId);
                     if (day) {
-                        day.entries.push({ id: uid(), hora: '', lugar: '', grupo: '', conductor: '', territorio: '' });
+                        day.entries.push({ id: uid(), hora: '', lugar: '', grupo: '', conductor: '', territories: '' });
                         saveSalidas(); renderSalidas();
                     }
                 } else if (action === 'delete-entry') {
@@ -2020,9 +2226,10 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         saveSalidas(); renderSalidas();
                     });
                 }
-            });
+            })
+;
 
-            document.getElementById('vidaList').addEventListener('click', (e) => {
+document.getElementById('vidaList').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-action]');
                 if (!btn) return;
                 const action = btn.dataset.action;
@@ -2046,23 +2253,45 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         saveVida(); renderVida();
                     });
                 }
-            });
+            })
+;
 
-            /* Botón para cambiar código: se agrega dinámicamente junto al botón de edición cuando se activa el modo edición */
-            const editBtnWrap = document.querySelector('.topbar-inner');
-            const changePinBtn = document.createElement('button');
-            changePinBtn.className = 'btn btn-ghost btn-sm edit-only hidden';
-            changePinBtn.style.marginLeft = '6px';
-            changePinBtn.textContent = '🔑 Cambiar código';
-            changePinBtn.addEventListener('click', showChangePin);
-            editBtnWrap.appendChild(changePinBtn);
+document.getElementById('findeList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const week = btn.dataset.findeId ? getFinde(btn.dataset.findeId) : null;
 
-            /* ============================================================
-               INICIO
-               ============================================================ */
-            loadAll();
+                if (action === 'delete-finde') {
+                    showConfirm('Eliminar semana', '¿Eliminar esta reunión de fin de semana?', () => {
+                        data.finde = data.finde.filter(w => w.id !== btn.dataset.findeId);
+                        saveFinde(); renderFinde();
+                    });
+                }
+            })
+;
 
-        })();
-    </script>
-</body>
-</html>
+/* Botón para cambiar código: se agrega dinámicamente junto al botón de edición cuando se activa el modo edición */
+const editBtnWrap = document.querySelector('.topbar-inner')
+;
+const changePinBtn = document.createElement('button')
+;
+changePinBtn.className = 'btn btn-ghost btn-sm edit-only hidden'
+;
+changePinBtn.style.marginLeft = '6px'
+;
+changePinBtn.textContent = '🔑 Cambiar código'
+;
+changePinBtn.addEventListener('click', showChangePin)
+;
+editBtnWrap.appendChild(changePinBtn)
+ ;
+
+
+loadAll()
+;
+}
+)()
+;</script >
+</body >
+</html >
