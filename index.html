@@ -1921,8 +1921,6 @@ function renderSalidas() {
 
 function dayCardHTML(day) {
     const today = isToday(day.fecha);
-
-        : `<div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span> <span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div> <h3>${esc(day.dia)}</h3> ${today ? '<span class="today-flag">HOY</span>' : ''}`;
     const head = state.editing ?
         `<div class="day-head-edit"> <input class="dia-input" aria-label="Día" data-role="day-field" data-day-id="${day.id}" data-field="dia" value="${esc(day.dia)}" placeholder="Día"> <input class="fecha-input" aria-label="Fecha" data-role="day-field" data-day-id="${day.id}" data-field="fecha" value="${esc(day.fecha)}" placeholder="dd/mm"> <button class="btn btn-icon btn-danger" data-action="delete-day" data-day-id="${day.id}" title="Eliminar día">🗑</button> </div>`
         : `<div class="date-tab"><span class="dnum">${esc((day.fecha || '').split('/')[0] || '')}</span> <span class="dlabel">${esc((day.fecha || '').split('/')[1] || '')}</span></div> <h3>${esc(day.dia)}</h3> ${today ? '<span class="today-flag">HOY</span>' : ''}`;
