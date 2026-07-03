@@ -2082,9 +2082,9 @@ function sectionHTML(week, section, label, barClass) {
     const addBtn = state.editing ? `<button class="btn btn-sm btn-accent add-part-btn" data-action="add-part" data-week-id="${week.id}" data-section="${section}">+ Agregar parte</button>` : '';
     // choose icon according to section/bar class
     let iconSrc = '';
-    if (barClass === 'tesoros') iconSrc = 'img/perlas.jpeg';
-    else if (barClass === 'seamos') iconSrc = 'img/trigo.jpeg';
-    else if (barClass === 'vida') iconSrc = 'img/oveja.jpeg';
+    if (barClass === 'tesoros') iconSrc = 'img/perla.jpeg';
+    else if (barClass === 'seamos') iconSrc = 'img/trigos.jpeg';
+    else if (barClass === 'vida') iconSrc = 'img/ovejas.jpeg';
 
     const iconHTML = iconSrc ? `<img src="${iconSrc}" alt="" class="section-icon">` : '';
 
