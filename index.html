@@ -48,65 +48,7 @@
     --font-scale: 1.15;
 }
 
-/* Compute dominant color of an image by sampling and counting quantized buckets */
-function getDominantColorFromSrc(src, sampleSize = 30) {
-    return new Promise((resolve, reject) => {
-        try {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.src = src;
-            img.onload = () => {
-                try {
-                    const c = document.createElement('canvas');
-                    c.width = sampleSize; c.height = sampleSize;
-                    const ctx = c.getContext('2d');
-                    ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
-                    const data = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
-                    const counts = Object.create(null);
-                    let maxCount = 0;
-                    let dominant = { r: 0, g: 0, b: 0 };
-
-                    for (let i = 0; i < data.length; i += 4) {
-                        const a = data[i+3];
-                        if (a < 125) continue; // ignore transparent
-                        // quantize to reduce variations: bucket by 16
-                        const r = Math.round(data[i] / 16) * 16;
-                        const g = Math.round(data[i+1] / 16) * 16;
-                        const b = Math.round(data[i+2] / 16) * 16;
-                        const key = r + ',' + g + ',' + b;
-                        const v = (counts[key] || 0) + 1;
-                        counts[key] = v;
-                        if (v > maxCount) {
-                            maxCount = v;
-                            dominant = { r, g, b };
-                        }
-                    }
-
-                    resolve(dominant);
-                } catch (err) {
-                    reject(err);
-                }
-            };
-            img.onerror = () => reject(new Error('Image load error'));
-        } catch (e) { reject(e); }
-    });
-}
-
-function applySectionColors() {
-    document.querySelectorAll('.section-bar').forEach(bar => {
-        const imgEl = bar.querySelector('img.section-icon');
-        if (!imgEl) return;
-        const src = imgEl.getAttribute('src');
-        if (!src) return;
-        getDominantColorFromSrc(src, 24).then(rgb => {
-            const rgbStr = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-            bar.style.backgroundColor = rgbStr;
-            // choose contrasting text color
-            const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
-            bar.style.color = luminance < 0.6 ? '#ffffff' : '#000000';
-        }).catch(() => { /* ignore errors */ });
-    });
-}
+/* JS helpers moved to script area to avoid being inside <style> */
 
 /* SVG icon variants for dark-toggle-mini */
 .dark-toggle-mini svg { color: #fff; transition: transform .12s ease, color .12s ease; }
@@ -607,6 +549,53 @@ body.dark-mode {
     gap: 10px;
     position: relative;
 }
+
+/* Editing bar (fixed, visible only in editing mode) */
+
+.editing-bar {
+    position: fixed;
+    left: auto;
+    right: 16px;
+    bottom: calc(var(--bottombar-h, 72px) + 12px);
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.96));
+    border: 1px solid rgba(15,23,36,0.04);
+    box-shadow: 0 8px 24px rgba(15,23,36,0.06);
+    transform: translateY(0);
+    transition: opacity .18s ease, transform .18s ease;
+    opacity: 0;
+    pointer-events: none;
+    font-size: 0.92rem;
+}
+
+body.editing .editing-bar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.editing-bar .eb-left { display:flex; align-items:center; gap:8px; }
+.editing-bar .eb-actions { display:flex; gap:6px; }
+.editing-bar .eb-actions .btn { padding:6px 8px; font-size:0.85rem; }
+.editing-bar .eb-left strong { font-size:0.95rem; }
+
+/* Small floating edit guide shown when editing */
+/* edit-guide removed (UI simplified at user's request) */
+
+/* Focus outlines for accessibility */
+button:focus, input:focus, textarea:focus {
+    outline: 3px solid rgba(74,109,167,0.14);
+    outline-offset: 2px;
+}
+
+/* Typographic improvements */
+.view-header h2 { font-size: 1.45rem; line-height: 1.05; }
+.week-head h3 { font-size: 1.18rem; }
 
 .topbar-buttons {
     width: 100%;
@@ -1143,6 +1132,26 @@ main {
     margin-top: 3px;
 }
 
+/* Mostrar meta-item dentro del encabezado de semana en bloque */
+.week-head .meta-item {
+    display: block;
+    margin-top: 8px;
+}
+.week-head .meta-item b {
+    display: block;
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: .66rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.week-head .meta-item span {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-soft);
+    font-size: .9rem;
+}
+
 .actual-flag {
     font-size: .65rem;
     font-weight: 700;
@@ -1243,6 +1252,70 @@ main {
 
 .section-body {
     padding: 6px 14px 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+}
+
+/* Bordes más visibles y sombras sutiles para mejorar legibilidad */
+.week-card {
+    border-color: rgba(15,23,36,0.06);
+    box-shadow: 0 10px 30px rgba(15,23,36,0.06);
+}
+
+.week-card:hover {
+    box-shadow: 0 16px 44px rgba(15,23,36,0.06);
+    transform: translateY(-3px);
+}
+
+.section-body {
+    box-shadow: 0 4px 12px rgba(15,23,36,0.06);
+}
+
+.week-meta .meta-item, .entry-row > div {
+    box-shadow: 0 2px 6px rgba(15,23,36,0.06);
+    border-color: rgba(15,23,36,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.00), rgba(0,0,0,0.00));
+}
+
+/* Slight inset to emphasize separators */
+.week-head .meta-item, .section-body {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Separadores horizontales y divisores verticales para mejorar lectura */
+.week-card + .week-card {
+    border-top: 1px solid var(--border);
+}
+
+.week-meta .meta-item {
+    padding: 8px 12px;
+    border-right: 1px solid var(--border);
+}
+.week-meta .meta-item:last-child {
+    border-right: none;
+}
+
+/* Entradas: separar columnas verticalmente */
+.entry-row > div {
+    padding-right: 12px;
+    border-right: 1px solid var(--border);
+}
+.entry-row > div:last-child {
+    border-right: none;
+}
+
+/* En el header de semana, meta-item en bloque ya tiene margen; añadir separador horizontal */
+.week-head .meta-item {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+}
+
+/* Responsive: retirar divisores verticales en pantallas pequeñas */
+@media (max-width: 720px) {
+    .week-meta .meta-item, .entry-row > div {
+        border-right: none;
+        padding-right: 0;
+    }
 }
 
 .section-bar img.section-icon {
@@ -1511,6 +1584,19 @@ main {
 <div class="topbar-logo-section" >
 <img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large" >
 </div >
+<!-- Editing bar (visible en modo edición) -->
+<div class="editing-bar" role="region" aria-label="Barra de edición" >
+    <div class="eb-left">
+        <strong>Modo edición activo</strong>
+        <span style="color:var(--ink-soft); font-size:0.9rem;">Los cambios se guardan automáticamente. Usa Guardar para forzar.</span>
+    </div>
+    <div class="eb-actions">
+        <button id="saveAllBtn" class="btn btn-accent btn-sm" title="Guardar todo">💾</button>
+        <button id="cancelEditBtn" class="btn btn-ghost btn-sm" title="Cancelar edición">✖</button>
+    </div>
+</div>
+
+<!-- edit-guide removed -->
 <div class="topbar-inner" >
 <button id="darkToggleBtn" class="dark-toggle-mini" onclick="toggleDarkMode()" title="Alternar modo" aria-label="Alternar modo"> 
     <svg id="darkIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> 
@@ -2049,23 +2135,115 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function getFinde(id) { return data.finde.find(w => w.id === id); }
 
             function parseFecha(fecha) {
-                const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/)
-;
-if (!m) return null
-;
-
-return {
-    d: parseInt(m[1], 10), m: parseInt(m[2], 10)
-}
-
-;
-}
+                const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/);
+                if (!m) return null;
+                return {
+                    d: parseInt(m[1], 10),
+                    m: parseInt(m[2], 10)
+                };
+            }
 
 function isToday(fecha) {
     const f = parseFecha(fecha);
     if (!f) return false;
     const now = new Date();
     return f.d === now.getDate() && f.m === (now.getMonth() + 1);
+}
+
+// --- Helpers moved here from head to ensure functions are executable ---
+function getDominantColorFromSrc(src, sampleSize = 30) {
+    return new Promise((resolve, reject) => {
+        try {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = src;
+            img.onload = () => {
+                try {
+                    const c = document.createElement('canvas');
+                    c.width = sampleSize; c.height = sampleSize;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+                    const data = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+                    const counts = Object.create(null);
+                    let maxCount = 0;
+                    let dominant = { r: 0, g: 0, b: 0 };
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        const a = data[i+3];
+                        if (a < 125) continue;
+                        const r = Math.round(data[i] / 16) * 16;
+                        const g = Math.round(data[i+1] / 16) * 16;
+                        const b = Math.round(data[i+2] / 16) * 16;
+                        const key = r + ',' + g + ',' + b;
+                        const v = (counts[key] || 0) + 1;
+                        counts[key] = v;
+                        if (v > maxCount) {
+                            maxCount = v;
+                            dominant = { r, g, b };
+                        }
+                    }
+
+                    resolve(dominant);
+                } catch (err) { reject(err); }
+            };
+            img.onerror = () => reject(new Error('Image load error'));
+        } catch (e) { reject(e); }
+    });
+}
+
+function applySectionColors() {
+    document.querySelectorAll('.section-bar').forEach(bar => {
+        const imgEl = bar.querySelector('img.section-icon');
+        if (!imgEl) return;
+        const src = imgEl.getAttribute('src');
+        if (!src) return;
+        getDominantColorFromSrc(src, 24).then(rgb => {
+            const rgbStr = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            bar.style.backgroundColor = rgbStr;
+            const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+            bar.style.color = luminance < 0.6 ? '#ffffff' : '#000000';
+        }).catch(() => { /* ignore errors */ });
+    });
+}
+
+// Take a snapshot of the current remote data to allow full revert on Cancel
+function takeEditSnapshot() {
+    return new Promise((resolve, reject) => {
+        if (!col) {
+            window.editSnapshot = {
+                salidas: JSON.parse(JSON.stringify(data.salidas || [])),
+                vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
+                finde: JSON.parse(JSON.stringify(data.finde || [])),
+                config: JSON.parse(JSON.stringify(config || {}))
+            };
+            resolve(window.editSnapshot);
+            return;
+        }
+
+        Promise.all([
+            col.doc('salidas').get(),
+            col.doc('vida').get(),
+            col.doc('finde').get(),
+            col.doc('config').get()
+        ]).then(([sDoc, vDoc, fDoc, cDoc]) => {
+            window.editSnapshot = {
+                salidas: (sDoc && sDoc.exists && sDoc.data().items) ? JSON.parse(JSON.stringify(sDoc.data().items)) : JSON.parse(JSON.stringify(data.salidas || [])),
+                vidaymin: (vDoc && vDoc.exists && vDoc.data().items) ? JSON.parse(JSON.stringify(vDoc.data().items)) : JSON.parse(JSON.stringify(data.vidaymin || [])),
+                finde: (fDoc && fDoc.exists && fDoc.data().items) ? JSON.parse(JSON.stringify(fDoc.data().items)) : JSON.parse(JSON.stringify(data.finde || [])),
+                config: (cDoc && cDoc.exists) ? JSON.parse(JSON.stringify(cDoc.data())) : JSON.parse(JSON.stringify(config || {}))
+            };
+            resolve(window.editSnapshot);
+        }).catch(err => {
+            console.error('Error taking edit snapshot', err);
+            window.editSnapshot = {
+                salidas: JSON.parse(JSON.stringify(data.salidas || [])),
+                vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
+                finde: JSON.parse(JSON.stringify(data.finde || [])),
+                config: JSON.parse(JSON.stringify(config || {}))
+            };
+            resolve(window.editSnapshot);
+        });
+    });
 }
 
 /* Helper: render remaining parts of a week card */
@@ -2192,7 +2370,8 @@ function findeMetaEditHTML(week) {
 }
 
 function findeMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">${esc(week.tituloConferencia) || 'Sin título de conferencia'}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> </div>`;
+    const titulo = esc(week.tituloConferencia) || 'Sin título de conferencia';
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> </div>`;
 }
 
 function findeCardHTML(week) {
@@ -2295,14 +2474,125 @@ document.getElementById('pinCancelBtn').addEventListener('click', hidePinModal)
 document.getElementById('pinConfirmBtn').addEventListener('click', () => {
                 const val = document.getElementById('pinInput').value;
                 if (val === config.pin) {
-                    state.editing = true;
-                    hidePinModal();
-                    render();
+                    // take snapshot of current server state so Cancel can restore it
+                    // but don't block UI indefinitely: fallback to enabling edit after timeout
+                    const snapshotPromise = takeEditSnapshot();
+                    const timeout = new Promise((res) => setTimeout(res, 1800));
+                    Promise.race([snapshotPromise, timeout]).then(() => {
+                        state.editing = true;
+                        hidePinModal();
+                        render();
+                    }).catch(() => {
+                        // fallback: enable editing even if snapshot failed
+                        state.editing = true;
+                        hidePinModal();
+                        render();
+                    });
                 } else {
                     document.getElementById('pinError').classList.remove('hidden');
                 }
             })
 ;
+
+// Initialize editing bar top offset and actions
+function updateTopbarHeight() {
+    const tb = document.querySelector('.topbar');
+    if (!tb) return;
+    const h = tb.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--topbar-h', `${h}px`);
+}
+
+window.addEventListener('resize', updateTopbarHeight);
+updateTopbarHeight();
+
+const saveAllBtn = document.getElementById('saveAllBtn');
+if (saveAllBtn) saveAllBtn.addEventListener('click', () => {
+    try {
+        saveSalidas(); saveVida(); saveFinde(); saveConfig();
+        setStatus('Guardado ✓');
+        setTimeout(() => setStatus('Conectado'), 2000);
+    } catch (e) { setStatus('Error guardando', true); }
+});
+
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
+    if (!confirm('Descartar cambios no guardados y salir del modo edición?')) return;
+
+    // Clear any pending autosave timers to avoid overwriting server state
+    try { Object.keys(saveTimers || {}).forEach(k => clearTimeout(saveTimers[k])); } catch (e) { }
+
+    // If no backend connection, fallback to reload
+    if (!col) {
+        location.reload();
+        return;
+    }
+
+    // If we took a snapshot when entering edit mode, restore it (overwrite server)
+    const snap = window.editSnapshot;
+    if (snap) {
+        setStatus('Revirtiendo cambios…');
+        // write snapshot back to server to undo any saved edits
+        Promise.all([
+            col.doc('salidas').set({ items: snap.salidas }),
+            col.doc('vida').set({ items: snap.vidaymin }),
+            col.doc('finde').set({ items: snap.finde }),
+            col.doc('config').set(snap.config)
+        ]).then(() => {
+            // restore local copies
+            data.salidas = JSON.parse(JSON.stringify(snap.salidas || []));
+            data.vidaymin = JSON.parse(JSON.stringify(snap.vidaymin || []));
+            data.finde = JSON.parse(JSON.stringify(snap.finde || []));
+            config = Object.assign({}, snap.config || config);
+            // clear snapshot
+            window.editSnapshot = null;
+            state.editing = false;
+            render();
+            setStatus('Cambios descartados');
+            setTimeout(() => setStatus('Conectado'), 1800);
+        }).catch(err => {
+            console.error('Error restoring snapshot', err);
+            setStatus('No se pudo revertir cambios', true);
+            // fallback: try to reload remote data
+            setTimeout(() => location.reload(), 1200);
+        });
+        return;
+    }
+
+    // no snapshot available: fall back to reloading current server state
+    setStatus('Revirtiendo cambios…');
+    Promise.all([
+        col.doc('salidas').get(),
+        col.doc('vida').get(),
+        col.doc('finde').get(),
+        col.doc('config').get()
+    ]).then(([sDoc, vDoc, fDoc, cDoc]) => {
+        if (sDoc && sDoc.exists && sDoc.data().items) data.salidas = sDoc.data().items;
+        if (vDoc && vDoc.exists && vDoc.data().items) data.vidaymin = vDoc.data().items;
+        if (fDoc && fDoc.exists && fDoc.data().items) data.finde = fDoc.data().items;
+        if (cDoc && cDoc.exists) config.pin = cDoc.data().pin || config.pin;
+
+        state.editing = false;
+        render();
+        setStatus('Cambios descartados');
+        setTimeout(() => setStatus('Conectado'), 1800);
+    }).catch(err => {
+        console.error('Error reloading remote data', err);
+        setStatus('No se pudo recuperar datos', true);
+        // as fallback reload the page to restore local state
+        setTimeout(() => location.reload(), 1200);
+    });
+});
+
+// compute bottom action bar height so editing bar sits above it
+function updateBottombarHeight() {
+    const bb = document.querySelector('.bottom-actionbar');
+    if (!bb) return;
+    const h = bb.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--bottombar-h', `${h}px`);
+}
+
+window.addEventListener('resize', updateBottombarHeight);
+updateBottombarHeight();
 document.getElementById('pinInput').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') document.getElementById('pinConfirmBtn').click();
             })
