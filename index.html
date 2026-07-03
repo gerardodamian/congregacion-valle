@@ -366,6 +366,22 @@ body.editing input, body.editing textarea, body.editing select {
     color: #1FAD4F;
 }
 
+/* Force SVG icons to use currentColor for fill/stroke so we can set them to white */
+.bab-icon svg {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* Ensure main action icons are white on their colored backgrounds */
+.bab-qr .bab-icon, .bab-share .bab-icon, .bottom-actionbar .bab-icon, .bab-edit.is-on .bab-icon {
+    color: #fff;
+}
+
+/* Slightly stronger shadow for action icons to improve contrast */
+.bab-qr .bab-icon, .bab-share .bab-icon {
+    box-shadow: 0 8px 22px rgba(15,23,36,0.06);
+}
+
 @media (max-width: 600px) {
     .bab-btn {
         font-size: .6rem;
@@ -583,6 +599,70 @@ body.editing .editing-bar {
 .editing-bar .eb-actions { display:flex; gap:6px; }
 .editing-bar .eb-actions .btn { padding:6px 8px; font-size:0.85rem; }
 .editing-bar .eb-left strong { font-size:0.95rem; }
+.editing-bar .eb-actions .eb-label { margin-left:6px; font-size:0.9rem; color:var(--ink); }
+
+/* Make editing bar buttons prettier */
+.editing-bar .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    box-shadow: 0 6px 18px rgba(15,23,36,0.06);
+    border: 1px solid rgba(15,23,36,0.04);
+}
+
+.editing-bar .btn.btn-accent {
+    background: linear-gradient(135deg,var(--accent),var(--accent-dark));
+    color: #fff;
+    border-color: rgba(255,255,255,0.06);
+}
+
+.editing-bar .btn.btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid rgba(15,23,36,0.06);
+}
+
+.editing-bar .btn:hover {
+    transform: translateY(-1px);
+}
+
+/* eb-action-btn matches bottom action icons: circular icon + label */
+.editing-bar .eb-action-btn { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; }
+.editing-bar .eb-icon {
+    /* match .bab-icon styles for consistent action icons */
+    width:34px; height:34px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:16px;
+    background: var(--surface-2); color: var(--ink-soft); box-shadow: 0 6px 16px rgba(15,23,36,0.06); border:1px solid rgba(15,23,36,0.04);
+}
+.editing-bar .eb-action-btn.btn-accent .eb-icon {
+    background: linear-gradient(135deg,var(--accent),var(--accent-dark)); color:#fff; border-color: rgba(255,255,255,0.06);
+}
+.editing-bar .eb-action-btn.btn-ghost .eb-icon {
+    background: var(--surface-2); color: var(--ink); border-color: rgba(15,23,36,0.04);
+}
+.editing-bar .eb-action-btn.btn-danger .eb-icon {
+    background: linear-gradient(135deg,var(--danger),var(--danger));
+    color:#fff;
+    border-color: rgba(255,255,255,0.04);
+    box-shadow: 0 8px 22px rgba(239,68,68,0.12);
+}
+.editing-bar .eb-action-btn.btn-danger .eb-label { color: var(--danger); }
+.editing-bar .eb-action-btn .eb-label { font-size:0.92rem; color:var(--ink); }
+
+/* Responsive: make editing bar buttons smaller on small screens */
+@media (max-width: 480px) {
+    .editing-bar {
+        right: 8px;
+        bottom: calc(var(--bottombar-h, 72px) + 8px);
+        padding: 4px 6px;
+    }
+
+    .editing-bar .eb-action-btn { gap:6px; padding:4px 8px; }
+    .editing-bar .eb-icon { width:28px; height:28px; font-size:14px; }
+    .editing-bar .eb-action-btn .eb-label { font-size:0.78rem; display:none; }
+    .editing-bar .eb-left strong { display:none; }
+}
 
 /* Small floating edit guide shown when editing */
 /* edit-guide removed (UI simplified at user's request) */
@@ -1587,12 +1667,21 @@ main {
 <!-- Editing bar (visible en modo edición) -->
 <div class="editing-bar" role="region" aria-label="Barra de edición" >
     <div class="eb-left">
-        <strong>Modo edición activo</strong>
-        <span style="color:var(--ink-soft); font-size:0.9rem;">Los cambios se guardan automáticamente. Usa Guardar para forzar.</span>
+        <strong>Modo edición</strong>
     </div>
     <div class="eb-actions">
-        <button id="saveAllBtn" class="btn btn-accent btn-sm" title="Guardar todo">💾</button>
-        <button id="cancelEditBtn" class="btn btn-ghost btn-sm" title="Cancelar edición">✖</button>
+        <button id="saveAllBtn" class="btn btn-accent btn-sm eb-action-btn" title="Guardar todo">
+            <span class="eb-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7.414A2 2 0 0019.586 6L16 2.414A2 2 0 0014.586 2H5zm7 17a2 2 0 110-4 2 2 0 010 4zm-5-11h10v4H7V9z"/></svg>
+            </span>
+            <span class="eb-label">Guardar</span>
+        </button>
+        <button id="cancelEditBtn" class="btn btn-danger btn-sm eb-action-btn" title="Cancelar edición">
+            <span class="eb-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zm2 5v9h2V8h-2zM7 8v9h2V8H7zm8 0v9h2V8h-2z"/></svg>
+            </span>
+            <span class="eb-label">Descartar</span>
+        </button>
     </div>
 </div>
 
