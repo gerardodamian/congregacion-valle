@@ -1,13 +1,7 @@
 <!DOCTYPE html >
 <html lang="es" >
 <head >
-<link rel="manifest" href="manifest.json" >
-
-<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png" >
-
-<link rel="apple-touch-icon" href="img/apple-touch-icon.png" >
-
-<meta name="theme-color" content="#4a6da7" >
+<meta charset="UTF-8" >
 
 <meta name="apple-mobile-web-app-capable" content="yes" >
 
@@ -16,7 +10,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" >
 
 <meta name="apple-mobile-web-app-title" content="Congregación Valle Hermoso" >
-<meta charset="UTF-8" >
+<link rel="manifest" href="manifest.json" >
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png" >
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" >
+<meta name="theme-color" content="#4a6da7" >
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" >
 <title > Congregación Valle Hermoso — Agenda</title >
 <link rel="preconnect" href="https://fonts.googleapis.com" >
@@ -1950,23 +1947,23 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 return [
                     {
                         id: uid(), actual: true, rango: '29 de junio a 5 de julio',
-                        presidente: '', conferenciante: '', tituloConferencia: '',
-                        conductorAtalaya: '', lector: ''
+                        oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: '', oracionFinal: ''
                     },
                     {
                         id: uid(), actual: false, rango: '6-12 de julio',
-                        presidente: '', conferenciante: '', tituloConferencia: '',
-                        conductorAtalaya: '', lector: ''
+                        oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: '', oracionFinal: ''
                     },
                     {
                         id: uid(), actual: false, rango: '13-19 de julio',
-                        presidente: '', conferenciante: '', tituloConferencia: '',
-                        conductorAtalaya: '', lector: ''
+                        oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: '', oracionFinal: ''
                     },
                     {
                         id: uid(), actual: false, rango: '20-26 de julio',
-                        presidente: '', conferenciante: '', tituloConferencia: '',
-                        conductorAtalaya: '', lector: ''
+                        oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
+                        conductorAtalaya: '', lector: '', oracionFinal: ''
                     }
                 ];
             }
@@ -2427,15 +2424,32 @@ function weekMetaViewHTML(week) {
     return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
 }
 
+function esEstudioBiblico(titulo) {
+    const t = String(titulo || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    return t.includes('estudio biblico');
+}
+
 function partRowHTML(week, section, part) {
+    const esEstudio = esEstudioBiblico(part.titulo);
+
     if (state.editing) {
-        return `<div class="part-row" data-part-id="${part.id}"> <div class="part-edit-grid"> <input aria-label="Número" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#"> <input aria-label="Título de la parte" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte"> <input aria-label="Minutos" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min"> </div> <div class="part-edit-row2"> <input aria-label="Auditorio principal" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal"> <input aria-label="Sala auxiliar 1" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)"> <input aria-label="Sala auxiliar 2" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)"> <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button> </div> </div>`;
+        const camposAsig = esEstudio
+            ? `<input aria-label="Conductor de estudio" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Conductor de estudio"> <input aria-label="Lector" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Lector">`
+            : `<input aria-label="Auditorio principal" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="principal" value="${esc(part.principal)}" placeholder="Auditorio principal"> <input aria-label="Sala auxiliar 1" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar" value="${esc(part.auxiliar)}" placeholder="Sala auxiliar 1 (opcional)"> <input aria-label="Sala auxiliar 2" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="auxiliar2" value="${esc(part.auxiliar2)}" placeholder="Sala auxiliar 2 (opcional)">`;
+        return `<div class="part-row" data-part-id="${part.id}"> <div class="part-edit-grid"> <input aria-label="Número" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="numero" value="${esc(part.numero)}" placeholder="#"> <input aria-label="Título de la parte" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="titulo" value="${esc(part.titulo)}" placeholder="Título de la parte"> <input aria-label="Minutos" data-role="part-field" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" data-field="minutos" value="${esc(part.minutos)}" placeholder="min"> </div> <div class="part-edit-row2"${esEstudio ? ' style="grid-template-columns:1fr 1fr 32px;"' : ''}>${camposAsig} <button class="btn btn-icon btn-danger" data-action="delete-part" data-week-id="${week.id}" data-section="${section}" data-part-id="${part.id}" title="Eliminar">✕</button> </div> </div>`;
     }
 
     const asignaciones = [];
-    if (part.principal) asignaciones.push(`<span>Auditorio principal: <b>${esc(part.principal)}</b></span>`);
-    if (part.auxiliar) asignaciones.push(`<span>Sala auxiliar 1: <b>${esc(part.auxiliar)}</b></span>`);
-    if (part.auxiliar2) asignaciones.push(`<span>Sala auxiliar 2: <b>${esc(part.auxiliar2)}</b></span>`);
+    if (esEstudio) {
+        if (part.principal) asignaciones.push(`<span>Conductor de estudio: <b>${esc(part.principal)}</b></span>`);
+        if (part.auxiliar) asignaciones.push(`<span>Lector: <b>${esc(part.auxiliar)}</b></span>`);
+    } else {
+        if (part.principal) asignaciones.push(`<span>Auditorio principal: <b>${esc(part.principal)}</b></span>`);
+        if (part.auxiliar) asignaciones.push(`<span>Sala auxiliar 1: <b>${esc(part.auxiliar)}</b></span>`);
+        if (part.auxiliar2) asignaciones.push(`<span>Sala auxiliar 2: <b>${esc(part.auxiliar2)}</b></span>`);
+    }
 
     return `<div class="part-row"> <div class="part-view-top"> <span class="part-num">${esc(part.numero)}.</span> <span class="part-titulo">${esc(part.titulo)}</span> ${part.minutos ? `<span class="part-min"> ${esc(part.minutos)} min</span>` : ''} </div> ${asignaciones.length ? `<div class="part-asig">${asignaciones.join('')}</div>` : ''} </div>`;
 }
@@ -2455,12 +2469,12 @@ function renderFinde() {
 }
 
 function findeMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function findeMetaViewHTML(week) {
     const titulo = esc(week.tituloConferencia) || 'Sin título de conferencia';
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> </div>`;
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
 }
 
 function findeCardHTML(week) {
@@ -2716,8 +2730,8 @@ document.getElementById('addWeekBtn').addEventListener('click', () => {
 ;
 document.getElementById('addFindeBtn').addEventListener('click', () => {
                 data.finde.unshift({
-                    id: uid(), actual: false, rango: '', presidente: '', conferenciante: '',
-                    tituloConferencia: '', conductorAtalaya: '', lector: ''
+                    id: uid(), actual: false, rango: '', oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '',
+                    tituloConferencia: '', conductorAtalaya: '', lector: '', oracionFinal: ''
                 });
                 saveFinde();
                 renderFinde();
