@@ -879,7 +879,7 @@ body.saving .status-pill .status-dot {
     margin: 14px auto 0;
     padding: 0 16px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
 }
 
@@ -889,7 +889,7 @@ body.saving .status-pill .status-dot {
     border: 1px solid var(--border);
     border-radius: 11px;
     padding: 11px 6px;
-    font-size: .8rem;
+    font-size: .78rem;
     font-weight: 600;
     color: var(--ink-soft);
     text-align: center;
@@ -897,8 +897,8 @@ body.saving .status-pill .status-dot {
 
 @media (max-width: 600px) {
     .tab {
-        font-size: .72rem;
-        padding: 10px 6px;
+        font-size: .68rem;
+        padding: 9px 4px;
     }
 }
 
@@ -1716,6 +1716,7 @@ main {
 <button class="tab active" data-tab="salidas" > Salidas a predicar</button >
 <button class="tab" data-tab="vida" > Vida y Ministerio</button >
 <button class="tab" data-tab="finde" > Reunión de Fin de Semana</button >
+<button class="tab" data-tab="limpieza" > Limpieza</button >
 </div >
 
 <main >
@@ -1744,6 +1745,15 @@ main {
 <div class="tip edit-only hidden" > 💡 Esta es la reunión del domingo. Completá presidente, conferenciante, título del discurso, conductor de La Atalaya y lector.</div >
 <div id="findeList" > </div >
 <button id="addFindeBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
+
+<section id="limpiezaView" class="view" >
+<div class="view-header" >
+<h2 > Limpieza del Salón</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Se limpia dos días después de la reunión: jueves y domingo. Por lo general rotan de a dos grupos (n°1 y n°2, luego n°3 y n°4, y así hasta el n°8).</div >
+<div id="limpiezaList" > </div >
+<button id="addLimpiezaBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
 </section >
 </main >
 
@@ -1835,7 +1845,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                ESTADO Y DATOS
                ============================================================ */
             let state = { editing: false, tab: 'salidas' };
-            let data = { salidas: [], vidaymin: [], finde: [] };
+            let data = { salidas: [], vidaymin: [], finde: [], limpieza: [] };
             let config = { pin: '2026' };
             let saveTimers = {};
 
@@ -1968,6 +1978,15 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 ];
             }
 
+            function seedLimpieza() {
+                return [
+                    { id: uid(), actual: true, rango: '29 de junio a 5 de julio', grupos: 'Grupo n°1 y Grupo n°2' },
+                    { id: uid(), actual: false, rango: '6-12 de julio', grupos: 'Grupo n°3 y Grupo n°4' },
+                    { id: uid(), actual: false, rango: '13-19 de julio', grupos: 'Grupo n°5 y Grupo n°6' },
+                    { id: uid(), actual: false, rango: '20-26 de julio', grupos: 'Grupo n°7 y Grupo n°8' }
+                ];
+            }
+
             window.compartirPagina = function() {
                 console.log("🔵 Función compartirPagina() llamada");
 
@@ -2072,9 +2091,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 console.error('No se pudo iniciar Firebase:', e);
             }
 
-            let suppressEcho = { salidas: false, vida: false, finde: false, config: false };
-            let pendingRemote = { salidas: false, vida: false, finde: false };
-            let firstLoad = { salidas: false, vida: false, finde: false, config: false };
+            let suppressEcho = { salidas: false, vida: false, finde: false, limpieza: false, config: false };
+            let pendingRemote = { salidas: false, vida: false, finde: false, limpieza: false };
+            let firstLoad = { salidas: false, vida: false, finde: false, limpieza: false, config: false };
 
             function setStatus(text, isError) {
                 const el = document.getElementById('statusText');
@@ -2089,7 +2108,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             }
 
             /* Reintenta aplicar una actualización remota apenas el usuario deja de escribir */
-            ['salidasList', 'vidaList', 'findeList'].forEach(id => {
+            ['salidasList', 'vidaList', 'findeList', 'limpiezaList'].forEach(id => {
                 document.getElementById(id).addEventListener('focusout', () => {
                     setTimeout(() => {
                         if (id === 'salidasList' && pendingRemote.salidas && !isTypingInside('salidasList')) {
@@ -2101,6 +2120,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         if (id === 'findeList' && pendingRemote.finde && !isTypingInside('findeList')) {
                             pendingRemote.finde = false; renderFinde();
                         }
+                        if (id === 'limpiezaList' && pendingRemote.limpieza && !isTypingInside('limpiezaList')) {
+                            pendingRemote.limpieza = false; renderLimpieza();
+                        }
                     }, 120);
                 });
             });
@@ -2111,6 +2133,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     data.salidas = seedSalidas();
                     data.vidaymin = seedVida();
                     data.finde = seedFinde();
+                    data.limpieza = seedLimpieza();
                     render();
                     return;
                 }
@@ -2161,6 +2184,21 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     setStatus('Conectado');
                 }, (err) => { setStatus('Sin conexión a la base de datos', true); });
 
+                col.doc('limpieza').onSnapshot((doc) => {
+                    if (suppressEcho.limpieza) { suppressEcho.limpieza = false; return; }
+                    if (doc.exists && doc.data().items) {
+                        data.limpieza = doc.data().items;
+                    } else if (!firstLoad.limpieza) {
+                        data.limpieza = seedLimpieza();
+                        suppressEcho.limpieza = true;
+                        col.doc('limpieza').set({ items: data.limpieza }).catch(() => { suppressEcho.limpieza = false; });
+                    }
+                    firstLoad.limpieza = true;
+                    if (isTypingInside('limpiezaList')) { pendingRemote.limpieza = true; }
+                    else { renderLimpieza(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
+
                 col.doc('config').onSnapshot((doc) => {
                     if (suppressEcho.config) { suppressEcho.config = false; return; }
                     if (doc.exists && doc.data().pin) {
@@ -2195,6 +2233,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function saveSalidas() { scheduleSave('salidas', () => data.salidas, 'salidas'); }
             function saveVida() { scheduleSave('vida', () => data.vidaymin, 'vida'); }
             function saveFinde() { scheduleSave('finde', () => data.finde, 'finde'); }
+            function saveLimpieza() { scheduleSave('limpieza', () => data.limpieza, 'limpieza'); }
             function saveConfig() {
                 if (!col) { setStatus('Sin conexión a la base de datos', true); return; }
                 clearTimeout(saveTimers.config);
@@ -2219,6 +2258,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function getWeek(id) { return data.vidaymin.find(w => w.id === id); }
             function getPart(weak, section, id) { return weak[section].find(p => p.id === id); }
             function getFinde(id) { return data.finde.find(w => w.id === id); }
+            function getLimpieza(id) { return data.limpieza.find(w => w.id === id); }
 
             function parseFecha(fecha) {
                 const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/);
@@ -2300,6 +2340,7 @@ function takeEditSnapshot() {
                 salidas: JSON.parse(JSON.stringify(data.salidas || [])),
                 vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: JSON.parse(JSON.stringify(data.finde || [])),
+                limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2310,12 +2351,14 @@ function takeEditSnapshot() {
             col.doc('salidas').get(),
             col.doc('vida').get(),
             col.doc('finde').get(),
+            col.doc('limpieza').get(),
             col.doc('config').get()
-        ]).then(([sDoc, vDoc, fDoc, cDoc]) => {
+        ]).then(([sDoc, vDoc, fDoc, lDoc, cDoc]) => {
             window.editSnapshot = {
                 salidas: (sDoc && sDoc.exists && sDoc.data().items) ? JSON.parse(JSON.stringify(sDoc.data().items)) : JSON.parse(JSON.stringify(data.salidas || [])),
                 vidaymin: (vDoc && vDoc.exists && vDoc.data().items) ? JSON.parse(JSON.stringify(vDoc.data().items)) : JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: (fDoc && fDoc.exists && fDoc.data().items) ? JSON.parse(JSON.stringify(fDoc.data().items)) : JSON.parse(JSON.stringify(data.finde || [])),
+                limpieza: (lDoc && lDoc.exists && lDoc.data().items) ? JSON.parse(JSON.stringify(lDoc.data().items)) : JSON.parse(JSON.stringify(data.limpieza || [])),
                 config: (cDoc && cDoc.exists) ? JSON.parse(JSON.stringify(cDoc.data())) : JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2325,6 +2368,7 @@ function takeEditSnapshot() {
                 salidas: JSON.parse(JSON.stringify(data.salidas || [])),
                 vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: JSON.parse(JSON.stringify(data.finde || [])),
+                limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2485,6 +2529,35 @@ function findeCardHTML(week) {
 }
 
 /* ============================================================
+               RENDER — LIMPIEZA
+               ============================================================ */
+function renderLimpieza() {
+    const cont = document.getElementById('limpiezaList');
+
+    if (data.limpieza.length === 0) {
+        cont .innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+        return;
+    }
+
+    cont .innerHTML = data.limpieza.map(week => limpiezaCardHTML(week)).join('');
+}
+
+function limpiezaMetaEditHTML(week) {
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="limpieza-actual" data-limpieza-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+}
+
+function limpiezaMetaViewHTML(week) {
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || '—'}</span></div> </div>`;
+}
+
+function limpiezaCardHTML(week) {
+    const headBody = state.editing ? limpiezaMetaEditHTML(week) : limpiezaMetaViewHTML(week);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-limpieza" data-limpieza-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
+
+    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-limpieza-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+}
+
+/* ============================================================
                RENDER GENERAL
                ============================================================ */
 function render() {
@@ -2497,6 +2570,7 @@ function render() {
     renderSalidas();
     renderVida();
     renderFinde();
+    renderLimpieza();
     // after rendering sections, update their background colors to match icons
     setTimeout(applySectionColors, 30);
 }
@@ -2611,7 +2685,7 @@ updateTopbarHeight();
 const saveAllBtn = document.getElementById('saveAllBtn');
 if (saveAllBtn) saveAllBtn.addEventListener('click', () => {
     try {
-        saveSalidas(); saveVida(); saveFinde(); saveConfig();
+        saveSalidas(); saveVida(); saveFinde(); saveLimpieza(); saveConfig();
         setStatus('Guardado ✓');
         setTimeout(() => setStatus('Conectado'), 2000);
     } catch (e) { setStatus('Error guardando', true); }
@@ -2639,12 +2713,14 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             col.doc('salidas').set({ items: snap.salidas }),
             col.doc('vida').set({ items: snap.vidaymin }),
             col.doc('finde').set({ items: snap.finde }),
+            col.doc('limpieza').set({ items: snap.limpieza }),
             col.doc('config').set(snap.config)
         ]).then(() => {
             // restore local copies
             data.salidas = JSON.parse(JSON.stringify(snap.salidas || []));
             data.vidaymin = JSON.parse(JSON.stringify(snap.vidaymin || []));
             data.finde = JSON.parse(JSON.stringify(snap.finde || []));
+            data.limpieza = JSON.parse(JSON.stringify(snap.limpieza || []));
             config = Object.assign({}, snap.config || config);
             // clear snapshot
             window.editSnapshot = null;
@@ -2667,11 +2743,13 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
         col.doc('salidas').get(),
         col.doc('vida').get(),
         col.doc('finde').get(),
+        col.doc('limpieza').get(),
         col.doc('config').get()
-    ]).then(([sDoc, vDoc, fDoc, cDoc]) => {
+    ]).then(([sDoc, vDoc, fDoc, lDoc, cDoc]) => {
         if (sDoc && sDoc.exists && sDoc.data().items) data.salidas = sDoc.data().items;
         if (vDoc && vDoc.exists && vDoc.data().items) data.vidaymin = vDoc.data().items;
         if (fDoc && fDoc.exists && fDoc.data().items) data.finde = fDoc.data().items;
+        if (lDoc && lDoc.exists && lDoc.data().items) data.limpieza = lDoc.data().items;
         if (cDoc && cDoc.exists) config.pin = cDoc.data().pin || config.pin;
 
         state.editing = false;
@@ -2735,6 +2813,12 @@ document.getElementById('addFindeBtn').addEventListener('click', () => {
                 });
                 saveFinde();
                 renderFinde();
+            })
+;
+document.getElementById('addLimpiezaBtn').addEventListener('click', () => {
+                data.limpieza.unshift({ id: uid(), actual: false, rango: '', grupos: '' });
+                saveLimpieza();
+                renderLimpieza();
             })
 ;
 
@@ -2802,6 +2886,34 @@ document.getElementById('findeList').addEventListener('click', (e) => {
                     showConfirm('Eliminar semana', '¿Eliminar el programa de esta reunión de fin de semana?', () => {
                         data.finde = data.finde.filter(w => w.id !== btn.dataset.findeId);
                         saveFinde(); renderFinde();
+                    });
+                }
+            })
+;
+
+document.getElementById('limpiezaList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'limpieza-field') {
+                    const week = getLimpieza(t.dataset.limpiezaId);
+                    if (week) { week[t.dataset.field] = t.value; saveLimpieza(); }
+                }
+            })
+;
+document.getElementById('limpiezaList').addEventListener('change', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'limpieza-actual') {
+                    const week = getLimpieza(t.dataset.limpiezaId);
+                    if (week) { week.actual = t.checked; saveLimpieza(); renderLimpieza(); }
+                }
+            })
+;
+document.getElementById('limpiezaList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                if (btn.dataset.action === 'delete-limpieza') {
+                    showConfirm('Eliminar semana', '¿Eliminar esta semana de limpieza?', () => {
+                        data.limpieza = data.limpieza.filter(w => w.id !== btn.dataset.limpiezaId);
+                        saveLimpieza(); renderLimpieza();
                     });
                 }
             })
