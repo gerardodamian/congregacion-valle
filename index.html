@@ -37,8 +37,11 @@
     --danger: #ef4444;
     --danger-soft: #fff1f2;
     --tesoros: #3C7E8A;
+    --tesoros-rgb: 60,126,138;
     --seamos: #D68F01;
+    --seamos-rgb: 214,143,1;
     --vida: #BF2F14;
+    --vida-rgb: 191,47,20;
     --radius: 12px;
     --radius-sm: 8px;
     --shadow: 0 8px 24px rgba(15,23,36,0.06), 0 2px 6px rgba(15,23,36,0.04);
@@ -885,20 +888,42 @@ body.saving .status-pill .status-dot {
 
 .tab {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 11px;
-    padding: 11px 6px;
+    padding: 12px 6px 10px;
     font-size: .78rem;
     font-weight: 600;
     color: var(--ink-soft);
     text-align: center;
 }
 
+.tab-icon {
+    width: 19px;
+    height: 19px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .85;
+    transition: opacity .12s ease;
+}
+
 @media (max-width: 600px) {
     .tab {
         font-size: .68rem;
-        padding: 9px 4px;
+        padding: 10px 4px 8px;
+    }
+
+    .tab-icon {
+        width: 17px;
+        height: 17px;
     }
 }
 
@@ -907,6 +932,10 @@ body.saving .status-pill .status-dot {
     color: #fff;
     border-color: var(--accent);
 }
+
+    .tab.active .tab-icon {
+        opacity: 1;
+    }
 
 /* ---------- Main ---------- */
 main {
@@ -1186,7 +1215,7 @@ main {
     }
 
 .week-head {
-    padding: 15px 16px 12px;
+    padding: 16px 16px 13px;
     border-bottom: 1px solid var(--border);
     background: var(--surface-2);
 }
@@ -1304,7 +1333,7 @@ main {
 }
 
 .section-bar {
-    padding: 7px 16px;
+    padding: 8px 16px;
     font-size: .72rem;
     font-weight: 700;
     letter-spacing: .6px;
@@ -1396,10 +1425,11 @@ main {
 }
 
 .section-bar img.section-icon {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
 }
 
 .song-line {
@@ -1421,13 +1451,40 @@ main {
         width: 70px;
     }
 .part-row {
-    padding: 10px 4px;
-    border-bottom: 1px solid var(--border);
+    padding: 12px 10px 12px 14px;
+    border-bottom: 1px solid rgba(15,23,36,0.05);
+    border-left: 3px solid transparent;
+    border-radius: 6px;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+.dark-mode .part-row {
+    border-bottom-color: rgba(255,255,255,0.06);
 }
 
     .part-row:last-child {
         border-bottom: none;
     }
+
+    .part-row:hover {
+        background: rgba(15,23,36,0.02);
+    }
+
+    .dark-mode .part-row:hover {
+        background: rgba(255,255,255,0.03);
+    }
+
+.section-body.tesoros-body .part-row {
+    border-left-color: rgba(var(--tesoros-rgb), .55);
+}
+
+.section-body.seamos-body .part-row {
+    border-left-color: rgba(var(--seamos-rgb), .55);
+}
+
+.section-body.vida-body .part-row {
+    border-left-color: rgba(var(--vida-rgb), .55);
+}
 
 .part-view-top {
     display: flex;
@@ -1437,17 +1494,19 @@ main {
 
 .part-num {
     font-family: 'Fraunces',serif;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--ink-soft);
-    font-size: .85rem;
-    min-width: 18px;
+    font-size: .8rem;
+    min-width: 16px;
+    opacity: .75;
 }
 
 .part-titulo {
-    font-weight: 600;
-    font-size: .87rem;
+    font-weight: 700;
+    font-size: .89rem;
     color: var(--ink);
     flex: 1;
+    letter-spacing: .1px;
 }
 
 .section-body.tesoros-body .part-titulo {
@@ -1463,19 +1522,21 @@ main {
 }
 
 .part-min {
-    font-size: .74rem;
+    font-size: .72rem;
+    font-style: italic;
     color: var(--ink-soft);
+    opacity: .8;
     white-space: nowrap;
 }
 
 .part-asig {
-    margin-top: 3px;
-    padding-left: 26px;
+    margin-top: 4px;
+    padding-left: 24px;
     font-size: .78rem;
     color: var(--ink-soft);
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px 14px;
 }
 
     .part-asig b {
@@ -1725,10 +1786,22 @@ main {
 </div >
 
 <div class="tabs" >
-<button class="tab active" data-tab="salidas" > Salidas a predicar</button >
-<button class="tab" data-tab="vida" > Vida y Ministerio</button >
-<button class="tab" data-tab="finde" > Reunión de Fin de Semana</button >
-<button class="tab" data-tab="limpieza" > Limpieza</button >
+<button class="tab active" data-tab="salidas" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-7.2 7-12.5A7 7 0 0 0 5 8.5C5 13.8 12 21 12 21z"/><circle cx="12" cy="8.5" r="2.4"/></svg>
+<span>Salidas a predicar</span>
+</button >
+<button class="tab" data-tab="vida" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c2.3-1.1 5.6-1.1 8 0v13.2c-2.4-1.1-5.7-1.1-8 0z"/><path d="M20.5 5.5c-2.3-1.1-5.6-1.1-8 0v13.2c2.4-1.1 5.7-1.1 8 0z"/></svg>
+<span>Vida y Ministerio</span>
+</button >
+<button class="tab" data-tab="finde" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.6 2.5-6.2 5.5-6.2s5.5 2.6 5.5 6.2"/><circle cx="17" cy="9.5" r="2.2"/><path d="M15 14.3c2.6.4 4.5 2.7 4.5 5.7"/></svg>
+<span>Reunión de Fin de Semana</span>
+</button >
+<button class="tab" data-tab="limpieza" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4z"/><path d="M18.5 14l.8 2.1 2.2.8-2.2.8-.8 2.1-.8-2.1-2.2-.8 2.2-.8z"/></svg>
+<span>Limpieza</span>
+</button >
 </div >
 
 <main >
