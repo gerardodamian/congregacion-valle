@@ -953,6 +953,22 @@ main {
         display: block;
     }
 
+.view-banner {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    display: block;
+}
+
+@media (min-width: 600px) {
+    .view-banner {
+        height: 190px;
+    }
+}
+
 .view-header {
     display: flex;
     align-items: baseline;
@@ -1806,6 +1822,7 @@ main {
 
 <main >
 <section id="salidasView" class="view active" >
+<img src="img/predicacion.jpg" alt="Salidas a predicar" class="view-banner" >
 <div class="view-header" >
 <h2 > Salidas de predicación</h2 >
 </div >
@@ -1815,6 +1832,7 @@ main {
 </section >
 
 <section id="vidaView" class="view" >
+<img src="img/vidayministerio.jpg" alt="Vida y Ministerio Cristiano" class="view-banner" >
 <div class="view-header" >
 <h2 > Vida y Ministerio Cristiano</h2 >
 </div >
@@ -1824,6 +1842,7 @@ main {
 </section >
 
 <section id="findeView" class="view" >
+<img src="img/reunionfin.jpg" alt="Reunión de Fin de Semana" class="view-banner" >
 <div class="view-header" >
 <h2 > Reunión de Fin de Semana</h2 >
 </div >
@@ -1833,6 +1852,7 @@ main {
 </section >
 
 <section id="limpiezaView" class="view" >
+<img src="img/limpieza.jpg" alt="Limpieza del Salón" class="view-banner" >
 <div class="view-header" >
 <h2 > Limpieza del Salón</h2 >
 </div >
