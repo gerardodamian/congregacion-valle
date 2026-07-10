@@ -1450,6 +1450,18 @@ main {
     flex: 1;
 }
 
+.section-body.tesoros-body .part-titulo {
+    color: var(--tesoros);
+}
+
+.section-body.seamos-body .part-titulo {
+    color: var(--seamos);
+}
+
+.section-body.vida-body .part-titulo {
+    color: var(--vida);
+}
+
 .part-min {
     font-size: .74rem;
     color: var(--ink-soft);
@@ -2396,7 +2408,7 @@ function sectionHTML(week, section, label, barClass) {
 
     const iconHTML = iconSrc ? `<img src="${iconSrc}" alt="" class="section-icon">` : '';
 
-    return `<div class="section-bar ${barClass}">${iconHTML}${label}</div> <div class="section-body">${items || '<div class="empty-state" style="padding:14px; margin:8px 0;">Sin partes</div>'}${addBtn}</div>`;
+    return `<div class="section-bar ${barClass}">${iconHTML}${label}</div> <div class="section-body ${barClass}-body">${items || '<div class="empty-state" style="padding:14px; margin:8px 0;">Sin partes</div>'}${addBtn}</div>`;
 }
 
 function songLineHTML(week) {
