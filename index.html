@@ -1348,6 +1348,61 @@ main {
     margin-top: 10px;
 }
 
+.week-day-num-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .3px;
+    vertical-align: middle;
+}
+
+.week-day-head-edit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+    .week-day-head-edit .week-day-title {
+        margin: 0;
+    }
+
+    .week-day-num-input {
+        width: 64px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 5px 7px;
+        font-size: .78rem;
+        color: var(--ink);
+        font-weight: 500;
+    }
+
+.week-day-block {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+}
+
+    .week-day-block:first-of-type {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: none;
+    }
+
+    .week-day-title {
+        margin: 0 0 2px;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--accent);
+    }
+
 .section-bar {
     padding: 8px 16px;
     font-size: .72rem;
@@ -1818,6 +1873,14 @@ main {
 <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4z"/><path d="M18.5 14l.8 2.1 2.2.8-2.2.8-.8 2.1-.8-2.1-2.2-.8 2.2-.8z"/></svg>
 <span>Limpieza</span>
 </button >
+<button class="tab" data-tab="acomodadores" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4"/><path d="M4 12h16v5.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><path d="M6 19v2"/><path d="M18 19v2"/></svg>
+<span>Acomodadores</span>
+</button >
+<button class="tab" data-tab="audiovideo" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 10.5a6.5 6.5 0 0 0 13 0"/><path d="M12 17v4"/><path d="M8.5 21h7"/></svg>
+<span>Audio y Video</span>
+</button >
 </div >
 
 <main >
@@ -1859,6 +1922,26 @@ main {
 <div class="tip edit-only hidden" > 💡 Se limpia dos días después de la reunión: jueves y domingo. Por lo general rotan de a dos grupos (n°1 y n°2, luego n°3 y n°4, y así hasta el n°8).</div >
 <div id="limpiezaList" > </div >
 <button id="addLimpiezaBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
+
+<section id="acomodadoresView" class="view" >
+<img src="img/acomodadores.jpg" alt="Acomodadores" class="view-banner" >
+<div class="view-header" >
+<h2 > Acomodadores</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Completá el asignado a auditorio, puerta de entrada y vigilancia, con su grupo, para el jueves y el domingo.</div >
+<div id="acomodadoresList" > </div >
+<button id="addAcomodadoresBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
+
+<section id="audiovideoView" class="view" >
+<img src="img/audio-y-video.jpg" alt="Audio y Video" class="view-banner" >
+<div class="view-header" >
+<h2 > Audio y Video</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Completá quién está en plataforma, los dos turnos de micrófonos y los dos asignados a audio y video (con su grupo), para el jueves y el domingo.</div >
+<div id="audiovideoList" > </div >
+<button id="addAudiovideoBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
 </section >
 </main >
 
@@ -1950,7 +2033,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                ESTADO Y DATOS
                ============================================================ */
             let state = { editing: false, tab: 'salidas' };
-            let data = { salidas: [], vidaymin: [], finde: [], limpieza: [] };
+            let data = { salidas: [], vidaymin: [], finde: [], limpieza: [], acomodadores: [], audiovideo: [] };
             let config = { pin: '2026' };
             let saveTimers = {};
 
@@ -2035,7 +2118,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function seedVida() {
                 return [
                     {
-                        id: uid(), actual: true, rango: '22-28 de junio', lectura: 'Jeremías 9, 10',
+                        id: uid(), actual: true, rango: '22-28 de junio', diaJueves: '25', lectura: 'Jeremías 9, 10',
                         presidente: 'Ricardo García', consejero: 'Ariel Gauna',
                         cancionInicial: '5', oracionInicial: 'Severo Flores',
                         tesoros: [
@@ -2061,7 +2144,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function seedFinde() {
                 return [
                     {
-                        id: uid(), actual: true, rango: '29 de junio a 5 de julio',
+                        id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaDomingo: '5',
                         oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
                         conductorAtalaya: '', lector: '', oracionFinal: ''
                     },
@@ -2085,10 +2168,44 @@ Consulta de uso libre para la congregación · La edición requiere código de a
 
             function seedLimpieza() {
                 return [
-                    { id: uid(), actual: true, rango: '29 de junio a 5 de julio', grupos: 'Grupo n°1 y Grupo n°2' },
+                    { id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaJueves: '2', diaDomingo: '5', grupos: 'Grupo n°1 y Grupo n°2' },
                     { id: uid(), actual: false, rango: '6-12 de julio', grupos: 'Grupo n°3 y Grupo n°4' },
                     { id: uid(), actual: false, rango: '13-19 de julio', grupos: 'Grupo n°5 y Grupo n°6' },
                     { id: uid(), actual: false, rango: '20-26 de julio', grupos: 'Grupo n°7 y Grupo n°8' }
+                ];
+            }
+
+            function blankAcomodadoresDay() {
+                return { dia: '', auditorioNombre: '', auditorioGrupo: '', entradaNombre: '', entradaGrupo: '', vigilanciaNombre: '', vigilanciaGrupo: '' };
+            }
+
+            function seedAcomodadores() {
+                return [
+                    {
+                        id: uid(), actual: true, rango: '20-26 de julio',
+                        jueves: { dia: '23', auditorioNombre: 'J. Moreyra', auditorioGrupo: '3', entradaNombre: 'F. Varela', entradaGrupo: '3', vigilanciaNombre: 'P. Montini', vigilanciaGrupo: '4' },
+                        domingo: Object.assign(blankAcomodadoresDay(), { dia: '26' })
+                    },
+                    { id: uid(), actual: false, rango: '27 de julio a 2 de agosto', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() },
+                    { id: uid(), actual: false, rango: '3-9 de agosto', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() },
+                    { id: uid(), actual: false, rango: '10-16 de agosto', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() }
+                ];
+            }
+
+            function blankAudiovideoDay() {
+                return { dia: '', plataforma: '', mic1a: '', mic1b: '', mic2a: '', mic2b: '', avNombre1: '', avGrupo1: '', avNombre2: '', avGrupo2: '' };
+            }
+
+            function seedAudioVideo() {
+                return [
+                    {
+                        id: uid(), actual: true, rango: '20-26 de julio',
+                        jueves: { dia: '23', plataforma: 'B. Martín', mic1a: 'D. Rojo', mic1b: 'A. Gauna', mic2a: 'P. Reynard', mic2b: 'E. Olivera', avNombre1: 'S. Rojo', avGrupo1: '', avNombre2: 'M. Alvarez', avGrupo2: '' },
+                        domingo: Object.assign(blankAudiovideoDay(), { dia: '26' })
+                    },
+                    { id: uid(), actual: false, rango: '27 de julio a 2 de agosto', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() },
+                    { id: uid(), actual: false, rango: '3-9 de agosto', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() },
+                    { id: uid(), actual: false, rango: '10-16 de agosto', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() }
                 ];
             }
 
@@ -2196,9 +2313,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 console.error('No se pudo iniciar Firebase:', e);
             }
 
-            let suppressEcho = { salidas: false, vida: false, finde: false, limpieza: false, config: false };
-            let pendingRemote = { salidas: false, vida: false, finde: false, limpieza: false };
-            let firstLoad = { salidas: false, vida: false, finde: false, limpieza: false, config: false };
+            let suppressEcho = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false };
+            let pendingRemote = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false };
+            let firstLoad = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false };
 
             function setStatus(text, isError) {
                 const el = document.getElementById('statusText');
@@ -2213,7 +2330,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             }
 
             /* Reintenta aplicar una actualización remota apenas el usuario deja de escribir */
-            ['salidasList', 'vidaList', 'findeList', 'limpiezaList'].forEach(id => {
+            ['salidasList', 'vidaList', 'findeList', 'limpiezaList', 'acomodadoresList', 'audiovideoList'].forEach(id => {
                 document.getElementById(id).addEventListener('focusout', () => {
                     setTimeout(() => {
                         if (id === 'salidasList' && pendingRemote.salidas && !isTypingInside('salidasList')) {
@@ -2228,6 +2345,12 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         if (id === 'limpiezaList' && pendingRemote.limpieza && !isTypingInside('limpiezaList')) {
                             pendingRemote.limpieza = false; renderLimpieza();
                         }
+                        if (id === 'acomodadoresList' && pendingRemote.acomodadores && !isTypingInside('acomodadoresList')) {
+                            pendingRemote.acomodadores = false; renderAcomodadores();
+                        }
+                        if (id === 'audiovideoList' && pendingRemote.audiovideo && !isTypingInside('audiovideoList')) {
+                            pendingRemote.audiovideo = false; renderAudiovideo();
+                        }
                     }, 120);
                 });
             });
@@ -2239,6 +2362,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     data.vidaymin = seedVida();
                     data.finde = seedFinde();
                     data.limpieza = seedLimpieza();
+                    data.acomodadores = seedAcomodadores();
+                    data.audiovideo = seedAudioVideo();
                     render();
                     return;
                 }
@@ -2304,6 +2429,36 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     setStatus('Conectado');
                 }, (err) => { setStatus('Sin conexión a la base de datos', true); });
 
+                col.doc('acomodadores').onSnapshot((doc) => {
+                    if (suppressEcho.acomodadores) { suppressEcho.acomodadores = false; return; }
+                    if (doc.exists && doc.data().items) {
+                        data.acomodadores = doc.data().items;
+                    } else if (!firstLoad.acomodadores) {
+                        data.acomodadores = seedAcomodadores();
+                        suppressEcho.acomodadores = true;
+                        col.doc('acomodadores').set({ items: data.acomodadores }).catch(() => { suppressEcho.acomodadores = false; });
+                    }
+                    firstLoad.acomodadores = true;
+                    if (isTypingInside('acomodadoresList')) { pendingRemote.acomodadores = true; }
+                    else { renderAcomodadores(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
+
+                col.doc('audiovideo').onSnapshot((doc) => {
+                    if (suppressEcho.audiovideo) { suppressEcho.audiovideo = false; return; }
+                    if (doc.exists && doc.data().items) {
+                        data.audiovideo = doc.data().items;
+                    } else if (!firstLoad.audiovideo) {
+                        data.audiovideo = seedAudioVideo();
+                        suppressEcho.audiovideo = true;
+                        col.doc('audiovideo').set({ items: data.audiovideo }).catch(() => { suppressEcho.audiovideo = false; });
+                    }
+                    firstLoad.audiovideo = true;
+                    if (isTypingInside('audiovideoList')) { pendingRemote.audiovideo = true; }
+                    else { renderAudiovideo(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
+
                 col.doc('config').onSnapshot((doc) => {
                     if (suppressEcho.config) { suppressEcho.config = false; return; }
                     if (doc.exists && doc.data().pin) {
@@ -2339,6 +2494,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function saveVida() { scheduleSave('vida', () => data.vidaymin, 'vida'); }
             function saveFinde() { scheduleSave('finde', () => data.finde, 'finde'); }
             function saveLimpieza() { scheduleSave('limpieza', () => data.limpieza, 'limpieza'); }
+            function saveAcomodadores() { scheduleSave('acomodadores', () => data.acomodadores, 'acomodadores'); }
+            function saveAudiovideo() { scheduleSave('audiovideo', () => data.audiovideo, 'audiovideo'); }
             function saveConfig() {
                 if (!col) { setStatus('Sin conexión a la base de datos', true); return; }
                 clearTimeout(saveTimers.config);
@@ -2364,6 +2521,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function getPart(weak, section, id) { return weak[section].find(p => p.id === id); }
             function getFinde(id) { return data.finde.find(w => w.id === id); }
             function getLimpieza(id) { return data.limpieza.find(w => w.id === id); }
+            function getAcomodadores(id) { return data.acomodadores.find(w => w.id === id); }
+            function getAudiovideo(id) { return data.audiovideo.find(w => w.id === id); }
 
             function parseFecha(fecha) {
                 const m = String(fecha || '').match(/^(\d{1,2})\/(\d{1,2})/);
@@ -2446,6 +2605,8 @@ function takeEditSnapshot() {
                 vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: JSON.parse(JSON.stringify(data.finde || [])),
                 limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
+                acomodadores: JSON.parse(JSON.stringify(data.acomodadores || [])),
+                audiovideo: JSON.parse(JSON.stringify(data.audiovideo || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2457,13 +2618,17 @@ function takeEditSnapshot() {
             col.doc('vida').get(),
             col.doc('finde').get(),
             col.doc('limpieza').get(),
+            col.doc('acomodadores').get(),
+            col.doc('audiovideo').get(),
             col.doc('config').get()
-        ]).then(([sDoc, vDoc, fDoc, lDoc, cDoc]) => {
+        ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, cDoc]) => {
             window.editSnapshot = {
                 salidas: (sDoc && sDoc.exists && sDoc.data().items) ? JSON.parse(JSON.stringify(sDoc.data().items)) : JSON.parse(JSON.stringify(data.salidas || [])),
                 vidaymin: (vDoc && vDoc.exists && vDoc.data().items) ? JSON.parse(JSON.stringify(vDoc.data().items)) : JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: (fDoc && fDoc.exists && fDoc.data().items) ? JSON.parse(JSON.stringify(fDoc.data().items)) : JSON.parse(JSON.stringify(data.finde || [])),
                 limpieza: (lDoc && lDoc.exists && lDoc.data().items) ? JSON.parse(JSON.stringify(lDoc.data().items)) : JSON.parse(JSON.stringify(data.limpieza || [])),
+                acomodadores: (aDoc && aDoc.exists && aDoc.data().items) ? JSON.parse(JSON.stringify(aDoc.data().items)) : JSON.parse(JSON.stringify(data.acomodadores || [])),
+                audiovideo: (avDoc && avDoc.exists && avDoc.data().items) ? JSON.parse(JSON.stringify(avDoc.data().items)) : JSON.parse(JSON.stringify(data.audiovideo || [])),
                 config: (cDoc && cDoc.exists) ? JSON.parse(JSON.stringify(cDoc.data())) : JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2474,6 +2639,8 @@ function takeEditSnapshot() {
                 vidaymin: JSON.parse(JSON.stringify(data.vidaymin || [])),
                 finde: JSON.parse(JSON.stringify(data.finde || [])),
                 limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
+                acomodadores: JSON.parse(JSON.stringify(data.acomodadores || [])),
+                audiovideo: JSON.parse(JSON.stringify(data.audiovideo || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2566,11 +2733,11 @@ function renderVida() {
 }
 
 function weekMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label>Día del mes (jueves) <input aria-label="Día del mes (jueves)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function weekMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${week.diaJueves ? `<span class="week-day-num-badge">Jueves ${esc(week.diaJueves)}</span>` : ''}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
 }
 
 function esEstudioBiblico(titulo) {
@@ -2618,12 +2785,12 @@ function renderFinde() {
 }
 
 function findeMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label>Día del mes (domingo) <input aria-label="Día del mes (domingo)" data-role="finde-field" data-finde-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function findeMetaViewHTML(week) {
     const titulo = esc(week.tituloConferencia) || 'Sin título de conferencia';
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${week.diaDomingo ? `<span class="week-day-num-badge">Domingo ${esc(week.diaDomingo)}</span>` : ''}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
 }
 
 function findeCardHTML(week) {
@@ -2648,11 +2815,12 @@ function renderLimpieza() {
 }
 
 function limpiezaMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="limpieza-actual" data-limpieza-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label>Día del mes (jueves) <input aria-label="Día del mes (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2"> </label> <label>Día del mes (domingo) <input aria-label="Día del mes (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="limpieza-actual" data-limpieza-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
 }
 
 function limpiezaMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || '—'}</span></div> </div>`;
+    const badges = `${week.diaJueves ? `<span class="week-day-num-badge">Jueves ${esc(week.diaJueves)}</span>` : ''}${week.diaDomingo ? `<span class="week-day-num-badge">Domingo ${esc(week.diaDomingo)}</span>` : ''}`;
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${badges}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || '—'}</span></div> </div>`;
 }
 
 function limpiezaCardHTML(week) {
@@ -2660,6 +2828,92 @@ function limpiezaCardHTML(week) {
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-limpieza" data-limpieza-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
 
     return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-limpieza-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+}
+
+/* ============================================================
+               RENDER — ACOMODADORES
+               ============================================================ */
+function renderAcomodadores() {
+    const cont = document.getElementById('acomodadoresList');
+
+    if (data.acomodadores.length === 0) {
+        cont.innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+        return;
+    }
+
+    cont.innerHTML = data.acomodadores.map(week => acomodadoresCardHTML(week)).join('');
+}
+
+function acomodadoresDayEditHTML(week, day, label) {
+    const d = week[day];
+    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Día del mes (${label})" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="Día"> </div> <div class="week-edit-grid"> <label>Auditorio <input aria-label="Auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioNombre" value="${esc(d.auditorioNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioGrupo" value="${esc(d.auditorioGrupo)}" placeholder="ej: 3"> </label> <label>Puerta de entrada <input aria-label="Puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaNombre" value="${esc(d.entradaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaGrupo" value="${esc(d.entradaGrupo)}" placeholder="ej: 3"> </label> <label>Vigilancia <input aria-label="Vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaNombre" value="${esc(d.vigilanciaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaGrupo" value="${esc(d.vigilanciaGrupo)}" placeholder="ej: 4"> </label> </div> </div>`;
+}
+
+function acomodadoresDayViewHTML(week, day, label) {
+    const d = week[day];
+    const auditorio = esc(d.auditorioNombre) ? esc(d.auditorioNombre) + (d.auditorioGrupo ? ' · Grupo ' + esc(d.auditorioGrupo) : '') : '—';
+    const entrada = esc(d.entradaNombre) ? esc(d.entradaNombre) + (d.entradaGrupo ? ' · Grupo ' + esc(d.entradaGrupo) : '') : '—';
+    const vigilancia = esc(d.vigilanciaNombre) ? esc(d.vigilanciaNombre) + (d.vigilanciaGrupo ? ' · Grupo ' + esc(d.vigilanciaGrupo) : '') : '—';
+    return `<div class="week-day-block"> <h4 class="week-day-title">${label}${d.dia ? `<span class="week-day-num-badge">${esc(d.dia)}</span>` : ''}</h4> <div class="week-meta"> <div class="meta-item"><b>Auditorio</b><span>${auditorio}</span></div> <div class="meta-item"><b>Puerta de entrada</b><span>${entrada}</span></div> <div class="meta-item"><b>Vigilancia</b><span>${vigilancia}</span></div> </div> </div>`;
+}
+
+function acomodadoresMetaEditHTML(week) {
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="acomodadores-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 20-26 de julio"> </label> </div> ${acomodadoresDayEditHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayEditHTML(week, 'domingo', 'Domingo')} <label class="week-toggle-actual"> <input type="checkbox" data-role="acomodadores-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+}
+
+function acomodadoresMetaViewHTML(week) {
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> ${acomodadoresDayViewHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayViewHTML(week, 'domingo', 'Domingo')}`;
+}
+
+function acomodadoresCardHTML(week) {
+    const headBody = state.editing ? acomodadoresMetaEditHTML(week) : acomodadoresMetaViewHTML(week);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-acomodadores" data-week-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
+
+    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+}
+
+/* ============================================================
+               RENDER — AUDIO Y VIDEO
+               ============================================================ */
+function renderAudiovideo() {
+    const cont = document.getElementById('audiovideoList');
+
+    if (data.audiovideo.length === 0) {
+        cont.innerHTML = '<div class="empty-state">Todavía no hay semanas registradas.</div>';
+        return;
+    }
+
+    cont.innerHTML = data.audiovideo.map(week => audiovideoCardHTML(week)).join('');
+}
+
+function audiovideoDayEditHTML(week, day, label) {
+    const d = week[day];
+    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Día del mes (${label})" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="Día"> </div> <div class="week-edit-grid"> <label class="span2">Plataforma <input aria-label="Plataforma" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.plataforma" value="${esc(d.plataforma)}" placeholder="Nombre"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1a" value="${esc(d.mic1a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1b" value="${esc(d.mic1b)}" placeholder="Nombre 2"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2a" value="${esc(d.mic2a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2b" value="${esc(d.mic2b)}" placeholder="Nombre 2"> </label> <label>Audio y video <input aria-label="Audio y video, primer nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre1" value="${esc(d.avNombre1)}" placeholder="Nombre 1"> </label> <label>Grupo <input aria-label="Grupo audio y video 1" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo1" value="${esc(d.avGrupo1)}" placeholder="Grupo"> </label> <label>Audio y video <input aria-label="Audio y video, segundo nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre2" value="${esc(d.avNombre2)}" placeholder="Nombre 2"> </label> <label>Grupo <input aria-label="Grupo audio y video 2" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo2" value="${esc(d.avGrupo2)}" placeholder="Grupo"> </label> </div> </div>`;
+}
+
+function audiovideoDayViewHTML(week, day, label) {
+    const d = week[day];
+    const mic1 = [esc(d.mic1a), esc(d.mic1b)].filter(Boolean).join(' y ') || '—';
+    const mic2 = [esc(d.mic2a), esc(d.mic2b)].filter(Boolean).join(' y ') || '—';
+    const av1 = d.avNombre1 ? esc(d.avNombre1) + (d.avGrupo1 ? ' (Grupo ' + esc(d.avGrupo1) + ')' : '') : '';
+    const av2 = d.avNombre2 ? esc(d.avNombre2) + (d.avGrupo2 ? ' (Grupo ' + esc(d.avGrupo2) + ')' : '') : '';
+    const av = [av1, av2].filter(Boolean).join(' · ') || '—';
+    return `<div class="week-day-block"> <h4 class="week-day-title">${label}${d.dia ? `<span class="week-day-num-badge">${esc(d.dia)}</span>` : ''}</h4> <div class="week-meta"> <div class="meta-item"><b>Plataforma</b><span>${esc(d.plataforma) || '—'}</span></div> <div class="meta-item"><b>Micrófonos turno 1</b><span>${mic1}</span></div> <div class="meta-item"><b>Micrófonos turno 2</b><span>${mic2}</span></div> <div class="meta-item"><b>Audio y video</b><span>${av}</span></div> </div> </div>`;
+}
+
+function audiovideoMetaEditHTML(week) {
+    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="audiovideo-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 20-26 de julio"> </label> </div> ${audiovideoDayEditHTML(week, 'jueves', 'Jueves')} ${audiovideoDayEditHTML(week, 'domingo', 'Domingo')} <label class="week-toggle-actual"> <input type="checkbox" data-role="audiovideo-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+}
+
+function audiovideoMetaViewHTML(week) {
+    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> ${audiovideoDayViewHTML(week, 'jueves', 'Jueves')} ${audiovideoDayViewHTML(week, 'domingo', 'Domingo')}`;
+}
+
+function audiovideoCardHTML(week) {
+    const headBody = state.editing ? audiovideoMetaEditHTML(week) : audiovideoMetaViewHTML(week);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-audiovideo" data-week-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
+
+    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -2676,6 +2930,8 @@ function render() {
     renderVida();
     renderFinde();
     renderLimpieza();
+    renderAcomodadores();
+    renderAudiovideo();
     // after rendering sections, update their background colors to match icons
     setTimeout(applySectionColors, 30);
 }
@@ -2790,7 +3046,7 @@ updateTopbarHeight();
 const saveAllBtn = document.getElementById('saveAllBtn');
 if (saveAllBtn) saveAllBtn.addEventListener('click', () => {
     try {
-        saveSalidas(); saveVida(); saveFinde(); saveLimpieza(); saveConfig();
+        saveSalidas(); saveVida(); saveFinde(); saveLimpieza(); saveAcomodadores(); saveAudiovideo(); saveConfig();
         setStatus('Guardado ✓');
         setTimeout(() => setStatus('Conectado'), 2000);
     } catch (e) { setStatus('Error guardando', true); }
@@ -2819,6 +3075,8 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             col.doc('vida').set({ items: snap.vidaymin }),
             col.doc('finde').set({ items: snap.finde }),
             col.doc('limpieza').set({ items: snap.limpieza }),
+            col.doc('acomodadores').set({ items: snap.acomodadores }),
+            col.doc('audiovideo').set({ items: snap.audiovideo }),
             col.doc('config').set(snap.config)
         ]).then(() => {
             // restore local copies
@@ -2826,6 +3084,8 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             data.vidaymin = JSON.parse(JSON.stringify(snap.vidaymin || []));
             data.finde = JSON.parse(JSON.stringify(snap.finde || []));
             data.limpieza = JSON.parse(JSON.stringify(snap.limpieza || []));
+            data.acomodadores = JSON.parse(JSON.stringify(snap.acomodadores || []));
+            data.audiovideo = JSON.parse(JSON.stringify(snap.audiovideo || []));
             config = Object.assign({}, snap.config || config);
             // clear snapshot
             window.editSnapshot = null;
@@ -2849,12 +3109,16 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
         col.doc('vida').get(),
         col.doc('finde').get(),
         col.doc('limpieza').get(),
+        col.doc('acomodadores').get(),
+        col.doc('audiovideo').get(),
         col.doc('config').get()
-    ]).then(([sDoc, vDoc, fDoc, lDoc, cDoc]) => {
+    ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, cDoc]) => {
         if (sDoc && sDoc.exists && sDoc.data().items) data.salidas = sDoc.data().items;
         if (vDoc && vDoc.exists && vDoc.data().items) data.vidaymin = vDoc.data().items;
         if (fDoc && fDoc.exists && fDoc.data().items) data.finde = fDoc.data().items;
         if (lDoc && lDoc.exists && lDoc.data().items) data.limpieza = lDoc.data().items;
+        if (aDoc && aDoc.exists && aDoc.data().items) data.acomodadores = aDoc.data().items;
+        if (avDoc && avDoc.exists && avDoc.data().items) data.audiovideo = avDoc.data().items;
         if (cDoc && cDoc.exists) config.pin = cDoc.data().pin || config.pin;
 
         state.editing = false;
@@ -2903,7 +3167,7 @@ document.getElementById('addDayBtn').addEventListener('click', () => {
 ;
 document.getElementById('addWeekBtn').addEventListener('click', () => {
                 data.vidaymin.unshift({
-                    id: uid(), actual: false, rango: '', lectura: '', presidente: '', consejero: '',
+                    id: uid(), actual: false, rango: '', diaJueves: '', lectura: '', presidente: '', consejero: '',
                     cancionInicial: '', oracionInicial: '', tesoros: [], seamos: [], cancionMedia: '', vidaCristiana: [],
                     cancionFinal: '', oracionFinal: ''
                 });
@@ -2913,7 +3177,7 @@ document.getElementById('addWeekBtn').addEventListener('click', () => {
 ;
 document.getElementById('addFindeBtn').addEventListener('click', () => {
                 data.finde.unshift({
-                    id: uid(), actual: false, rango: '', oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '',
+                    id: uid(), actual: false, rango: '', diaDomingo: '', oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '',
                     tituloConferencia: '', conductorAtalaya: '', lector: '', oracionFinal: ''
                 });
                 saveFinde();
@@ -2921,9 +3185,21 @@ document.getElementById('addFindeBtn').addEventListener('click', () => {
             })
 ;
 document.getElementById('addLimpiezaBtn').addEventListener('click', () => {
-                data.limpieza.unshift({ id: uid(), actual: false, rango: '', grupos: '' });
+                data.limpieza.unshift({ id: uid(), actual: false, rango: '', diaJueves: '', diaDomingo: '', grupos: '' });
                 saveLimpieza();
                 renderLimpieza();
+            })
+;
+document.getElementById('addAcomodadoresBtn').addEventListener('click', () => {
+                data.acomodadores.unshift({ id: uid(), actual: false, rango: '', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() });
+                saveAcomodadores();
+                renderAcomodadores();
+            })
+;
+document.getElementById('addAudiovideoBtn').addEventListener('click', () => {
+                data.audiovideo.unshift({ id: uid(), actual: false, rango: '', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() });
+                saveAudiovideo();
+                renderAudiovideo();
             })
 ;
 
@@ -3019,6 +3295,78 @@ document.getElementById('limpiezaList').addEventListener('click', (e) => {
                     showConfirm('Eliminar semana', '¿Eliminar esta semana de limpieza?', () => {
                         data.limpieza = data.limpieza.filter(w => w.id !== btn.dataset.limpiezaId);
                         saveLimpieza(); renderLimpieza();
+                    });
+                }
+            })
+;
+
+document.getElementById('acomodadoresList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'acomodadores-field') {
+                    const week = getAcomodadores(t.dataset.weekId);
+                    if (week) {
+                        if (t.dataset.field.indexOf('.') > -1) {
+                            const [day, field] = t.dataset.field.split('.');
+                            week[day][field] = t.value;
+                        } else {
+                            week[t.dataset.field] = t.value;
+                        }
+                        saveAcomodadores();
+                    }
+                }
+            })
+;
+document.getElementById('acomodadoresList').addEventListener('change', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'acomodadores-actual') {
+                    const week = getAcomodadores(t.dataset.weekId);
+                    if (week) { week.actual = t.checked; saveAcomodadores(); renderAcomodadores(); }
+                }
+            })
+;
+document.getElementById('acomodadoresList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                if (btn.dataset.action === 'delete-acomodadores') {
+                    showConfirm('Eliminar semana', '¿Eliminar esta semana de acomodadores?', () => {
+                        data.acomodadores = data.acomodadores.filter(w => w.id !== btn.dataset.weekId);
+                        saveAcomodadores(); renderAcomodadores();
+                    });
+                }
+            })
+;
+
+document.getElementById('audiovideoList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'audiovideo-field') {
+                    const week = getAudiovideo(t.dataset.weekId);
+                    if (week) {
+                        if (t.dataset.field.indexOf('.') > -1) {
+                            const [day, field] = t.dataset.field.split('.');
+                            week[day][field] = t.value;
+                        } else {
+                            week[t.dataset.field] = t.value;
+                        }
+                        saveAudiovideo();
+                    }
+                }
+            })
+;
+document.getElementById('audiovideoList').addEventListener('change', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'audiovideo-actual') {
+                    const week = getAudiovideo(t.dataset.weekId);
+                    if (week) { week.actual = t.checked; saveAudiovideo(); renderAudiovideo(); }
+                }
+            })
+;
+document.getElementById('audiovideoList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                if (btn.dataset.action === 'delete-audiovideo') {
+                    showConfirm('Eliminar semana', '¿Eliminar esta semana de audio y video?', () => {
+                        data.audiovideo = data.audiovideo.filter(w => w.id !== btn.dataset.weekId);
+                        saveAudiovideo(); renderAudiovideo();
                     });
                 }
             })
