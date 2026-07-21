@@ -1348,6 +1348,13 @@ main {
     margin-top: 10px;
 }
 
+.week-auto-note {
+    margin-top: 10px;
+    font-size: .74rem;
+    color: var(--ink-soft);
+    font-style: italic;
+}
+
 .week-day-num-badge {
     display: inline-block;
     margin-left: 6px;
@@ -2118,7 +2125,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function seedVida() {
                 return [
                     {
-                        id: uid(), actual: true, rango: '22-28 de junio', diaJueves: '25', lectura: 'Jeremías 9, 10',
+                        id: uid(), actual: true, rango: '22-28 de junio', diaJueves: '23/07', lectura: 'Jeremías 9, 10',
                         presidente: 'Ricardo García', consejero: 'Ariel Gauna',
                         cancionInicial: '5', oracionInicial: 'Severo Flores',
                         tesoros: [
@@ -2144,7 +2151,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             function seedFinde() {
                 return [
                     {
-                        id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaDomingo: '5',
+                        id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaDomingo: '26/07',
                         oracionInicial: '', presidente: '', conferenciante: '', congregacionConferenciante: '', tituloConferencia: '',
                         conductorAtalaya: '', lector: '', oracionFinal: ''
                     },
@@ -2168,7 +2175,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
 
             function seedLimpieza() {
                 return [
-                    { id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaJueves: '2', diaDomingo: '5', grupos: 'Grupo n°1 y Grupo n°2' },
+                    { id: uid(), actual: true, rango: '29 de junio a 5 de julio', diaJueves: '23/07', diaDomingo: '26/07', grupos: 'Grupo n°1 y Grupo n°2' },
                     { id: uid(), actual: false, rango: '6-12 de julio', grupos: 'Grupo n°3 y Grupo n°4' },
                     { id: uid(), actual: false, rango: '13-19 de julio', grupos: 'Grupo n°5 y Grupo n°6' },
                     { id: uid(), actual: false, rango: '20-26 de julio', grupos: 'Grupo n°7 y Grupo n°8' }
@@ -2183,8 +2190,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 return [
                     {
                         id: uid(), actual: true, rango: '20-26 de julio',
-                        jueves: { dia: '23', auditorioNombre: 'J. Moreyra', auditorioGrupo: '3', entradaNombre: 'F. Varela', entradaGrupo: '3', vigilanciaNombre: 'P. Montini', vigilanciaGrupo: '4' },
-                        domingo: Object.assign(blankAcomodadoresDay(), { dia: '26' })
+                        jueves: { dia: '23/07', auditorioNombre: 'J. Moreyra', auditorioGrupo: '3', entradaNombre: 'F. Varela', entradaGrupo: '3', vigilanciaNombre: 'P. Montini', vigilanciaGrupo: '4' },
+                        domingo: Object.assign(blankAcomodadoresDay(), { dia: '26/07' })
                     },
                     { id: uid(), actual: false, rango: '27 de julio a 2 de agosto', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() },
                     { id: uid(), actual: false, rango: '3-9 de agosto', jueves: blankAcomodadoresDay(), domingo: blankAcomodadoresDay() },
@@ -2200,8 +2207,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 return [
                     {
                         id: uid(), actual: true, rango: '20-26 de julio',
-                        jueves: { dia: '23', plataforma: 'B. Martín', mic1a: 'D. Rojo', mic1b: 'A. Gauna', mic2a: 'P. Reynard', mic2b: 'E. Olivera', avNombre1: 'S. Rojo', avGrupo1: '', avNombre2: 'M. Alvarez', avGrupo2: '' },
-                        domingo: Object.assign(blankAudiovideoDay(), { dia: '26' })
+                        jueves: { dia: '23/07', plataforma: 'B. Martín', mic1a: 'D. Rojo', mic1b: 'A. Gauna', mic2a: 'P. Reynard', mic2b: 'E. Olivera', avNombre1: 'S. Rojo', avGrupo1: '', avNombre2: 'M. Alvarez', avGrupo2: '' },
+                        domingo: Object.assign(blankAudiovideoDay(), { dia: '26/07' })
                     },
                     { id: uid(), actual: false, rango: '27 de julio a 2 de agosto', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() },
                     { id: uid(), actual: false, rango: '3-9 de agosto', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() },
@@ -2540,6 +2547,31 @@ function isToday(fecha) {
     return f.d === now.getDate() && f.m === (now.getMonth() + 1);
 }
 
+/* Marca automáticamente la semana en curso a partir de las fechas de jueves y/o domingo
+   (formato dd/mm), igual que se marca el día de HOY en Predicación. Si falta una de las
+   dos fechas, se calcula sumando/restando 3 días (jueves y domingo son siempre la misma semana). */
+function sumarDias(fechaObj, dias) {
+    const base = new Date(new Date().getFullYear(), fechaObj.m - 1, fechaObj.d);
+    base.setDate(base.getDate() + dias);
+    return { d: base.getDate(), m: base.getMonth() + 1 };
+}
+
+function isSemanaActual(fechaJueves, fechaDomingo) {
+    let jueves = parseFecha(fechaJueves);
+    let domingo = parseFecha(fechaDomingo);
+    if (!jueves && !domingo) return false;
+    if (jueves && !domingo) domingo = sumarDias(jueves, 3);
+    if (domingo && !jueves) jueves = sumarDias(domingo, -3);
+    const weekStart = sumarDias(jueves, -3); // lunes de esa semana
+    const weekEnd = domingo;
+    const now = new Date();
+    const today = (now.getMonth() + 1) * 100 + now.getDate();
+    const start = weekStart.m * 100 + weekStart.d;
+    const end = weekEnd.m * 100 + weekEnd.d;
+    if (start <= end) { return today >= start && today <= end; }
+    return today >= start || today <= end; // cruza fin de año
+}
+
 // --- Helpers moved here from head to ensure functions are executable ---
 function getDominantColorFromSrc(src, sampleSize = 30) {
     return new Promise((resolve, reject) => {
@@ -2681,7 +2713,7 @@ function songLineHTML(week) {
 function weekCardHTML(week) {
     const headBody = state.editing ? weekMetaEditHTML(week) : weekMetaViewHTML(week);
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-week" data-week-id="${week.id}"> <svg class="icon-trash" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M9 3v1H4v2h16V4h-5V3H9zm2 5v9h2V8h-2zM7 8v9h2V8H7zm8 0v9h2V8h-2z" fill="currentColor"/></svg> Eliminar esta semana</button> </div>` : '';
-    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${sectionHTML(week, 'tesoros', 'Tesoros de la Biblia', 'tesoros')} ${sectionHTML(week, 'seamos', 'Seamos mejores maestros', 'seamos')} ${songLineHTML(week)} ${sectionHTML(week, 'vidaCristiana', 'Nuestra vida cristiana', 'vida')} ${weekFootHTML(week)} ${deleteBtn}</div>`;
+    return `<div class="week-card ${isSemanaActual(week.diaJueves, null) ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${sectionHTML(week, 'tesoros', 'Tesoros de la Biblia', 'tesoros')} ${sectionHTML(week, 'seamos', 'Seamos mejores maestros', 'seamos')} ${songLineHTML(week)} ${sectionHTML(week, 'vidaCristiana', 'Nuestra vida cristiana', 'vida')} ${weekFootHTML(week)} ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -2733,11 +2765,12 @@ function renderVida() {
 }
 
 function weekMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="week-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 22-28 de junio"> </label> <label>Día del mes (jueves) <input aria-label="Día del mes (jueves)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="week-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25/07"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del jueves.</div>`;
 }
 
 function weekMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${week.diaJueves ? `<span class="week-day-num-badge">Jueves ${esc(week.diaJueves)}</span>` : ''}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
+    const actual = isSemanaActual(week.diaJueves, null);
+    return `<div class="week-head-top"> <div> <h3>Jueves${week.diaJueves ? ` <span class="week-day-num-badge">${esc(week.diaJueves)}</span>` : ''}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || '—'}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || '—'}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> </div>`;
 }
 
 function esEstudioBiblico(titulo) {
@@ -2785,19 +2818,20 @@ function renderFinde() {
 }
 
 function findeMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="finde-field" data-finde-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label>Día del mes (domingo) <input aria-label="Día del mes (domingo)" data-role="finde-field" data-finde-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="finde-actual" data-finde-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="finde-field" data-finde-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del domingo.</div>`;
 }
 
 function findeMetaViewHTML(week) {
     const titulo = esc(week.tituloConferencia) || 'Sin título de conferencia';
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${week.diaDomingo ? `<span class="week-day-num-badge">Domingo ${esc(week.diaDomingo)}</span>` : ''}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
+    const actual = isSemanaActual(null, week.diaDomingo);
+    return `<div class="week-head-top"> <div> <h3>Domingo${week.diaDomingo ? ` <span class="week-day-num-badge">${esc(week.diaDomingo)}</span>` : ''}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span>${titulo}</span></div></div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || '—'}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || '—'}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || '—'}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || '—'}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || '—'}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || '—'}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || '—'}</span></div> </div>`;
 }
 
 function findeCardHTML(week) {
     const headBody = state.editing ? findeMetaEditHTML(week) : findeMetaViewHTML(week);
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-finde" data-finde-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
 
-    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-finde-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+    return `<div class="week-card ${isSemanaActual(null, week.diaDomingo) ? 'is-actual' : ''}" data-finde-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -2815,19 +2849,20 @@ function renderLimpieza() {
 }
 
 function limpiezaMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 29 de junio a 5 de julio"> </label> <label>Día del mes (jueves) <input aria-label="Día del mes (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2"> </label> <label>Día del mes (domingo) <input aria-label="Día del mes (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <label class="week-toggle-actual"> <input type="checkbox" data-role="limpieza-actual" data-limpieza-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2/07"> </label> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
 }
 
 function limpiezaMetaViewHTML(week) {
     const badges = `${week.diaJueves ? `<span class="week-day-num-badge">Jueves ${esc(week.diaJueves)}</span>` : ''}${week.diaDomingo ? `<span class="week-day-num-badge">Domingo ${esc(week.diaDomingo)}</span>` : ''}`;
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}${badges}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || '—'}</span></div> </div>`;
+    const actual = isSemanaActual(week.diaJueves, week.diaDomingo);
+    return `<div class="week-head-top"> <div> <h3>${badges || 'Semana'}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || '—'}</span></div> </div>`;
 }
 
 function limpiezaCardHTML(week) {
     const headBody = state.editing ? limpiezaMetaEditHTML(week) : limpiezaMetaViewHTML(week);
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-limpieza" data-limpieza-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
 
-    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-limpieza-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+    return `<div class="week-card ${isSemanaActual(week.diaJueves, week.diaDomingo) ? 'is-actual' : ''}" data-limpieza-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -2846,7 +2881,7 @@ function renderAcomodadores() {
 
 function acomodadoresDayEditHTML(week, day, label) {
     const d = week[day];
-    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Día del mes (${label})" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="Día"> </div> <div class="week-edit-grid"> <label>Auditorio <input aria-label="Auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioNombre" value="${esc(d.auditorioNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioGrupo" value="${esc(d.auditorioGrupo)}" placeholder="ej: 3"> </label> <label>Puerta de entrada <input aria-label="Puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaNombre" value="${esc(d.entradaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaGrupo" value="${esc(d.entradaGrupo)}" placeholder="ej: 3"> </label> <label>Vigilancia <input aria-label="Vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaNombre" value="${esc(d.vigilanciaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaGrupo" value="${esc(d.vigilanciaGrupo)}" placeholder="ej: 4"> </label> </div> </div>`;
+    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Fecha (${label})" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="dd/mm"> </div> <div class="week-edit-grid"> <label>Auditorio <input aria-label="Auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioNombre" value="${esc(d.auditorioNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo auditorio" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.auditorioGrupo" value="${esc(d.auditorioGrupo)}" placeholder="ej: 3"> </label> <label>Puerta de entrada <input aria-label="Puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaNombre" value="${esc(d.entradaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo puerta de entrada" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.entradaGrupo" value="${esc(d.entradaGrupo)}" placeholder="ej: 3"> </label> <label>Vigilancia <input aria-label="Vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaNombre" value="${esc(d.vigilanciaNombre)}" placeholder="Nombre"> </label> <label>Grupo <input aria-label="Grupo vigilancia" data-role="acomodadores-field" data-week-id="${week.id}" data-field="${day}.vigilanciaGrupo" value="${esc(d.vigilanciaGrupo)}" placeholder="ej: 4"> </label> </div> </div>`;
 }
 
 function acomodadoresDayViewHTML(week, day, label) {
@@ -2858,18 +2893,19 @@ function acomodadoresDayViewHTML(week, day, label) {
 }
 
 function acomodadoresMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="acomodadores-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 20-26 de julio"> </label> </div> ${acomodadoresDayEditHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayEditHTML(week, 'domingo', 'Domingo')} <label class="week-toggle-actual"> <input type="checkbox" data-role="acomodadores-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `${acomodadoresDayEditHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayEditHTML(week, 'domingo', 'Domingo')} <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
 }
 
 function acomodadoresMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> ${acomodadoresDayViewHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayViewHTML(week, 'domingo', 'Domingo')}`;
+    const actual = isSemanaActual(week.jueves.dia, week.domingo.dia);
+    return `${actual ? '<div class="week-head-top"><div></div><span class="actual-flag">ESTA SEMANA</span></div>' : ''} ${acomodadoresDayViewHTML(week, 'jueves', 'Jueves')} ${acomodadoresDayViewHTML(week, 'domingo', 'Domingo')}`;
 }
 
 function acomodadoresCardHTML(week) {
     const headBody = state.editing ? acomodadoresMetaEditHTML(week) : acomodadoresMetaViewHTML(week);
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-acomodadores" data-week-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
 
-    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+    return `<div class="week-card ${isSemanaActual(week.jueves.dia, week.domingo.dia) ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -2888,7 +2924,7 @@ function renderAudiovideo() {
 
 function audiovideoDayEditHTML(week, day, label) {
     const d = week[day];
-    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Día del mes (${label})" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="Día"> </div> <div class="week-edit-grid"> <label class="span2">Plataforma <input aria-label="Plataforma" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.plataforma" value="${esc(d.plataforma)}" placeholder="Nombre"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1a" value="${esc(d.mic1a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1b" value="${esc(d.mic1b)}" placeholder="Nombre 2"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2a" value="${esc(d.mic2a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2b" value="${esc(d.mic2b)}" placeholder="Nombre 2"> </label> <label>Audio y video <input aria-label="Audio y video, primer nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre1" value="${esc(d.avNombre1)}" placeholder="Nombre 1"> </label> <label>Grupo <input aria-label="Grupo audio y video 1" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo1" value="${esc(d.avGrupo1)}" placeholder="Grupo"> </label> <label>Audio y video <input aria-label="Audio y video, segundo nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre2" value="${esc(d.avNombre2)}" placeholder="Nombre 2"> </label> <label>Grupo <input aria-label="Grupo audio y video 2" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo2" value="${esc(d.avGrupo2)}" placeholder="Grupo"> </label> </div> </div>`;
+    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Fecha (${label})" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.dia" value="${esc(d.dia)}" placeholder="dd/mm"> </div> <div class="week-edit-grid"> <label class="span2">Plataforma <input aria-label="Plataforma" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.plataforma" value="${esc(d.plataforma)}" placeholder="Nombre"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1a" value="${esc(d.mic1a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 1 <input aria-label="Micrófono turno 1, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic1b" value="${esc(d.mic1b)}" placeholder="Nombre 2"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, primero" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2a" value="${esc(d.mic2a)}" placeholder="Nombre 1"> </label> <label>Micrófonos turno 2 <input aria-label="Micrófono turno 2, segundo" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.mic2b" value="${esc(d.mic2b)}" placeholder="Nombre 2"> </label> <label>Audio y video <input aria-label="Audio y video, primer nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre1" value="${esc(d.avNombre1)}" placeholder="Nombre 1"> </label> <label>Grupo <input aria-label="Grupo audio y video 1" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo1" value="${esc(d.avGrupo1)}" placeholder="Grupo"> </label> <label>Audio y video <input aria-label="Audio y video, segundo nombre" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avNombre2" value="${esc(d.avNombre2)}" placeholder="Nombre 2"> </label> <label>Grupo <input aria-label="Grupo audio y video 2" data-role="audiovideo-field" data-week-id="${week.id}" data-field="${day}.avGrupo2" value="${esc(d.avGrupo2)}" placeholder="Grupo"> </label> </div> </div>`;
 }
 
 function audiovideoDayViewHTML(week, day, label) {
@@ -2902,18 +2938,19 @@ function audiovideoDayViewHTML(week, day, label) {
 }
 
 function audiovideoMetaEditHTML(week) {
-    return `<div class="week-edit-grid"> <label class="span2">Semana (rango de fechas) <input aria-label="Semana (rango de fechas)" data-role="audiovideo-field" data-week-id="${week.id}" data-field="rango" value="${esc(week.rango)}" placeholder="ej: 20-26 de julio"> </label> </div> ${audiovideoDayEditHTML(week, 'jueves', 'Jueves')} ${audiovideoDayEditHTML(week, 'domingo', 'Domingo')} <label class="week-toggle-actual"> <input type="checkbox" data-role="audiovideo-actual" data-week-id="${week.id}" ${week.actual ? 'checked' : ''}> Marcar como semana actual </label>`;
+    return `${audiovideoDayEditHTML(week, 'jueves', 'Jueves')} ${audiovideoDayEditHTML(week, 'domingo', 'Domingo')} <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
 }
 
 function audiovideoMetaViewHTML(week) {
-    return `<div class="week-head-top"> <div> <h3>Semana ${esc(week.rango)}</h3> </div> ${week.actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ''} </div> ${audiovideoDayViewHTML(week, 'jueves', 'Jueves')} ${audiovideoDayViewHTML(week, 'domingo', 'Domingo')}`;
+    const actual = isSemanaActual(week.jueves.dia, week.domingo.dia);
+    return `${actual ? '<div class="week-head-top"><div></div><span class="actual-flag">ESTA SEMANA</span></div>' : ''} ${audiovideoDayViewHTML(week, 'jueves', 'Jueves')} ${audiovideoDayViewHTML(week, 'domingo', 'Domingo')}`;
 }
 
 function audiovideoCardHTML(week) {
     const headBody = state.editing ? audiovideoMetaEditHTML(week) : audiovideoMetaViewHTML(week);
     const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-audiovideo" data-week-id="${week.id}">🗑 Eliminar esta semana</button> </div>` : '';
 
-    return `<div class="week-card ${week.actual ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+    return `<div class="week-card ${isSemanaActual(week.jueves.dia, week.domingo.dia) ? 'is-actual' : ''}" data-week-id="${week.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
 }
 
 /* ============================================================
@@ -3166,7 +3203,7 @@ document.getElementById('addDayBtn').addEventListener('click', () => {
             })
 ;
 document.getElementById('addWeekBtn').addEventListener('click', () => {
-                data.vidaymin.unshift({
+                data.vidaymin.push({
                     id: uid(), actual: false, rango: '', diaJueves: '', lectura: '', presidente: '', consejero: '',
                     cancionInicial: '', oracionInicial: '', tesoros: [], seamos: [], cancionMedia: '', vidaCristiana: [],
                     cancionFinal: '', oracionFinal: ''
