@@ -1023,8 +1023,42 @@ main {
     box-shadow: var(--shadow);
 }
 
+@keyframes hoyCycle {
+    0%   { border-color: #ff6a1a; box-shadow: 0 0 0 3px rgba(255,106,26,0.35), var(--shadow); }
+    14%  { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,0.35), var(--shadow); }
+    28%  { border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,0.35), var(--shadow); }
+    42%  { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.35), var(--shadow); }
+    57%  { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6,182,212,0.35), var(--shadow); }
+    71%  { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.35), var(--shadow); }
+    85%  { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.35), var(--shadow); }
+    100% { border-color: #ff6a1a; box-shadow: 0 0 0 3px rgba(255,106,26,0.35), var(--shadow); }
+}
+
+@keyframes hoyCycleBg {
+    0%   { background-color: #ff6a1a; }
+    14%  { background-color: #ec4899; }
+    28%  { background-color: #a855f7; }
+    42%  { background-color: #3b82f6; }
+    57%  { background-color: #06b6d4; }
+    71%  { background-color: #10b981; }
+    85%  { background-color: #f59e0b; }
+    100% { background-color: #ff6a1a; }
+}
+
+@keyframes hoyCycleFlag {
+    0%   { color: #ff6a1a; border-color: #ff6a1a; background: rgba(255,106,26,0.12); }
+    14%  { color: #ec4899; border-color: #ec4899; background: rgba(236,72,153,0.12); }
+    28%  { color: #a855f7; border-color: #a855f7; background: rgba(168,85,247,0.12); }
+    42%  { color: #3b82f6; border-color: #3b82f6; background: rgba(59,130,246,0.12); }
+    57%  { color: #06b6d4; border-color: #06b6d4; background: rgba(6,182,212,0.12); }
+    71%  { color: #10b981; border-color: #10b981; background: rgba(16,185,129,0.12); }
+    85%  { color: #f59e0b; border-color: #f59e0b; background: rgba(245,158,11,0.12); }
+    100% { color: #ff6a1a; border-color: #ff6a1a; background: rgba(255,106,26,0.12); }
+}
+
     .day-card.is-today {
-        border-color: var(--highlight);
+        border-width: 2px;
+        animation: hoyCycle 8s linear infinite;
     }
 
 .day-head {
@@ -1047,8 +1081,8 @@ main {
 }
 
 .day-card.is-today .date-tab {
-    background: var(--highlight);
-    color: #22150a;
+    color: #fff;
+    animation: hoyCycleBg 8s linear infinite;
 }
 
 .date-tab .dnum {
@@ -1075,12 +1109,11 @@ main {
 .today-flag {
     font-size: .65rem;
     font-weight: 700;
-    color: #22150a;
-    background: var(--highlight-soft);
-    border: 1px solid var(--highlight);
     padding: 2px 8px;
     border-radius: 999px;
     letter-spacing: .3px;
+    border: 1px solid;
+    animation: hoyCycleFlag 8s linear infinite;
 }
 
 .day-head-edit {
