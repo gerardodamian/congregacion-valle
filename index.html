@@ -549,27 +549,72 @@ body.dark-mode {
 }
 
 .topbar-logo-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    background: linear-gradient(135deg,var(--accent-dark),var(--accent));
+    display: none;
 }
 
 .brand-logo-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 12px;
-    object-fit: contain;
+    display: none;
 }
 
 .topbar-inner {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 14px 16px;
+    padding: 14px 16px 8px;
     gap: 10px;
     position: relative;
+}
+
+.topbar-buttons {
+    width: 100%;
+    padding: 0 16px 14px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.topbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: #fff;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .2px;
+    transition: background .15s ease, transform .15s ease;
+}
+
+    .topbar-btn svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+    }
+
+    .topbar-btn:hover {
+        background: rgba(255,255,255,0.24);
+        transform: translateY(-1px);
+    }
+
+    .topbar-btn.active {
+        background: #fff;
+        color: var(--accent-dark);
+    }
+
+@media (max-width: 480px) {
+    .topbar-btn {
+        padding: 7px 11px;
+        font-size: .76rem;
+    }
 }
 
 /* Editing bar (fixed, visible only in editing mode) */
@@ -700,10 +745,12 @@ button:focus, input:focus, textarea:focus {
 }
 
 .brand-logo {
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
-    border-radius: 8px;
+    border-radius: 10px;
+    object-fit: contain;
+    background: rgba(255,255,255,0.9);
 }
 
 .brand-text {
@@ -711,7 +758,7 @@ button:focus, input:focus, textarea:focus {
     flex-direction: column;
     gap: 2px;
     min-width: 0;
-    text-align: center;
+    text-align: left;
 }
 
 .brand-name {
@@ -1850,9 +1897,6 @@ main {
 <body >
 
 <div class="topbar" >
-<div class="topbar-logo-section" >
-<img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo-large" >
-</div >
 <!-- Editing bar (visible en modo edición) -->
 <div class="editing-bar" role="region" aria-label="Barra de edición" >
     <div class="eb-left">
@@ -1881,10 +1925,13 @@ main {
         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/> 
     </svg>
 </button >
+<div class="brand" >
+<img src="logo-agenda.png" alt="Logo Congregación Valle Hermoso" class="brand-logo" >
 <div class="brand-text" >
 <span class="brand-name" > Congregación Valle Hermoso</span >
 <span class="brand-sub" > Agenda de actividades</span >
 <span class="status-pill" > <span class="status-dot" > </span > <span id="statusText" > Conectado</span > </span >
+</div >
 </div >
 </div >
 </div >
@@ -1928,6 +1975,14 @@ main {
 <button class="tab" data-tab="audiovideo" >
 <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 10.5a6.5 6.5 0 0 0 13 0"/><path d="M12 17v4"/><path d="M8.5 21h7"/></svg>
 <span>Audio y Video</span>
+</button >
+<button class="tab" data-tab="eventos" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 3v4M16 3v4"/><path d="M8 13h3"/></svg>
+<span>Eventos especiales</span>
+</button >
+<button class="tab" data-tab="anuncios" >
+<svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h2l5 3.5v-13L6 9H4a1 1 0 0 0-1 1z"/><path d="M15 9a3 3 0 0 1 0 6"/><path d="M18 6.5a6 6 0 0 1 0 11"/><path d="M8 18.5 8.6 21a1 1 0 0 0 1 .8h.8a1 1 0 0 0 1-1.2L11 18"/></svg>
+<span>Anuncios</span>
 </button >
 </div >
 
@@ -1990,6 +2045,25 @@ main {
 <div class="tip edit-only hidden" > 💡 Completá quién está en plataforma, los dos turnos de micrófonos y los dos asignados a audio y video (con su grupo), para el jueves y el domingo.</div >
 <div id="audiovideoList" > </div >
 <button id="addAudiovideoBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar semana</button >
+</section >
+
+<section id="eventosView" class="view" >
+<img src="img/eventos.jpg" alt="Eventos especiales" class="view-banner" >
+<div class="view-header" >
+<h2 > Eventos especiales</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Completá el tema y la fecha de cada asamblea, y las fechas de la reunión de precursores y la Conmemoración. Sirve para todos los años: solo actualizá estos datos cuando cambien.</div >
+<div id="eventosList" > </div >
+</section >
+
+<section id="anunciosView" class="view" >
+<img src="img/anuncios.jpg" alt="Anuncios" class="view-banner" >
+<div class="view-header" >
+<h2 > Anuncios</h2 >
+</div >
+<div class="tip edit-only hidden" > 💡 Escribí uno o varios anuncios para la congregación.</div >
+<div id="anunciosList" > </div >
+<button id="addAnuncioBtn" class="btn btn-accent edit-only hidden" style="margin-top:6px;" > + Agregar anuncio</button >
 </section >
 </main >
 
@@ -2081,7 +2155,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                ESTADO Y DATOS
                ============================================================ */
             let state = { editing: false, tab: 'salidas' };
-            let data = { salidas: [], vidaymin: [], finde: [], limpieza: [], acomodadores: [], audiovideo: [] };
+            let data = { salidas: [], vidaymin: [], finde: [], limpieza: [], acomodadores: [], audiovideo: [], eventos: null, anuncios: [] };
             let config = { pin: '2026' };
             let saveTimers = {};
 
@@ -2257,6 +2331,22 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 ];
             }
 
+            function seedEventos() {
+                return {
+                    circuito1: { titulo: 'El que confía en Jehová es feliz', fecha: '' },
+                    circuito2: { titulo: 'Haz de Jehová tu mayor alegría', fecha: '' },
+                    regional: { titulo: 'Felices para siempre', fecha: '' },
+                    precursores: { fecha: '' },
+                    memorial: { fecha: '', hora: '' }
+                };
+            }
+
+            function seedAnuncios() {
+                return [
+                    { id: uid(), titulo: 'Bienvenidos', texto: 'Acá vas a encontrar los anuncios de la congregación.', fecha: '' }
+                ];
+            }
+
             window.compartirPagina = function() {
                 console.log("🔵 Función compartirPagina() llamada");
 
@@ -2361,9 +2451,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 console.error('No se pudo iniciar Firebase:', e);
             }
 
-            let suppressEcho = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false };
-            let pendingRemote = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false };
-            let firstLoad = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false };
+            let suppressEcho = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false, eventos: false, anuncios: false };
+            let pendingRemote = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, anuncios: false };
+            let firstLoad = { salidas: false, vida: false, finde: false, limpieza: false, acomodadores: false, audiovideo: false, config: false, eventos: false, anuncios: false };
 
             function setStatus(text, isError) {
                 const el = document.getElementById('statusText');
@@ -2378,7 +2468,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
             }
 
             /* Reintenta aplicar una actualización remota apenas el usuario deja de escribir */
-            ['salidasList', 'vidaList', 'findeList', 'limpiezaList', 'acomodadoresList', 'audiovideoList'].forEach(id => {
+            ['salidasList', 'vidaList', 'findeList', 'limpiezaList', 'acomodadoresList', 'audiovideoList', 'anunciosList'].forEach(id => {
                 document.getElementById(id).addEventListener('focusout', () => {
                     setTimeout(() => {
                         if (id === 'salidasList' && pendingRemote.salidas && !isTypingInside('salidasList')) {
@@ -2399,6 +2489,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                         if (id === 'audiovideoList' && pendingRemote.audiovideo && !isTypingInside('audiovideoList')) {
                             pendingRemote.audiovideo = false; renderAudiovideo();
                         }
+                        if (id === 'anunciosList' && pendingRemote.anuncios && !isTypingInside('anunciosList')) {
+                            pendingRemote.anuncios = false; renderAnuncios();
+                        }
                     }, 120);
                 });
             });
@@ -2412,6 +2505,8 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     data.limpieza = seedLimpieza();
                     data.acomodadores = seedAcomodadores();
                     data.audiovideo = seedAudioVideo();
+                    data.eventos = seedEventos();
+                    data.anuncios = seedAnuncios();
                     render();
                     return;
                 }
@@ -2517,6 +2612,35 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     }
                     firstLoad.config = true;
                 }, (err) => { });
+
+                col.doc('eventos').onSnapshot((doc) => {
+                    if (suppressEcho.eventos) { suppressEcho.eventos = false; return; }
+                    if (doc.exists && doc.data() && Object.keys(doc.data()).length) {
+                        data.eventos = doc.data();
+                    } else if (!firstLoad.eventos) {
+                        data.eventos = seedEventos();
+                        suppressEcho.eventos = true;
+                        col.doc('eventos').set(data.eventos).catch(() => { suppressEcho.eventos = false; });
+                    }
+                    firstLoad.eventos = true;
+                    if (!isTypingInside('eventosList')) { renderEventos(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
+
+                col.doc('anuncios').onSnapshot((doc) => {
+                    if (suppressEcho.anuncios) { suppressEcho.anuncios = false; return; }
+                    if (doc.exists && doc.data().items) {
+                        data.anuncios = doc.data().items;
+                    } else if (!firstLoad.anuncios) {
+                        data.anuncios = seedAnuncios();
+                        suppressEcho.anuncios = true;
+                        col.doc('anuncios').set({ items: data.anuncios }).catch(() => { suppressEcho.anuncios = false; });
+                    }
+                    firstLoad.anuncios = true;
+                    if (isTypingInside('anunciosList')) { pendingRemote.anuncios = true; }
+                    else { renderAnuncios(); }
+                    setStatus('Conectado');
+                }, (err) => { setStatus('Sin conexión a la base de datos', true); });
             }
 
             function scheduleSave(key, getValue, flag) {
@@ -2559,6 +2683,25 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     }
                 }, 400);
             }
+            function saveEventos() {
+                if (!col) { setStatus('Sin conexión a la base de datos', true); return; }
+                clearTimeout(saveTimers.eventos);
+                setStatus('Guardando…');
+                document.body.classList.add('saving');
+                saveTimers.eventos = setTimeout(async () => {
+                    try {
+                        suppressEcho.eventos = true;
+                        await col.doc('eventos').set(data.eventos || {});
+                        setStatus('Guardado ✓');
+                        document.body.classList.remove('saving');
+                    } catch (e) {
+                        suppressEcho.eventos = false;
+                        setStatus('No se pudo guardar', true);
+                        document.body.classList.remove('saving');
+                    }
+                }, 650);
+            }
+            function saveAnuncios() { scheduleSave('anuncios', () => data.anuncios, 'anuncios'); }
 
             /* ============================================================
                UTILIDADES
@@ -2680,6 +2823,8 @@ function takeEditSnapshot() {
                 limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
                 acomodadores: JSON.parse(JSON.stringify(data.acomodadores || [])),
                 audiovideo: JSON.parse(JSON.stringify(data.audiovideo || [])),
+                eventos: JSON.parse(JSON.stringify(data.eventos || {})),
+                anuncios: JSON.parse(JSON.stringify(data.anuncios || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2693,8 +2838,10 @@ function takeEditSnapshot() {
             col.doc('limpieza').get(),
             col.doc('acomodadores').get(),
             col.doc('audiovideo').get(),
+            col.doc('eventos').get(),
+            col.doc('anuncios').get(),
             col.doc('config').get()
-        ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, cDoc]) => {
+        ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, evDoc, anDoc, cDoc]) => {
             window.editSnapshot = {
                 salidas: (sDoc && sDoc.exists && sDoc.data().items) ? JSON.parse(JSON.stringify(sDoc.data().items)) : JSON.parse(JSON.stringify(data.salidas || [])),
                 vidaymin: (vDoc && vDoc.exists && vDoc.data().items) ? JSON.parse(JSON.stringify(vDoc.data().items)) : JSON.parse(JSON.stringify(data.vidaymin || [])),
@@ -2702,6 +2849,8 @@ function takeEditSnapshot() {
                 limpieza: (lDoc && lDoc.exists && lDoc.data().items) ? JSON.parse(JSON.stringify(lDoc.data().items)) : JSON.parse(JSON.stringify(data.limpieza || [])),
                 acomodadores: (aDoc && aDoc.exists && aDoc.data().items) ? JSON.parse(JSON.stringify(aDoc.data().items)) : JSON.parse(JSON.stringify(data.acomodadores || [])),
                 audiovideo: (avDoc && avDoc.exists && avDoc.data().items) ? JSON.parse(JSON.stringify(avDoc.data().items)) : JSON.parse(JSON.stringify(data.audiovideo || [])),
+                eventos: (evDoc && evDoc.exists && Object.keys(evDoc.data() || {}).length) ? JSON.parse(JSON.stringify(evDoc.data())) : JSON.parse(JSON.stringify(data.eventos || {})),
+                anuncios: (anDoc && anDoc.exists && anDoc.data().items) ? JSON.parse(JSON.stringify(anDoc.data().items)) : JSON.parse(JSON.stringify(data.anuncios || [])),
                 config: (cDoc && cDoc.exists) ? JSON.parse(JSON.stringify(cDoc.data())) : JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2714,6 +2863,8 @@ function takeEditSnapshot() {
                 limpieza: JSON.parse(JSON.stringify(data.limpieza || [])),
                 acomodadores: JSON.parse(JSON.stringify(data.acomodadores || [])),
                 audiovideo: JSON.parse(JSON.stringify(data.audiovideo || [])),
+                eventos: JSON.parse(JSON.stringify(data.eventos || {})),
+                anuncios: JSON.parse(JSON.stringify(data.anuncios || [])),
                 config: JSON.parse(JSON.stringify(config || {}))
             };
             resolve(window.editSnapshot);
@@ -2995,6 +3146,65 @@ function audiovideoCardHTML(week) {
 }
 
 /* ============================================================
+               RENDER — EVENTOS ESPECIALES
+               ============================================================ */
+function eventoCardEditHTML(ev, key, showTitulo, showHora) {
+    const tituloField = showTitulo ? `<label class="span2">Tema de la asamblea <input aria-label="Tema de la asamblea" data-role="evento-field" data-key="${key}" data-field="titulo" value="${esc(ev.titulo)}" placeholder='ej: "El que confía en Jehová es feliz"'> </label>` : '';
+    const horaField = showHora ? `<label>Hora <input aria-label="Hora" data-role="evento-field" data-key="${key}" data-field="hora" value="${esc(ev.hora)}" placeholder="ej: 19:30"> </label>` : '';
+    return `<div class="week-edit-grid"> ${tituloField} <label>Fecha <input aria-label="Fecha" data-role="evento-field" data-key="${key}" data-field="fecha" value="${esc(ev.fecha)}" placeholder="ej: 14-15 de febrero de 2026"> </label> ${horaField} </div>`;
+}
+
+function eventoCardViewHTML(ev, tituloFija, subt, showTitulo, showHora) {
+    const tituloHTML = showTitulo
+        ? `<h3>"${esc(ev.titulo) || 'Sin tema definido'}"</h3><div class="week-lectura">${esc(subt)}</div>`
+        : `<h3>${esc(tituloFija)}</h3>`;
+    return `<div class="week-head-top"> <div>${tituloHTML}</div> </div> <div class="week-meta"> <div class="meta-item"><b>Fecha</b><span>${esc(ev.fecha) || '—'}</span></div> ${showHora ? `<div class="meta-item"><b>Hora</b><span>${esc(ev.hora) || '—'}</span></div>` : ''} </div>`;
+}
+
+function eventoCard(key, tituloFija, subt, showTitulo, showHora) {
+    const ev = data.eventos[key];
+    const body = state.editing ? eventoCardEditHTML(ev, key, showTitulo, showHora) : eventoCardViewHTML(ev, tituloFija, subt, showTitulo, showHora);
+    return `<div class="week-card"> <div class="week-head">${body}</div> </div>`;
+}
+
+function renderEventos() {
+    const cont = document.getElementById('eventosList');
+    if (!data.eventos) { cont.innerHTML = ''; return; }
+    cont.innerHTML =
+        eventoCard('circuito1', 'Asamblea de Circuito', 'Programa de la asamblea de circuito (con el superintendente de circuito)', true, false) +
+        eventoCard('circuito2', 'Asamblea de Circuito', 'Programa de la asamblea de circuito (con representante de la sucursal)', true, false) +
+        eventoCard('regional', 'Asamblea Regional', 'Programa de la asamblea regional', true, false) +
+        eventoCard('precursores', 'Reunión de precursores', '', false, false) +
+        eventoCard('memorial', 'Conmemoración de la muerte de Jesús', '', false, true);
+}
+
+/* ============================================================
+               RENDER — ANUNCIOS
+               ============================================================ */
+function renderAnuncios() {
+    const cont = document.getElementById('anunciosList');
+    if (!data.anuncios || data.anuncios.length === 0) {
+        cont.innerHTML = '<div class="empty-state">Todavía no hay anuncios.</div>';
+        return;
+    }
+    cont.innerHTML = data.anuncios.map(a => anuncioCardHTML(a)).join('');
+}
+
+function anuncioCardEditHTML(a) {
+    return `<div class="week-edit-grid"> <label class="span2">Título <input aria-label="Título del anuncio" data-role="anuncio-field" data-anuncio-id="${a.id}" data-field="titulo" value="${esc(a.titulo)}" placeholder="Título del anuncio"> </label> <label>Fecha (opcional) <input aria-label="Fecha del anuncio" data-role="anuncio-field" data-anuncio-id="${a.id}" data-field="fecha" value="${esc(a.fecha)}" placeholder="ej: 26/07"> </label> <label class="span2">Texto <textarea aria-label="Texto del anuncio" data-role="anuncio-field" data-anuncio-id="${a.id}" data-field="texto" rows="3" placeholder="Escribí el anuncio…">${esc(a.texto)}</textarea> </label> </div>`;
+}
+
+function anuncioCardViewHTML(a) {
+    return `<div class="week-head-top"> <div> <h3>${esc(a.titulo) || 'Anuncio'}</h3> ${a.fecha ? `<div class="week-lectura">${esc(a.fecha)}</div>` : ''} </div> </div> <div class="week-meta"> <div class="meta-item" style="grid-column:1/-1;"><span style="white-space:pre-wrap;">${esc(a.texto) || '—'}</span></div> </div>`;
+}
+
+function anuncioCardHTML(a) {
+    const headBody = state.editing ? anuncioCardEditHTML(a) : anuncioCardViewHTML(a);
+    const deleteBtn = state.editing ? `<div class="week-card-actions edit-only"> <button class="btn btn-sm btn-danger" data-action="delete-anuncio" data-anuncio-id="${a.id}">🗑 Eliminar anuncio</button> </div>` : '';
+    return `<div class="week-card" data-anuncio-id="${a.id}"> <div class="week-head">${headBody}</div> ${deleteBtn}</div>`;
+}
+
+/* ============================================================
                RENDER GENERAL
                ============================================================ */
 function render() {
@@ -3010,6 +3220,8 @@ function render() {
     renderLimpieza();
     renderAcomodadores();
     renderAudiovideo();
+    renderEventos();
+    renderAnuncios();
     // after rendering sections, update their background colors to match icons
     setTimeout(applySectionColors, 30);
 }
@@ -3124,7 +3336,7 @@ updateTopbarHeight();
 const saveAllBtn = document.getElementById('saveAllBtn');
 if (saveAllBtn) saveAllBtn.addEventListener('click', () => {
     try {
-        saveSalidas(); saveVida(); saveFinde(); saveLimpieza(); saveAcomodadores(); saveAudiovideo(); saveConfig();
+        saveSalidas(); saveVida(); saveFinde(); saveLimpieza(); saveAcomodadores(); saveAudiovideo(); saveEventos(); saveAnuncios(); saveConfig();
         setStatus('Guardado ✓');
         setTimeout(() => setStatus('Conectado'), 2000);
     } catch (e) { setStatus('Error guardando', true); }
@@ -3155,6 +3367,8 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             col.doc('limpieza').set({ items: snap.limpieza }),
             col.doc('acomodadores').set({ items: snap.acomodadores }),
             col.doc('audiovideo').set({ items: snap.audiovideo }),
+            col.doc('eventos').set(snap.eventos || {}),
+            col.doc('anuncios').set({ items: snap.anuncios }),
             col.doc('config').set(snap.config)
         ]).then(() => {
             // restore local copies
@@ -3164,6 +3378,8 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             data.limpieza = JSON.parse(JSON.stringify(snap.limpieza || []));
             data.acomodadores = JSON.parse(JSON.stringify(snap.acomodadores || []));
             data.audiovideo = JSON.parse(JSON.stringify(snap.audiovideo || []));
+            data.eventos = JSON.parse(JSON.stringify(snap.eventos || {}));
+            data.anuncios = JSON.parse(JSON.stringify(snap.anuncios || []));
             config = Object.assign({}, snap.config || config);
             // clear snapshot
             window.editSnapshot = null;
@@ -3189,14 +3405,18 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
         col.doc('limpieza').get(),
         col.doc('acomodadores').get(),
         col.doc('audiovideo').get(),
+        col.doc('eventos').get(),
+        col.doc('anuncios').get(),
         col.doc('config').get()
-    ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, cDoc]) => {
+    ]).then(([sDoc, vDoc, fDoc, lDoc, aDoc, avDoc, evDoc, anDoc, cDoc]) => {
         if (sDoc && sDoc.exists && sDoc.data().items) data.salidas = sDoc.data().items;
         if (vDoc && vDoc.exists && vDoc.data().items) data.vidaymin = vDoc.data().items;
         if (fDoc && fDoc.exists && fDoc.data().items) data.finde = fDoc.data().items;
         if (lDoc && lDoc.exists && lDoc.data().items) data.limpieza = lDoc.data().items;
         if (aDoc && aDoc.exists && aDoc.data().items) data.acomodadores = aDoc.data().items;
         if (avDoc && avDoc.exists && avDoc.data().items) data.audiovideo = avDoc.data().items;
+        if (evDoc && evDoc.exists && Object.keys(evDoc.data() || {}).length) data.eventos = evDoc.data();
+        if (anDoc && anDoc.exists && anDoc.data().items) data.anuncios = anDoc.data().items;
         if (cDoc && cDoc.exists) config.pin = cDoc.data().pin || config.pin;
 
         state.editing = false;
@@ -3278,6 +3498,13 @@ document.getElementById('addAudiovideoBtn').addEventListener('click', () => {
                 data.audiovideo.unshift({ id: uid(), actual: false, rango: '', jueves: blankAudiovideoDay(), domingo: blankAudiovideoDay() });
                 saveAudiovideo();
                 renderAudiovideo();
+            })
+;
+
+document.getElementById('addAnuncioBtn').addEventListener('click', () => {
+                data.anuncios.unshift({ id: uid(), titulo: '', texto: '', fecha: '' });
+                saveAnuncios();
+                renderAnuncios();
             })
 ;
 
@@ -3445,6 +3672,36 @@ document.getElementById('audiovideoList').addEventListener('click', (e) => {
                     showConfirm('Eliminar semana', '¿Eliminar esta semana de audio y video?', () => {
                         data.audiovideo = data.audiovideo.filter(w => w.id !== btn.dataset.weekId);
                         saveAudiovideo(); renderAudiovideo();
+                    });
+                }
+            })
+;
+
+document.getElementById('eventosList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'evento-field') {
+                    if (!data.eventos) data.eventos = seedEventos();
+                    const ev = data.eventos[t.dataset.key];
+                    if (ev) { ev[t.dataset.field] = t.value; saveEventos(); }
+                }
+            })
+;
+
+document.getElementById('anunciosList').addEventListener('input', (e) => {
+                const t = e.target;
+                if (t.dataset.role === 'anuncio-field') {
+                    const a = data.anuncios.find(x => x.id === t.dataset.anuncioId);
+                    if (a) { a[t.dataset.field] = t.value; saveAnuncios(); }
+                }
+            })
+;
+document.getElementById('anunciosList').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                if (btn.dataset.action === 'delete-anuncio') {
+                    showConfirm('Eliminar anuncio', '¿Eliminar este anuncio?', () => {
+                        data.anuncios = data.anuncios.filter(a => a.id !== btn.dataset.anuncioId);
+                        saveAnuncios(); renderAnuncios();
                     });
                 }
             })
