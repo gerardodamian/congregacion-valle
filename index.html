@@ -2052,7 +2052,7 @@ main {
 <div class="view-header" >
 <h2 > Eventos especiales</h2 >
 </div >
-<div class="tip edit-only hidden" > 💡 Completá el tema y la fecha de cada asamblea, y las fechas de la reunión de precursores y la Conmemoración. Sirve para todos los años: solo actualizá estos datos cuando cambien.</div >
+<div class="tip edit-only hidden" > 💡 Completá el tema y la fecha de cada asamblea, y las fechas de las reuniones de precursores y la Conmemoración (formato dd/mm/aaaa, ej: 14/02/2026). Se acomodan solas según cuál esté más cerca. La Asamblea Regional dura 3 días: solo cargá la fecha del primer día. Sirve para todos los años: solo actualizá estos datos cuando cambien.</div >
 <div id="eventosList" > </div >
 </section >
 
@@ -2336,7 +2336,9 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                     circuito1: { titulo: 'El que confía en Jehová es feliz', fecha: '' },
                     circuito2: { titulo: 'Haz de Jehová tu mayor alegría', fecha: '' },
                     regional: { titulo: 'Felices para siempre', fecha: '' },
-                    precursores: { fecha: '' },
+                    precursoresAncianos: { fecha: '' },
+                    precursoresCircuito: { fecha: '' },
+                    visitaSuperintendente: { fecha: '', nombre: '' },
                     memorial: { fecha: '', hora: '' }
                 };
             }
@@ -2616,7 +2618,7 @@ Consulta de uso libre para la congregación · La edición requiere código de a
                 col.doc('eventos').onSnapshot((doc) => {
                     if (suppressEcho.eventos) { suppressEcho.eventos = false; return; }
                     if (doc.exists && doc.data() && Object.keys(doc.data()).length) {
-                        data.eventos = doc.data();
+                        data.eventos = Object.assign(seedEventos(), doc.data());
                     } else if (!firstLoad.eventos) {
                         data.eventos = seedEventos();
                         suppressEcho.eventos = true;
@@ -3148,34 +3150,86 @@ function audiovideoCardHTML(week) {
 /* ============================================================
                RENDER — EVENTOS ESPECIALES
                ============================================================ */
-function eventoCardEditHTML(ev, key, showTitulo, showHora) {
+function eventoCardEditHTML(ev, key, showTitulo, showHora, showNombre, diasDuracion) {
     const tituloField = showTitulo ? `<label class="span2">Tema de la asamblea <input aria-label="Tema de la asamblea" data-role="evento-field" data-key="${key}" data-field="titulo" value="${esc(ev.titulo)}" placeholder='ej: "El que confía en Jehová es feliz"'> </label>` : '';
     const horaField = showHora ? `<label>Hora <input aria-label="Hora" data-role="evento-field" data-key="${key}" data-field="hora" value="${esc(ev.hora)}" placeholder="ej: 19:30"> </label>` : '';
-    return `<div class="week-edit-grid"> ${tituloField} <label>Fecha <input aria-label="Fecha" data-role="evento-field" data-key="${key}" data-field="fecha" value="${esc(ev.fecha)}" placeholder="ej: 14-15 de febrero de 2026"> </label> ${horaField} </div>`;
+    const nombreField = showNombre ? `<label>Nombre del superintendente <input aria-label="Nombre del superintendente" data-role="evento-field" data-key="${key}" data-field="nombre" value="${esc(ev.nombre)}" placeholder="Nombre y apellido"> </label>` : '';
+    const fechaLabel = diasDuracion > 1 ? `Fecha del primer día (dura ${diasDuracion} días)` : 'Fecha';
+    return `<div class="week-edit-grid"> <label>${fechaLabel} <input aria-label="Fecha" data-role="evento-field" data-key="${key}" data-field="fecha" value="${esc(ev.fecha)}" placeholder="ej: 14/02/2026"> </label> ${horaField} ${nombreField} ${tituloField} </div>`;
 }
 
-function eventoCardViewHTML(ev, tituloFija, subt, showTitulo, showHora) {
+function eventoCardViewHTML(ev, tituloFija, showTitulo, showHora, showNombre, diasDuracion) {
     const tituloHTML = showTitulo
-        ? `<h3>"${esc(ev.titulo) || 'Sin tema definido'}"</h3><div class="week-lectura">${esc(subt)}</div>`
+        ? `<h3>${esc(tituloFija)}</h3><div class="week-lectura">"${esc(ev.titulo) || 'Sin tema definido'}"</div>`
         : `<h3>${esc(tituloFija)}</h3>`;
-    return `<div class="week-head-top"> <div>${tituloHTML}</div> </div> <div class="week-meta"> <div class="meta-item"><b>Fecha</b><span>${esc(ev.fecha) || '—'}</span></div> ${showHora ? `<div class="meta-item"><b>Hora</b><span>${esc(ev.hora) || '—'}</span></div>` : ''} </div>`;
+    let fechaTexto = esc(ev.fecha) || '—';
+    let diaTexto = '—';
+    const fInicio = parseFechaCompleta(ev.fecha);
+    if (diasDuracion > 1) {
+        if (fInicio) {
+            const fin = new Date(fInicio.y, fInicio.m - 1, fInicio.d);
+            fin.setDate(fin.getDate() + (diasDuracion - 1));
+            const fFin = { d: fin.getDate(), m: fin.getMonth() + 1, y: fin.getFullYear() };
+            fechaTexto = `${formatFecha(fInicio)} al ${formatFecha(fFin)}`;
+            diaTexto = `${diaSemanaDeFecha(fInicio)} a ${diaSemanaDeFecha(fFin)}`;
+        }
+    } else if (fInicio) {
+        diaTexto = diaSemanaDeFecha(fInicio);
+    }
+    return `<div class="week-head-top"> <div>${tituloHTML}</div> </div> <div class="week-meta"> <div class="meta-item"><b>Fecha</b><span>${fechaTexto}</span></div> <div class="meta-item"><b>Día</b><span>${diaTexto}</span></div> ${showHora ? `<div class="meta-item"><b>Hora</b><span>${esc(ev.hora) || '—'}</span></div>` : ''} ${showNombre ? `<div class="meta-item"><b>Superintendente</b><span>${esc(ev.nombre) || '—'}</span></div>` : ''} </div>`;
 }
 
-function eventoCard(key, tituloFija, subt, showTitulo, showHora) {
-    const ev = data.eventos[key];
-    const body = state.editing ? eventoCardEditHTML(ev, key, showTitulo, showHora) : eventoCardViewHTML(ev, tituloFija, subt, showTitulo, showHora);
+function eventoCard(key, tituloFija, showTitulo, showHora, showNombre, diasDuracion) {
+    const ev = data.eventos[key] || {};
+    const body = state.editing ? eventoCardEditHTML(ev, key, showTitulo, showHora, showNombre, diasDuracion || 1) : eventoCardViewHTML(ev, tituloFija, showTitulo, showHora, showNombre, diasDuracion || 1);
     return `<div class="week-card"> <div class="week-head">${body}</div> </div>`;
+}
+
+/* Fecha completa dd/mm/aaaa (acepta año de 2 o 4 dígitos), usada para ordenar los eventos por cercanía a hoy */
+function parseFechaCompleta(str) {
+    const m = String(str || '').trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (!m) return null;
+    let y = parseInt(m[3], 10);
+    if (y < 100) { y += 2000; }
+    return { d: parseInt(m[1], 10), m: parseInt(m[2], 10), y: y };
+}
+
+function formatFecha(f) {
+    return `${String(f.d).padStart(2, '0')}/${String(f.m).padStart(2, '0')}/${f.y}`;
+}
+
+const DIAS_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+function diaSemanaDeFecha(f) {
+    if (!f) return '';
+    const d = new Date(f.y, f.m - 1, f.d);
+    const nombre = DIAS_SEMANA[d.getDay()];
+    return nombre.charAt(0).toUpperCase() + nombre.slice(1);
+}
+
+function eventoSortValue(fecha) {
+    const f = parseFechaCompleta(fecha);
+    if (!f) return Infinity; // sin fecha cargada: al final
+    const eventDate = new Date(f.y, f.m - 1, f.d);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((eventDate - today) / 86400000);
+    return diffDays >= 0 ? diffDays : (1000000 - diffDays); // eventos pasados, al final
 }
 
 function renderEventos() {
     const cont = document.getElementById('eventosList');
     if (!data.eventos) { cont.innerHTML = ''; return; }
-    cont.innerHTML =
-        eventoCard('circuito1', 'Asamblea de Circuito', 'Programa de la asamblea de circuito (con el superintendente de circuito)', true, false) +
-        eventoCard('circuito2', 'Asamblea de Circuito', 'Programa de la asamblea de circuito (con representante de la sucursal)', true, false) +
-        eventoCard('regional', 'Asamblea Regional', 'Programa de la asamblea regional', true, false) +
-        eventoCard('precursores', 'Reunión de precursores', '', false, false) +
-        eventoCard('memorial', 'Conmemoración de la muerte de Jesús', '', false, true);
+    const items = [
+        { key: 'circuito1', tituloFija: 'Asamblea de Circuito (con el superintendente de Circuito)', showTitulo: true, showHora: false, showNombre: false, diasDuracion: 1 },
+        { key: 'circuito2', tituloFija: 'Asamblea de Circuito (con representante de la sucursal)', showTitulo: true, showHora: false, showNombre: false, diasDuracion: 1 },
+        { key: 'regional', tituloFija: 'Asamblea Regional', showTitulo: true, showHora: false, showNombre: false, diasDuracion: 3 },
+        { key: 'precursoresAncianos', tituloFija: 'Reunión de Precursores con los Ancianos', showTitulo: false, showHora: false, showNombre: false, diasDuracion: 1 },
+        { key: 'precursoresCircuito', tituloFija: 'Reunión de Precursores con el Circuito', showTitulo: false, showHora: false, showNombre: false, diasDuracion: 1 },
+        { key: 'visitaSuperintendente', tituloFija: 'Visita del Superintendente de Circuito', showTitulo: false, showHora: false, showNombre: true, diasDuracion: 1 },
+        { key: 'memorial', tituloFija: 'Conmemoración de la muerte de Jesús', showTitulo: false, showHora: true, showNombre: false, diasDuracion: 1 }
+    ];
+    items.sort((a, b) => eventoSortValue(data.eventos[a.key] && data.eventos[a.key].fecha) - eventoSortValue(data.eventos[b.key] && data.eventos[b.key].fecha));
+    cont.innerHTML = items.map(it => eventoCard(it.key, it.tituloFija, it.showTitulo, it.showHora, it.showNombre, it.diasDuracion)).join('');
 }
 
 /* ============================================================
@@ -3378,7 +3432,7 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
             data.limpieza = JSON.parse(JSON.stringify(snap.limpieza || []));
             data.acomodadores = JSON.parse(JSON.stringify(snap.acomodadores || []));
             data.audiovideo = JSON.parse(JSON.stringify(snap.audiovideo || []));
-            data.eventos = JSON.parse(JSON.stringify(snap.eventos || {}));
+            data.eventos = Object.assign(seedEventos(), JSON.parse(JSON.stringify(snap.eventos || {})));
             data.anuncios = JSON.parse(JSON.stringify(snap.anuncios || []));
             config = Object.assign({}, snap.config || config);
             // clear snapshot
@@ -3415,7 +3469,7 @@ if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
         if (lDoc && lDoc.exists && lDoc.data().items) data.limpieza = lDoc.data().items;
         if (aDoc && aDoc.exists && aDoc.data().items) data.acomodadores = aDoc.data().items;
         if (avDoc && avDoc.exists && avDoc.data().items) data.audiovideo = avDoc.data().items;
-        if (evDoc && evDoc.exists && Object.keys(evDoc.data() || {}).length) data.eventos = evDoc.data();
+        if (evDoc && evDoc.exists && Object.keys(evDoc.data() || {}).length) data.eventos = Object.assign(seedEventos(), evDoc.data());
         if (anDoc && anDoc.exists && anDoc.data().items) data.anuncios = anDoc.data().items;
         if (cDoc && cDoc.exists) config.pin = cDoc.data().pin || config.pin;
 
