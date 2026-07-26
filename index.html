@@ -1686,6 +1686,97 @@
                 font-style: italic;
             }
 
+            .grupos-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 14px 0;
+            }
+
+            .grupo-btn {
+                padding: 8px 16px;
+                border-radius: 999px;
+                border: 1px solid var(--border);
+                background: var(--surface);
+                color: var(--ink);
+                font-size: 0.85rem;
+                font-weight: 600;
+                transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            }
+
+            .grupo-btn:hover {
+                border-color: var(--accent);
+            }
+
+            .grupo-btn.active {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+
+            .grupo-table-wrap {
+                overflow-x: auto;
+                border: 1px solid var(--border);
+                border-radius: var(--radius, 12px);
+                background: var(--surface);
+            }
+
+            table.grupo-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.88rem;
+            }
+
+            table.grupo-table th {
+                text-align: left;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                color: var(--ink-soft);
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--border);
+                white-space: nowrap;
+            }
+
+            table.grupo-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid var(--border);
+                vertical-align: middle;
+            }
+
+            table.grupo-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            table.grupo-table td.grupo-num {
+                width: 36px;
+                text-align: center;
+                color: var(--ink-soft);
+                font-weight: 600;
+            }
+
+            table.grupo-table input {
+                width: 100%;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 6px 8px;
+                font-size: 0.85rem;
+                color: var(--ink);
+                background: var(--bg);
+            }
+
+            table.grupo-table td.grupo-actions {
+                width: 36px;
+                text-align: center;
+            }
+
+            .grupo-empty {
+                padding: 24px 12px;
+                text-align: center;
+                color: var(--ink-soft);
+                font-size: 0.85rem;
+            }
+
             .week-day-num-badge {
                 display: inline-block;
                 margin-left: 6px;
@@ -2386,7 +2477,7 @@
                 </svg>
                 <span>Salidas a predicar</span>
             </button>
-            <button class="tab" data-tab="vida">
+            <button class="tab" data-tab="reuniones">
                 <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                         d="M3.5 5.5c2.3-1.1 5.6-1.1 8 0v13.2c-2.4-1.1-5.7-1.1-8 0z"
@@ -2395,16 +2486,7 @@
                         d="M20.5 5.5c-2.3-1.1-5.6-1.1-8 0v13.2c2.4-1.1 5.7-1.1 8 0z"
                     />
                 </svg>
-                <span>Vida y Ministerio</span>
-            </button>
-            <button class="tab" data-tab="finde">
-                <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="9" cy="8" r="3" />
-                    <path d="M3.5 20c0-3.6 2.5-6.2 5.5-6.2s5.5 2.6 5.5 6.2" />
-                    <circle cx="17" cy="9.5" r="2.2" />
-                    <path d="M15 14.3c2.6.4 4.5 2.7 4.5 5.7" />
-                </svg>
-                <span>Reunión de Fin de Semana</span>
+                <span>Reuniones</span>
             </button>
             <button class="tab" data-tab="limpieza">
                 <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -2460,6 +2542,21 @@
                 </svg>
                 <span>Anuncios</span>
             </button>
+            <button class="tab" data-tab="grupos">
+                <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M17 11a4 4 0 1 0 0-8"
+                    />
+                    <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                    <path
+                        d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"
+                    />
+                    <path
+                        d="M23 21v-2a4 4 0 0 0-3-3.87"
+                    />
+                </svg>
+                <span>Grupos</span>
+            </button>
         </div>
 
         <main>
@@ -2486,51 +2583,65 @@
                 </button>
             </section>
 
-            <section id="vidaView" class="view">
-                <img
-                    src="img/vidayministerio.jpg"
-                    alt="Vida y Ministerio Cristiano"
-                    class="view-banner"
-                />
+            <section id="reunionesView" class="view">
                 <div class="view-header">
-                    <h2>Vida y Ministerio Cristiano</h2>
+                    <h2>Reuniones</h2>
                 </div>
-                <div class="tip edit-only hidden">
-                    💡 Completá los campos de cada parte. "Auxiliar" es opcional
-                    (para sala auxiliar o ayudante).
+                <div class="grupos-nav" id="reunionesNav">
+                    <button class="grupo-btn active" data-reunion="vida">
+                        Vida y Ministerio
+                    </button>
+                    <button class="grupo-btn" data-reunion="finde">
+                        Fin de Semana
+                    </button>
                 </div>
-                <div id="vidaList"></div>
-                <button
-                    id="addWeekBtn"
-                    class="btn btn-accent edit-only hidden"
-                    style="margin-top: 6px"
-                >
-                    + Agregar semana
-                </button>
-            </section>
 
-            <section id="findeView" class="view">
-                <img
-                    src="img/reunionfin.jpg"
-                    alt="Reunión de Fin de Semana"
-                    class="view-banner"
-                />
-                <div class="view-header">
-                    <h2>Reunión de Fin de Semana</h2>
+                <div id="reunionVidaBlock">
+                    <img
+                        src="img/vidayministerio.jpg"
+                        alt="Vida y Ministerio Cristiano"
+                        class="view-banner"
+                    />
+                    <div class="view-header">
+                        <h2>Vida y Ministerio Cristiano</h2>
+                    </div>
+                    <div class="tip edit-only hidden">
+                        💡 Completá los campos de cada parte. "Auxiliar" es
+                        opcional (para sala auxiliar o ayudante).
+                    </div>
+                    <div id="vidaList"></div>
+                    <button
+                        id="addWeekBtn"
+                        class="btn btn-accent edit-only hidden"
+                        style="margin-top: 6px"
+                    >
+                        + Agregar semana
+                    </button>
                 </div>
-                <div class="tip edit-only hidden">
-                    💡 Esta es la reunión del domingo. Completá presidente,
-                    conferenciante, título del discurso, conductor de La Atalaya
-                    y lector.
+
+                <div id="reunionFindeBlock" class="hidden">
+                    <img
+                        src="img/reunionfin.jpg"
+                        alt="Reunión de Fin de Semana"
+                        class="view-banner"
+                    />
+                    <div class="view-header">
+                        <h2>Reunión de Fin de Semana</h2>
+                    </div>
+                    <div class="tip edit-only hidden">
+                        💡 Esta es la reunión del domingo. Completá
+                        presidente, conferenciante, título del discurso,
+                        conductor de La Atalaya y lector.
+                    </div>
+                    <div id="findeList"></div>
+                    <button
+                        id="addFindeBtn"
+                        class="btn btn-accent edit-only hidden"
+                        style="margin-top: 6px"
+                    >
+                        + Agregar semana
+                    </button>
                 </div>
-                <div id="findeList"></div>
-                <button
-                    id="addFindeBtn"
-                    class="btn btn-accent edit-only hidden"
-                    style="margin-top: 6px"
-                >
-                    + Agregar semana
-                </button>
             </section>
 
             <section id="limpiezaView" class="view">
@@ -2644,6 +2755,37 @@
                 >
                     + Agregar anuncio
                 </button>
+            </section>
+
+            <section id="gruposView" class="view">
+                <div class="view-header">
+                    <h2>Grupos</h2>
+                </div>
+                <div class="tip edit-only hidden">
+                    💡 Elegí un grupo y cargá los integrantes: nombre y
+                    asignación (anciano, precursor especial, precursor
+                    regular, publicador, etc.).
+                </div>
+                <div class="grupos-nav" id="gruposNav">
+                    <button class="grupo-btn active" data-grupo="1">
+                        Grupo 1
+                    </button>
+                    <button class="grupo-btn" data-grupo="2">Grupo 2</button>
+                    <button class="grupo-btn" data-grupo="3">Grupo 3</button>
+                    <button class="grupo-btn" data-grupo="4">Grupo 4</button>
+                    <button class="grupo-btn" data-grupo="5">Grupo 5</button>
+                    <button class="grupo-btn" data-grupo="6">Grupo 6</button>
+                    <button class="grupo-btn" data-grupo="7">Grupo 7</button>
+                    <button class="grupo-btn" data-grupo="8">Grupo 8</button>
+                </div>
+                <div id="grupoTablaContainer"></div>
+                <datalist id="asignacionSugerencias">
+                    <option value="Anciano"></option>
+                    <option value="Precursor especial"></option>
+                    <option value="Precursor regular"></option>
+                    <option value="Publicador"></option>
+                    <option value="Siervo ministerial"></option>
+                </datalist>
             </section>
         </main>
 
@@ -2776,6 +2918,7 @@
                         maxlength="12"
                         placeholder="••••"
                         aria-label="Código de edición"
+                        autocomplete="off"
                     />
                 </form>
                 <p id="pinError" class="modal-error hidden">
@@ -2844,7 +2987,12 @@
                 /* ============================================================
                ESTADO Y DATOS
                ============================================================ */
-                let state = { editing: false, tab: "salidas" };
+                let state = {
+                    editing: false,
+                    tab: "salidas",
+                    grupoActivo: "1",
+                    reunionActiva: "vida",
+                };
                 let data = {
                     salidas: [],
                     vidaymin: [],
@@ -2854,6 +3002,7 @@
                     audiovideo: [],
                     eventos: null,
                     anuncios: [],
+                    grupos: null,
                 };
                 let config = { pin: "2026", installCode: "1914" };
                 let saveTimers = {};
@@ -3534,6 +3683,19 @@
                     ];
                 }
 
+                function seedGrupos() {
+                    return {
+                        1: [],
+                        2: [],
+                        3: [],
+                        4: [],
+                        5: [],
+                        6: [],
+                        7: [],
+                        8: [],
+                    };
+                }
+
                 window.compartirPagina = function () {
                     console.log("🔵 Función compartirPagina() llamada");
 
@@ -3653,6 +3815,7 @@
                     config: false,
                     eventos: false,
                     anuncios: false,
+                    grupos: false,
                 };
                 let pendingRemote = {
                     salidas: false,
@@ -3673,6 +3836,7 @@
                     config: false,
                     eventos: false,
                     anuncios: false,
+                    grupos: false,
                 };
 
                 function setStatus(text, isError) {
@@ -3779,6 +3943,7 @@
                         data.audiovideo = seedAudioVideo();
                         data.eventos = seedEventos();
                         data.anuncios = seedAnuncios();
+                        data.grupos = seedGrupos();
                         render();
                         return;
                     }
@@ -4047,6 +4212,41 @@
                             setStatus("Sin conexión a la base de datos", true);
                         },
                     );
+
+                    col.doc("grupos").onSnapshot(
+                        (doc) => {
+                            if (suppressEcho.grupos) {
+                                suppressEcho.grupos = false;
+                                return;
+                            }
+                            if (
+                                doc.exists &&
+                                doc.data() &&
+                                Object.keys(doc.data()).length
+                            ) {
+                                data.grupos = Object.assign(
+                                    seedGrupos(),
+                                    doc.data(),
+                                );
+                            } else if (!firstLoad.grupos) {
+                                data.grupos = seedGrupos();
+                                suppressEcho.grupos = true;
+                                col.doc("grupos")
+                                    .set(data.grupos)
+                                    .catch(() => {
+                                        suppressEcho.grupos = false;
+                                    });
+                            }
+                            firstLoad.grupos = true;
+                            if (!isTypingInside("grupoTablaContainer")) {
+                                renderGrupos();
+                            }
+                            setStatus("Conectado");
+                        },
+                        (err) => {
+                            setStatus("Sin conexión a la base de datos", true);
+                        },
+                    );
                 }
 
                 function scheduleSave(key, getValue, flag) {
@@ -4138,6 +4338,27 @@
                 }
                 function saveAnuncios() {
                     scheduleSave("anuncios", () => data.anuncios, "anuncios");
+                }
+                function saveGrupos() {
+                    if (!col) {
+                        setStatus("Sin conexión a la base de datos", true);
+                        return;
+                    }
+                    clearTimeout(saveTimers.grupos);
+                    setStatus("Guardando…");
+                    document.body.classList.add("saving");
+                    saveTimers.grupos = setTimeout(async () => {
+                        try {
+                            suppressEcho.grupos = true;
+                            await col.doc("grupos").set(data.grupos || {});
+                            setStatus("Guardado ✓");
+                            document.body.classList.remove("saving");
+                        } catch (e) {
+                            suppressEcho.grupos = false;
+                            setStatus("No se pudo guardar", true);
+                            document.body.classList.remove("saving");
+                        }
+                    }, 650);
                 }
 
                 /* ============================================================
@@ -4330,6 +4551,9 @@
                                 anuncios: JSON.parse(
                                     JSON.stringify(data.anuncios || []),
                                 ),
+                                grupos: JSON.parse(
+                                    JSON.stringify(data.grupos || {}),
+                                ),
                                 config: JSON.parse(
                                     JSON.stringify(config || {}),
                                 ),
@@ -4347,6 +4571,7 @@
                             col.doc("audiovideo").get(),
                             col.doc("eventos").get(),
                             col.doc("anuncios").get(),
+                            col.doc("grupos").get(),
                             col.doc("config").get(),
                         ])
                             .then(
@@ -4359,6 +4584,7 @@
                                     avDoc,
                                     evDoc,
                                     anDoc,
+                                    grDoc,
                                     cDoc,
                                 ]) => {
                                     window.editSnapshot = {
@@ -4476,6 +4702,21 @@
                                                           data.anuncios || [],
                                                       ),
                                                   ),
+                                        grupos:
+                                            grDoc &&
+                                            grDoc.exists &&
+                                            Object.keys(grDoc.data() || {})
+                                                .length
+                                                ? JSON.parse(
+                                                      JSON.stringify(
+                                                          grDoc.data(),
+                                                      ),
+                                                  )
+                                                : JSON.parse(
+                                                      JSON.stringify(
+                                                          data.grupos || {},
+                                                      ),
+                                                  ),
                                         config:
                                             cDoc && cDoc.exists
                                                 ? JSON.parse(
@@ -4521,6 +4762,9 @@
                                     ),
                                     anuncios: JSON.parse(
                                         JSON.stringify(data.anuncios || []),
+                                    ),
+                                    grupos: JSON.parse(
+                                        JSON.stringify(data.grupos || {}),
                                     ),
                                     config: JSON.parse(
                                         JSON.stringify(config || {}),
@@ -5173,6 +5417,69 @@
                 }
 
                 /* ============================================================
+               RENDER — GRUPOS
+               ============================================================ */
+                function grupoFilaHTML(m, idx) {
+                    if (state.editing) {
+                        return `<tr data-integrante-id="${m.id}">
+                            <td class="grupo-num">${idx + 1}</td>
+                            <td><input aria-label="Hermano" data-role="grupo-field" data-integrante-id="${m.id}" data-field="nombre" value="${esc(m.nombre)}" placeholder="Nombre"></td>
+                            <td><input aria-label="Asignación" list="asignacionSugerencias" data-role="grupo-field" data-integrante-id="${m.id}" data-field="asignacion" value="${esc(m.asignacion)}" placeholder="ej: Anciano"></td>
+                            <td class="grupo-actions"><button class="btn btn-icon btn-danger" data-action="delete-integrante" data-integrante-id="${m.id}" title="Eliminar"><svg class="icon-close" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M18.3 5.71a1 1 0 00-1.41 0L12 10.59 7.11 5.7A1 1 0 105.7 7.11L10.59 12l-4.9 4.89a1 1 0 101.41 1.41L12 13.41l4.89 4.9a1 1 0 001.41-1.41L13.41 12l4.9-4.89a1 1 0 000-1.4z" fill="currentColor"/></svg></button></td>
+                        </tr>`;
+                    }
+                    return `<tr>
+                        <td class="grupo-num">${idx + 1}</td>
+                        <td>${esc(m.nombre) || "—"}</td>
+                        <td>${esc(m.asignacion) || "—"}</td>
+                    </tr>`;
+                }
+
+                function renderGrupos() {
+                    document.querySelectorAll(".grupo-btn").forEach((btn) => {
+                        btn.classList.toggle(
+                            "active",
+                            btn.dataset.grupo === state.grupoActivo,
+                        );
+                    });
+
+                    const cont = document.getElementById(
+                        "grupoTablaContainer",
+                    );
+                    if (!data.grupos) {
+                        cont.innerHTML = "";
+                        return;
+                    }
+                    const miembros = data.grupos[state.grupoActivo] || [];
+                    const filas = miembros
+                        .map((m, idx) => grupoFilaHTML(m, idx))
+                        .join("");
+                    const colspan = state.editing ? 4 : 3;
+                    const addBtn = state.editing
+                        ? `<button class="btn btn-accent edit-only" id="addIntegranteBtn" style="margin-top:10px;">+ Agregar integrante</button>`
+                        : "";
+
+                    cont.innerHTML = `
+                        <div class="grupo-table-wrap">
+                            <table class="grupo-table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Hermano</th>
+                                        <th>Asignación</th>
+                                        ${state.editing ? "<th></th>" : ""}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filas || `<tr><td colspan="${colspan}"><div class="grupo-empty">Todavía no hay integrantes en este grupo.</div></td></tr>`}
+                                </tbody>
+                            </table>
+                        </div>
+                        ${addBtn}
+                    `;
+                }
+
+                /* ============================================================
                RENDER GENERAL
                ============================================================ */
                 function render() {
@@ -5197,6 +5504,7 @@
                     renderAudiovideo();
                     renderEventos();
                     renderAnuncios();
+                    renderGrupos();
                     // after rendering sections, update their background colors to match icons
                     setTimeout(applySectionColors, 30);
                 }
@@ -5360,6 +5668,7 @@
                             saveAudiovideo();
                             saveEventos();
                             saveAnuncios();
+                            saveGrupos();
                             saveConfig();
                             setStatus("Guardado ✓");
                             setTimeout(() => setStatus("Conectado"), 2000);
@@ -5413,6 +5722,7 @@
                                 col
                                     .doc("anuncios")
                                     .set({ items: snap.anuncios }),
+                                col.doc("grupos").set(snap.grupos || {}),
                                 col.doc("config").set(snap.config),
                             ])
                                 .then(() => {
@@ -5443,6 +5753,12 @@
                                     );
                                     data.anuncios = JSON.parse(
                                         JSON.stringify(snap.anuncios || []),
+                                    );
+                                    data.grupos = Object.assign(
+                                        seedGrupos(),
+                                        JSON.parse(
+                                            JSON.stringify(snap.grupos || {}),
+                                        ),
                                     );
                                     config = Object.assign(
                                         {},
@@ -5484,6 +5800,7 @@
                             col.doc("audiovideo").get(),
                             col.doc("eventos").get(),
                             col.doc("anuncios").get(),
+                            col.doc("grupos").get(),
                             col.doc("config").get(),
                         ])
                             .then(
@@ -5496,6 +5813,7 @@
                                     avDoc,
                                     evDoc,
                                     anDoc,
+                                    grDoc,
                                     cDoc,
                                 ]) => {
                                     if (
@@ -5549,6 +5867,15 @@
                                         anDoc.data().items
                                     )
                                         data.anuncios = anDoc.data().items;
+                                    if (
+                                        grDoc &&
+                                        grDoc.exists &&
+                                        Object.keys(grDoc.data() || {}).length
+                                    )
+                                        data.grupos = Object.assign(
+                                            seedGrupos(),
+                                            grDoc.data(),
+                                        );
                                     if (cDoc && cDoc.exists)
                                         config.pin =
                                             cDoc.data().pin || config.pin;
@@ -6018,6 +6345,97 @@
                                     );
                                     saveAnuncios();
                                     renderAnuncios();
+                                },
+                            );
+                        }
+                    });
+
+                document
+                    .getElementById("gruposNav")
+                    .addEventListener("click", (e) => {
+                        const btn = e.target.closest(".grupo-btn");
+                        if (!btn) return;
+                        state.grupoActivo = btn.dataset.grupo;
+                        renderGrupos();
+                    });
+
+                document
+                    .getElementById("reunionesNav")
+                    .addEventListener("click", (e) => {
+                        const btn = e.target.closest(".grupo-btn");
+                        if (!btn) return;
+                        state.reunionActiva = btn.dataset.reunion;
+                        document
+                            .querySelectorAll("#reunionesNav .grupo-btn")
+                            .forEach((b) =>
+                                b.classList.toggle("active", b === btn),
+                            );
+                        document
+                            .getElementById("reunionVidaBlock")
+                            .classList.toggle(
+                                "hidden",
+                                state.reunionActiva !== "vida",
+                            );
+                        document
+                            .getElementById("reunionFindeBlock")
+                            .classList.toggle(
+                                "hidden",
+                                state.reunionActiva !== "finde",
+                            );
+                    });
+
+                document
+                    .getElementById("grupoTablaContainer")
+                    .addEventListener("input", (e) => {
+                        const t = e.target;
+                        if (t.dataset.role === "grupo-field") {
+                            if (!data.grupos) data.grupos = seedGrupos();
+                            const miembros =
+                                data.grupos[state.grupoActivo] || [];
+                            const m = miembros.find(
+                                (x) => x.id === t.dataset.integranteId,
+                            );
+                            if (m) {
+                                m[t.dataset.field] = t.value;
+                                saveGrupos();
+                            }
+                        }
+                    });
+
+                document
+                    .getElementById("grupoTablaContainer")
+                    .addEventListener("click", (e) => {
+                        if (e.target.closest("#addIntegranteBtn")) {
+                            if (!data.grupos) data.grupos = seedGrupos();
+                            if (!data.grupos[state.grupoActivo]) {
+                                data.grupos[state.grupoActivo] = [];
+                            }
+                            data.grupos[state.grupoActivo].push({
+                                id: uid(),
+                                nombre: "",
+                                asignacion: "",
+                            });
+                            saveGrupos();
+                            renderGrupos();
+                            return;
+                        }
+                        const delBtn = e.target.closest(
+                            '[data-action="delete-integrante"]',
+                        );
+                        if (delBtn) {
+                            showConfirm(
+                                "Eliminar integrante",
+                                "¿Eliminar este integrante del grupo?",
+                                () => {
+                                    data.grupos[state.grupoActivo] = (
+                                        data.grupos[state.grupoActivo] || []
+                                    ).filter(
+                                        (x) =>
+                                            x.id !==
+                                            delBtn.dataset.integranteId,
+                                    );
+                                    saveGrupos();
+                                    renderGrupos();
                                 },
                             );
                         }
