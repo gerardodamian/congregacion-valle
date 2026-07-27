@@ -1039,6 +1039,7 @@
                     box-shadow 0.12s;
                 white-space: nowrap;
                 min-height: 44px;
+                text-decoration: none;
             }
 
             .btn:active {
@@ -2568,6 +2569,14 @@
                 />
                 <div class="view-header">
                     <h2>Salidas de predicación</h2>
+                    <a
+                        href="https://www.google.com/maps/d/edit?mid=1K7WDSIYcaElyE2y5hl5ad0y8mULdusA"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-accent btn-sm"
+                    >
+                        🗺️ Mapa de Territorio
+                    </a>
                 </div>
                 <div class="tip edit-only hidden">
                     💡 Tocá un campo para escribir. Los cambios se guardan solos
@@ -2656,7 +2665,8 @@
                 <div class="tip edit-only hidden">
                     💡 Se limpia dos días después de la reunión: jueves y
                     domingo. Por lo general rotan de a dos grupos (n°1 y n°2,
-                    luego n°3 y n°4, y así hasta el n°8).
+                    luego n°3 y n°4, y así hasta el n°8). Cargá el número de
+                    cada grupo junto con su superintendente y auxiliar.
                 </div>
                 <div id="limpiezaList"></div>
                 <button
@@ -3515,25 +3525,29 @@
                             rango: "29 de junio a 5 de julio",
                             diaJueves: "23/07",
                             diaDomingo: "26/07",
-                            grupos: "Grupo n°1 y Grupo n°2",
+                            grupoA: { numero: "1", superintendente: "", auxiliar: "" },
+                            grupoB: { numero: "2", superintendente: "", auxiliar: "" },
                         },
                         {
                             id: uid(),
                             actual: false,
                             rango: "6-12 de julio",
-                            grupos: "Grupo n°3 y Grupo n°4",
+                            grupoA: { numero: "3", superintendente: "", auxiliar: "" },
+                            grupoB: { numero: "4", superintendente: "", auxiliar: "" },
                         },
                         {
                             id: uid(),
                             actual: false,
                             rango: "13-19 de julio",
-                            grupos: "Grupo n°5 y Grupo n°6",
+                            grupoA: { numero: "5", superintendente: "", auxiliar: "" },
+                            grupoB: { numero: "6", superintendente: "", auxiliar: "" },
                         },
                         {
                             id: uid(),
                             actual: false,
                             rango: "20-26 de julio",
-                            grupos: "Grupo n°7 y Grupo n°8",
+                            grupoA: { numero: "7", superintendente: "", auxiliar: "" },
+                            grupoB: { numero: "8", superintendente: "", auxiliar: "" },
                         },
                     ];
                 }
@@ -4991,8 +5005,23 @@
                         .join("");
                 }
 
+                function blankGrupoLimpieza(numero) {
+                    return { numero: numero || "", superintendente: "", auxiliar: "" };
+                }
+
+                function grupoLimpiezaEditHTML(week, key, label) {
+                    const g = week[key] || blankGrupoLimpieza();
+                    return `<div class="week-day-block"> <div class="week-day-head-edit"> <h4 class="week-day-title">${label}</h4> <input class="week-day-num-input" aria-label="Número de grupo (${label})" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="${key}.numero" value="${esc(g.numero)}" placeholder="N°"> </div> <div class="week-edit-grid"> <label>Superintendente de grupo <input aria-label="Superintendente de grupo (${label})" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="${key}.superintendente" value="${esc(g.superintendente)}" placeholder="Nombre"> </label> <label>Auxiliar <input aria-label="Auxiliar (${label})" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="${key}.auxiliar" value="${esc(g.auxiliar)}" placeholder="Nombre"> </label> </div> </div>`;
+                }
+
+                function grupoLimpiezaViewHTML(week, key, label) {
+                    const g = week[key] || blankGrupoLimpieza();
+                    const titulo = g.numero ? `Grupo ${esc(g.numero)}` : label;
+                    return `<div class="week-day-block"> <h4 class="week-day-title">${titulo}</h4> <div class="week-meta"> <div class="meta-item"><b>Superintendente de grupo</b><span>${esc(g.superintendente) || "—"}</span></div> <div class="meta-item"><b>Auxiliar</b><span>${esc(g.auxiliar) || "—"}</span></div> </div> </div>`;
+                }
+
                 function limpiezaMetaEditHTML(week) {
-                    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2/07"> </label> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> <label class="span2">Grupos asignados <input aria-label="Grupos asignados" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="grupos" value="${esc(week.grupos)}" placeholder="ej: Grupo n°1 y Grupo n°2"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
+                    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2/07"> </label> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> </div> ${grupoLimpiezaEditHTML(week, "grupoA", "Grupo A")} ${grupoLimpiezaEditHTML(week, "grupoB", "Grupo B")} <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
                 }
 
                 function limpiezaMetaViewHTML(week) {
@@ -5001,7 +5030,7 @@
                         week.diaJueves,
                         week.diaDomingo,
                     );
-                    return `<div class="week-head-top"> <div> <h3>${badges || "Semana"}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Grupos asignados</b><span>${esc(week.grupos) || "—"}</span></div> </div>`;
+                    return `<div class="week-head-top"> <div> <h3>${badges || "Semana"}</h3> <div class="week-lectura">Limpian: jueves y domingo</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> ${grupoLimpiezaViewHTML(week, "grupoA", "Grupo A")} ${grupoLimpiezaViewHTML(week, "grupoB", "Grupo B")}`;
                 }
 
                 function limpiezaCardHTML(week) {
@@ -6000,7 +6029,8 @@
                             rango: "",
                             diaJueves: "",
                             diaDomingo: "",
-                            grupos: "",
+                            grupoA: blankGrupoLimpieza(),
+                            grupoB: blankGrupoLimpieza(),
                         });
                         saveLimpieza();
                         renderLimpieza();
@@ -6161,7 +6191,16 @@
                         if (t.dataset.role === "limpieza-field") {
                             const week = getLimpieza(t.dataset.limpiezaId);
                             if (week) {
-                                week[t.dataset.field] = t.value;
+                                if (t.dataset.field.indexOf(".") > -1) {
+                                    const [grupoKey, field] =
+                                        t.dataset.field.split(".");
+                                    if (!week[grupoKey]) {
+                                        week[grupoKey] = blankGrupoLimpieza();
+                                    }
+                                    week[grupoKey][field] = t.value;
+                                } else {
+                                    week[t.dataset.field] = t.value;
+                                }
                                 saveLimpieza();
                             }
                         }
