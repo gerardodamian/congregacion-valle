@@ -3971,7 +3971,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.salidas = doc.data().items;
-                            } else if (!firstLoad.salidas) {
+                            } else if (!firstLoad.salidas && !doc.metadata.fromCache) {
                                 data.salidas = seedSalidas();
                                 suppressEcho.salidas = true;
                                 col.doc("salidas")
@@ -4001,7 +4001,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.vidaymin = doc.data().items;
-                            } else if (!firstLoad.vida) {
+                            } else if (!firstLoad.vida && !doc.metadata.fromCache) {
                                 data.vidaymin = seedVida();
                                 suppressEcho.vida = true;
                                 col.doc("vida")
@@ -4031,7 +4031,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.finde = doc.data().items;
-                            } else if (!firstLoad.finde) {
+                            } else if (!firstLoad.finde && !doc.metadata.fromCache) {
                                 data.finde = seedFinde();
                                 suppressEcho.finde = true;
                                 col.doc("finde")
@@ -4061,7 +4061,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.limpieza = doc.data().items;
-                            } else if (!firstLoad.limpieza) {
+                            } else if (!firstLoad.limpieza && !doc.metadata.fromCache) {
                                 data.limpieza = seedLimpieza();
                                 suppressEcho.limpieza = true;
                                 col.doc("limpieza")
@@ -4091,7 +4091,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.acomodadores = doc.data().items;
-                            } else if (!firstLoad.acomodadores) {
+                            } else if (!firstLoad.acomodadores && !doc.metadata.fromCache) {
                                 data.acomodadores = seedAcomodadores();
                                 suppressEcho.acomodadores = true;
                                 col.doc("acomodadores")
@@ -4121,7 +4121,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.audiovideo = doc.data().items;
-                            } else if (!firstLoad.audiovideo) {
+                            } else if (!firstLoad.audiovideo && !doc.metadata.fromCache) {
                                 data.audiovideo = seedAudioVideo();
                                 suppressEcho.audiovideo = true;
                                 col.doc("audiovideo")
@@ -4151,7 +4151,7 @@
                             }
                             if (doc.exists && doc.data().pin) {
                                 config.pin = doc.data().pin;
-                            } else if (!firstLoad.config) {
+                            } else if (!firstLoad.config && !doc.metadata.fromCache) {
                                 col.doc("config")
                                     .set({ pin: "2026" })
                                     .catch(() => {});
@@ -4177,7 +4177,7 @@
                                     seedEventos(),
                                     doc.data(),
                                 );
-                            } else if (!firstLoad.eventos) {
+                            } else if (!firstLoad.eventos && !doc.metadata.fromCache) {
                                 data.eventos = seedEventos();
                                 suppressEcho.eventos = true;
                                 col.doc("eventos")
@@ -4205,7 +4205,7 @@
                             }
                             if (doc.exists && doc.data().items) {
                                 data.anuncios = doc.data().items;
-                            } else if (!firstLoad.anuncios) {
+                            } else if (!firstLoad.anuncios && !doc.metadata.fromCache) {
                                 data.anuncios = seedAnuncios();
                                 suppressEcho.anuncios = true;
                                 col.doc("anuncios")
@@ -4242,7 +4242,7 @@
                                     seedGrupos(),
                                     doc.data(),
                                 );
-                            } else if (!firstLoad.grupos) {
+                            } else if (!firstLoad.grupos && !doc.metadata.fromCache) {
                                 data.grupos = seedGrupos();
                                 suppressEcho.grupos = true;
                                 col.doc("grupos")
