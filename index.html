@@ -6984,15 +6984,19 @@
                         }
                     });
 
-                /* Botón para cambiar código: se agrega dinámicamente junto al botón de edición cuando se activa el modo edición */
-                const editBtnWrap = document.querySelector(".topbar-inner");
+                /* Botones de Cambiar código / Restaurar respaldo: se agregan a la
+                   barra flotante de edición (junto a Guardar/Descartar) en vez de
+                   la topbar, para no romper el layout del encabezado en mobile. */
+                const ebActions = document.querySelector(
+                    ".editing-bar .eb-actions",
+                );
                 const changePinBtn = document.createElement("button");
-                changePinBtn.className =
-                    "btn btn-ghost btn-sm edit-only hidden";
-                changePinBtn.style.marginLeft = "6px";
-                changePinBtn.textContent = "🔑 Cambiar código";
+                changePinBtn.className = "btn btn-ghost btn-sm eb-action-btn";
+                changePinBtn.title = "Cambiar código";
+                changePinBtn.innerHTML =
+                    '<span class="eb-icon">🔑</span><span class="eb-label">Código</span>';
                 changePinBtn.addEventListener("click", showChangePin);
-                editBtnWrap.appendChild(changePinBtn);
+                ebActions.appendChild(changePinBtn);
 
                 /* Botón para restaurar un respaldo JSON: solo visible en modo edición */
                 const restoreFileInput = document.createElement("input");
@@ -7007,11 +7011,12 @@
                 document.body.appendChild(restoreFileInput);
 
                 const restoreBtn = document.createElement("button");
-                restoreBtn.className = "btn btn-ghost btn-sm edit-only hidden";
-                restoreBtn.style.marginLeft = "6px";
-                restoreBtn.textContent = "📥 Restaurar respaldo";
+                restoreBtn.className = "btn btn-ghost btn-sm eb-action-btn";
+                restoreBtn.title = "Restaurar respaldo";
+                restoreBtn.innerHTML =
+                    '<span class="eb-icon">📥</span><span class="eb-label">Restaurar</span>';
                 restoreBtn.addEventListener("click", elegirArchivoRespaldo);
-                editBtnWrap.appendChild(restoreBtn);
+                ebActions.appendChild(restoreBtn);
 
                 loadAll();
             })();
