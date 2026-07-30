@@ -429,6 +429,10 @@
                 color: #1fad4f;
             }
 
+            .bab-backup .bab-icon {
+                color: #ffd166;
+            }
+
             /* Force SVG icons to use currentColor for fill/stroke so we can set them to white */
             .bab-icon svg {
                 fill: currentColor;
@@ -2840,6 +2844,38 @@
                     </span>
                     <span class="bab-label"> Código QR</span>
                 </button>
+                <button id="btnBackup" class="bab-btn bab-backup edit-only hidden">
+                    <span class="bab-icon">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M12 3v12"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                            <path
+                                d="M7 10l5 5 5-5"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                            <path
+                                d="M4 19h16"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </span>
+                    <span class="bab-label"> Respaldo</span>
+                </button>
                 <button
                     id="btnCompartir"
                     onclick="compartirPagina()"
@@ -3029,6 +3065,187 @@
                         .replace(/</g, "&lt;")
                         .replace(/>/g, "&gt;")
                         .replace(/"/g, "&quot;");
+                }
+
+                function descargarRespaldo() {
+                    try {
+                        const respaldo = {
+                            generadoEl: new Date().toISOString(),
+                            salidas: data.salidas || [],
+                            vidaymin: data.vidaymin || [],
+                            finde: data.finde || [],
+                            limpieza: data.limpieza || [],
+                            acomodadores: data.acomodadores || [],
+                            audiovideo: data.audiovideo || [],
+                            eventos: data.eventos || {},
+                            anuncios: data.anuncios || [],
+                            grupos: data.grupos || {},
+                            config: { pin: config.pin },
+                        };
+                        const blob = new Blob(
+                            [JSON.stringify(respaldo, null, 2)],
+                            { type: "application/json" },
+                        );
+                        const url = URL.createObjectURL(blob);
+                        const now = new Date();
+                        const pad = (n) => String(n).padStart(2, "0");
+                        const nombre = `respaldo-valle-hermoso-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json`;
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = nombre;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(() => URL.revokeObjectURL(url), 2000);
+                        setStatus("Respaldo descargado ✓");
+                    } catch (e) {
+                        alert("No se pudo generar el respaldo.");
+                    }
+                }
+
+                async function restaurarRespaldo(obj) {
+                    if (!col) {
+                        alert(
+                            "Sin conexión a la base de datos, no se puede restaurar.",
+                        );
+                        return;
+                    }
+                    const salidas = Array.isArray(obj.salidas)
+                        ? obj.salidas
+                        : data.salidas;
+                    const vidaymin = Array.isArray(obj.vidaymin)
+                        ? obj.vidaymin
+                        : data.vidaymin;
+                    const finde = Array.isArray(obj.finde)
+                        ? obj.finde
+                        : data.finde;
+                    const limpieza = Array.isArray(obj.limpieza)
+                        ? obj.limpieza
+                        : data.limpieza;
+                    const acomodadores = Array.isArray(obj.acomodadores)
+                        ? obj.acomodadores
+                        : data.acomodadores;
+                    const audiovideo = Array.isArray(obj.audiovideo)
+                        ? obj.audiovideo
+                        : data.audiovideo;
+                    const eventos =
+                        obj.eventos && typeof obj.eventos === "object"
+                            ? obj.eventos
+                            : data.eventos;
+                    const anuncios = Array.isArray(obj.anuncios)
+                        ? obj.anuncios
+                        : data.anuncios;
+                    const grupos =
+                        obj.grupos && typeof obj.grupos === "object"
+                            ? obj.grupos
+                            : data.grupos;
+                    const pin =
+                        obj.config && obj.config.pin
+                            ? obj.config.pin
+                            : config.pin;
+
+                    setStatus("Restaurando…");
+                    [
+                        "salidas",
+                        "vida",
+                        "finde",
+                        "limpieza",
+                        "acomodadores",
+                        "audiovideo",
+                        "eventos",
+                        "anuncios",
+                        "grupos",
+                        "config",
+                    ].forEach((flag) => (suppressEcho[flag] = true));
+
+                    try {
+                        await Promise.all([
+                            col.doc("salidas").set({ items: salidas }),
+                            col.doc("vida").set({ items: vidaymin }),
+                            col.doc("finde").set({ items: finde }),
+                            col.doc("limpieza").set({ items: limpieza }),
+                            col
+                                .doc("acomodadores")
+                                .set({ items: acomodadores }),
+                            col.doc("audiovideo").set({ items: audiovideo }),
+                            col.doc("eventos").set(eventos || {}),
+                            col.doc("anuncios").set({ items: anuncios }),
+                            col.doc("grupos").set(grupos || {}),
+                            col.doc("config").set({ pin }),
+                        ]);
+
+                        data.salidas = salidas;
+                        data.vidaymin = vidaymin;
+                        data.finde = finde;
+                        data.limpieza = limpieza;
+                        data.acomodadores = acomodadores;
+                        data.audiovideo = audiovideo;
+                        data.eventos = eventos;
+                        data.anuncios = anuncios;
+                        data.grupos = grupos;
+                        config.pin = pin;
+
+                        renderSalidas();
+                        renderVida();
+                        renderFinde();
+                        renderLimpieza();
+                        renderAcomodadores();
+                        renderAudiovideo();
+                        renderEventos();
+                        renderAnuncios();
+                        renderGrupos();
+
+                        setStatus("Respaldo restaurado ✓");
+                        alert("Respaldo restaurado correctamente.");
+                    } catch (e) {
+                        [
+                            "salidas",
+                            "vida",
+                            "finde",
+                            "limpieza",
+                            "acomodadores",
+                            "audiovideo",
+                            "eventos",
+                            "anuncios",
+                            "grupos",
+                            "config",
+                        ].forEach((flag) => (suppressEcho[flag] = false));
+                        setStatus("No se pudo restaurar", true);
+                        alert(
+                            "No se pudo restaurar el respaldo. Verificá tu conexión e intentá de nuevo.",
+                        );
+                    }
+                }
+
+                function elegirArchivoRespaldo() {
+                    const input = document.getElementById(
+                        "restoreFileInput",
+                    );
+                    input.value = "";
+                    input.click();
+                }
+
+                function manejarArchivoRespaldo(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        let obj;
+                        try {
+                            obj = JSON.parse(reader.result);
+                        } catch (err) {
+                            alert(
+                                "El archivo elegido no es un respaldo JSON válido.",
+                            );
+                            return;
+                        }
+                        showConfirm(
+                            "Restaurar respaldo",
+                            "Esto va a reemplazar TODOS los datos actuales (Salidas, Vida y Ministerio, Fin de Semana, Limpieza, Acomodadores, Audio y Video, Eventos, Anuncios y Grupos) por los del archivo elegido. ¿Continuar?",
+                            () => restaurarRespaldo(obj),
+                        );
+                    };
+                    reader.readAsText(file);
                 }
 
                 function compartirAgenda() {
@@ -3958,6 +4175,7 @@
                         data.eventos = seedEventos();
                         data.anuncios = seedAnuncios();
                         data.grupos = seedGrupos();
+                        limpiarDatosPasados();
                         render();
                         return;
                     }
@@ -3981,6 +4199,7 @@
                                     });
                             }
                             firstLoad.salidas = true;
+                            maybeRunCleanup();
                             if (isTypingInside("salidasList")) {
                                 pendingRemote.salidas = true;
                             } else {
@@ -4011,6 +4230,7 @@
                                     });
                             }
                             firstLoad.vida = true;
+                            maybeRunCleanup();
                             if (isTypingInside("vidaList")) {
                                 pendingRemote.vida = true;
                             } else {
@@ -4041,6 +4261,7 @@
                                     });
                             }
                             firstLoad.finde = true;
+                            maybeRunCleanup();
                             if (isTypingInside("findeList")) {
                                 pendingRemote.finde = true;
                             } else {
@@ -4071,6 +4292,7 @@
                                     });
                             }
                             firstLoad.limpieza = true;
+                            maybeRunCleanup();
                             if (isTypingInside("limpiezaList")) {
                                 pendingRemote.limpieza = true;
                             } else {
@@ -4101,6 +4323,7 @@
                                     });
                             }
                             firstLoad.acomodadores = true;
+                            maybeRunCleanup();
                             if (isTypingInside("acomodadoresList")) {
                                 pendingRemote.acomodadores = true;
                             } else {
@@ -4131,6 +4354,7 @@
                                     });
                             }
                             firstLoad.audiovideo = true;
+                            maybeRunCleanup();
                             if (isTypingInside("audiovideoList")) {
                                 pendingRemote.audiovideo = true;
                             } else {
@@ -4261,6 +4485,136 @@
                             setStatus("Sin conexión a la base de datos", true);
                         },
                     );
+                }
+
+                /* ============================================================
+               LIMPIEZA AUTOMÁTICA DE DATOS VENCIDOS
+               Al conectar, borra: los días de predicación (Salidas) cuya
+               fecha ya pasó, y las semanas ya pasadas en Vida y Ministerio,
+               Fin de Semana, Limpieza, Acomodadores y Audio y Video.
+               No toca entradas sin fecha cargada (semanas futuras todavía
+               sin completar).
+               ============================================================ */
+                let cleanupDone = false;
+                function maybeRunCleanup() {
+                    if (cleanupDone) return;
+                    if (
+                        firstLoad.salidas &&
+                        firstLoad.vida &&
+                        firstLoad.finde &&
+                        firstLoad.limpieza &&
+                        firstLoad.acomodadores &&
+                        firstLoad.audiovideo
+                    ) {
+                        cleanupDone = true;
+                        limpiarDatosPasados();
+                    }
+                }
+
+                function refFechaLimpieza(w) {
+                    return w.diaDomingo || w.diaJueves || "";
+                }
+                function refFechaAcomodadores(w) {
+                    return (
+                        (w.domingo && w.domingo.dia) ||
+                        (w.jueves && w.jueves.dia) ||
+                        ""
+                    );
+                }
+                function refFechaAudiovideo(w) {
+                    return (
+                        (w.domingo && w.domingo.dia) ||
+                        (w.jueves && w.jueves.dia) ||
+                        ""
+                    );
+                }
+
+                function limpiarDatosPasados() {
+                    let cambioSalidas = false;
+                    let cambioVida = false;
+                    let cambioFinde = false;
+                    let cambioLimpieza = false;
+                    let cambioAcomodadores = false;
+                    let cambioAudiovideo = false;
+
+                    const nuevasSalidas = (data.salidas || []).filter(
+                        (d) => !esFechaPasada(d.fecha),
+                    );
+                    if (nuevasSalidas.length !== (data.salidas || []).length) {
+                        data.salidas = nuevasSalidas;
+                        cambioSalidas = true;
+                    }
+
+                    const nuevaVida = (data.vidaymin || []).filter(
+                        (w) => !esFechaPasada(w.diaJueves),
+                    );
+                    if (nuevaVida.length !== (data.vidaymin || []).length) {
+                        data.vidaymin = nuevaVida;
+                        cambioVida = true;
+                    }
+
+                    const nuevaFinde = (data.finde || []).filter(
+                        (w) => !esFechaPasada(w.diaDomingo),
+                    );
+                    if (nuevaFinde.length !== (data.finde || []).length) {
+                        data.finde = nuevaFinde;
+                        cambioFinde = true;
+                    }
+
+                    const nuevaLimpieza = (data.limpieza || []).filter(
+                        (w) => !esFechaPasada(refFechaLimpieza(w)),
+                    );
+                    if (nuevaLimpieza.length !== (data.limpieza || []).length) {
+                        data.limpieza = nuevaLimpieza;
+                        cambioLimpieza = true;
+                    }
+
+                    const nuevaAcomodadores = (data.acomodadores || []).filter(
+                        (w) => !esFechaPasada(refFechaAcomodadores(w)),
+                    );
+                    if (
+                        nuevaAcomodadores.length !==
+                        (data.acomodadores || []).length
+                    ) {
+                        data.acomodadores = nuevaAcomodadores;
+                        cambioAcomodadores = true;
+                    }
+
+                    const nuevaAudiovideo = (data.audiovideo || []).filter(
+                        (w) => !esFechaPasada(refFechaAudiovideo(w)),
+                    );
+                    if (
+                        nuevaAudiovideo.length !==
+                        (data.audiovideo || []).length
+                    ) {
+                        data.audiovideo = nuevaAudiovideo;
+                        cambioAudiovideo = true;
+                    }
+
+                    if (cambioSalidas) {
+                        renderSalidas();
+                        saveSalidas();
+                    }
+                    if (cambioVida) {
+                        renderVida();
+                        saveVida();
+                    }
+                    if (cambioFinde) {
+                        renderFinde();
+                        saveFinde();
+                    }
+                    if (cambioLimpieza) {
+                        renderLimpieza();
+                        saveLimpieza();
+                    }
+                    if (cambioAcomodadores) {
+                        renderAcomodadores();
+                        saveAcomodadores();
+                    }
+                    if (cambioAudiovideo) {
+                        renderAudiovideo();
+                        saveAudiovideo();
+                    }
                 }
 
                 function scheduleSave(key, getValue, flag) {
@@ -4419,6 +4773,18 @@
                     if (!f) return false;
                     const now = new Date();
                     return f.d === now.getDate() && f.m === now.getMonth() + 1;
+                }
+
+                /* Devuelve true si la fecha (formato dd/mm, sin año) ya pasó respecto de hoy.
+   Si la fecha no se puede interpretar (vacía o con otro formato) devuelve false,
+   para no borrar por error entradas futuras que todavía no tienen fecha cargada. */
+                function esFechaPasada(fecha) {
+                    const f = parseFecha(fecha);
+                    if (!f) return false;
+                    const now = new Date();
+                    const hoyKey = (now.getMonth() + 1) * 100 + now.getDate();
+                    const fKey = f.m * 100 + f.d;
+                    return fKey < hoyKey;
                 }
 
                 /* Marca automáticamente la semana en curso a partir de las fechas de jueves y/o domingo
@@ -5639,6 +6005,9 @@
                     .getElementById("btnQR")
                     .addEventListener("click", openQRModal);
                 document
+                    .getElementById("btnBackup")
+                    .addEventListener("click", descargarRespaldo);
+                document
                     .getElementById("pinCancelBtn")
                     .addEventListener("click", hidePinModal);
                 document
@@ -6624,6 +6993,25 @@
                 changePinBtn.textContent = "🔑 Cambiar código";
                 changePinBtn.addEventListener("click", showChangePin);
                 editBtnWrap.appendChild(changePinBtn);
+
+                /* Botón para restaurar un respaldo JSON: solo visible en modo edición */
+                const restoreFileInput = document.createElement("input");
+                restoreFileInput.type = "file";
+                restoreFileInput.id = "restoreFileInput";
+                restoreFileInput.accept = "application/json,.json";
+                restoreFileInput.style.display = "none";
+                restoreFileInput.addEventListener(
+                    "change",
+                    manejarArchivoRespaldo,
+                );
+                document.body.appendChild(restoreFileInput);
+
+                const restoreBtn = document.createElement("button");
+                restoreBtn.className = "btn btn-ghost btn-sm edit-only hidden";
+                restoreBtn.style.marginLeft = "6px";
+                restoreBtn.textContent = "📥 Restaurar respaldo";
+                restoreBtn.addEventListener("click", elegirArchivoRespaldo);
+                editBtnWrap.appendChild(restoreBtn);
 
                 loadAll();
             })();
