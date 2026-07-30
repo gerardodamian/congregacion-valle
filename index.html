@@ -4175,7 +4175,6 @@
                         data.eventos = seedEventos();
                         data.anuncios = seedAnuncios();
                         data.grupos = seedGrupos();
-                        limpiarDatosPasados();
                         render();
                         return;
                     }
@@ -4199,7 +4198,6 @@
                                     });
                             }
                             firstLoad.salidas = true;
-                            maybeRunCleanup();
                             if (isTypingInside("salidasList")) {
                                 pendingRemote.salidas = true;
                             } else {
@@ -4230,7 +4228,6 @@
                                     });
                             }
                             firstLoad.vida = true;
-                            maybeRunCleanup();
                             if (isTypingInside("vidaList")) {
                                 pendingRemote.vida = true;
                             } else {
@@ -4261,7 +4258,6 @@
                                     });
                             }
                             firstLoad.finde = true;
-                            maybeRunCleanup();
                             if (isTypingInside("findeList")) {
                                 pendingRemote.finde = true;
                             } else {
@@ -4292,7 +4288,6 @@
                                     });
                             }
                             firstLoad.limpieza = true;
-                            maybeRunCleanup();
                             if (isTypingInside("limpiezaList")) {
                                 pendingRemote.limpieza = true;
                             } else {
@@ -4323,7 +4318,6 @@
                                     });
                             }
                             firstLoad.acomodadores = true;
-                            maybeRunCleanup();
                             if (isTypingInside("acomodadoresList")) {
                                 pendingRemote.acomodadores = true;
                             } else {
@@ -4354,7 +4348,6 @@
                                     });
                             }
                             firstLoad.audiovideo = true;
-                            maybeRunCleanup();
                             if (isTypingInside("audiovideoList")) {
                                 pendingRemote.audiovideo = true;
                             } else {
@@ -4488,29 +4481,14 @@
                 }
 
                 /* ============================================================
-               LIMPIEZA AUTOMÁTICA DE DATOS VENCIDOS
-               Al conectar, borra: los días de predicación (Salidas) cuya
-               fecha ya pasó, y las semanas ya pasadas en Vida y Ministerio,
-               Fin de Semana, Limpieza, Acomodadores y Audio y Video.
-               No toca entradas sin fecha cargada (semanas futuras todavía
-               sin completar).
+               LIMPIEZA DE DATOS VENCIDOS (MANUAL)
+               Antes se ejecutaba sola al conectar, pero eso podía vaciar una
+               pestaña entera si todavía no se habían cargado las fechas
+               siguientes (ej: si todas las salidas cargadas ya pasaron).
+               Ahora es un botón que el propio usuario dispara cuando quiere,
+               y siempre deja al menos la entrada más reciente en cada
+               sección para que nunca quede completamente vacía.
                ============================================================ */
-                let cleanupDone = false;
-                function maybeRunCleanup() {
-                    if (cleanupDone) return;
-                    if (
-                        firstLoad.salidas &&
-                        firstLoad.vida &&
-                        firstLoad.finde &&
-                        firstLoad.limpieza &&
-                        firstLoad.acomodadores &&
-                        firstLoad.audiovideo
-                    ) {
-                        cleanupDone = true;
-                        limpiarDatosPasados();
-                    }
-                }
-
                 function refFechaLimpieza(w) {
                     return w.diaDomingo || w.diaJueves || "";
                 }
@@ -4529,92 +4507,165 @@
                     );
                 }
 
+                /* Filtra los vencidos, pero si TODOS los elementos ya vencieron,
+   conserva el más reciente en vez de dejar la sección vacía. */
+                function filtrarConSalvaguarda(list, getFecha) {
+                    const arr = Array.isArray(list) ? list : [];
+                    if (arr.length === 0) return { nueva: arr, removed: 0 };
+                    const vigentes = arr.filter(
+                        (item) => !esFechaPasada(getFecha(item)),
+                    );
+                    if (vigentes.length > 0) {
+                        return {
+                            nueva: vigentes,
+                            removed: arr.length - vigentes.length,
+                        };
+                    }
+                    let masReciente = arr[0];
+                    let masRecienteKey = -1;
+                    arr.forEach((item) => {
+                        const f = parseFecha(getFecha(item));
+                        if (f) {
+                            const k = f.m * 100 + f.d;
+                            if (k > masRecienteKey) {
+                                masRecienteKey = k;
+                                masReciente = item;
+                            }
+                        }
+                    });
+                    return { nueva: [masReciente], removed: arr.length - 1 };
+                }
+
                 function limpiarDatosPasados() {
-                    let cambioSalidas = false;
-                    let cambioVida = false;
-                    let cambioFinde = false;
-                    let cambioLimpieza = false;
-                    let cambioAcomodadores = false;
-                    let cambioAudiovideo = false;
-
-                    const nuevasSalidas = (data.salidas || []).filter(
-                        (d) => !esFechaPasada(d.fecha),
+                    const rSalidas = filtrarConSalvaguarda(
+                        data.salidas,
+                        (d) => d.fecha,
                     );
-                    if (nuevasSalidas.length !== (data.salidas || []).length) {
-                        data.salidas = nuevasSalidas;
-                        cambioSalidas = true;
-                    }
-
-                    const nuevaVida = (data.vidaymin || []).filter(
-                        (w) => !esFechaPasada(w.diaJueves),
+                    const rVida = filtrarConSalvaguarda(
+                        data.vidaymin,
+                        (w) => w.diaJueves,
                     );
-                    if (nuevaVida.length !== (data.vidaymin || []).length) {
-                        data.vidaymin = nuevaVida;
-                        cambioVida = true;
-                    }
-
-                    const nuevaFinde = (data.finde || []).filter(
-                        (w) => !esFechaPasada(w.diaDomingo),
+                    const rFinde = filtrarConSalvaguarda(
+                        data.finde,
+                        (w) => w.diaDomingo,
                     );
-                    if (nuevaFinde.length !== (data.finde || []).length) {
-                        data.finde = nuevaFinde;
-                        cambioFinde = true;
-                    }
-
-                    const nuevaLimpieza = (data.limpieza || []).filter(
-                        (w) => !esFechaPasada(refFechaLimpieza(w)),
+                    const rLimpieza = filtrarConSalvaguarda(
+                        data.limpieza,
+                        refFechaLimpieza,
                     );
-                    if (nuevaLimpieza.length !== (data.limpieza || []).length) {
-                        data.limpieza = nuevaLimpieza;
-                        cambioLimpieza = true;
-                    }
-
-                    const nuevaAcomodadores = (data.acomodadores || []).filter(
-                        (w) => !esFechaPasada(refFechaAcomodadores(w)),
+                    const rAcomodadores = filtrarConSalvaguarda(
+                        data.acomodadores,
+                        refFechaAcomodadores,
                     );
-                    if (
-                        nuevaAcomodadores.length !==
-                        (data.acomodadores || []).length
-                    ) {
-                        data.acomodadores = nuevaAcomodadores;
-                        cambioAcomodadores = true;
-                    }
-
-                    const nuevaAudiovideo = (data.audiovideo || []).filter(
-                        (w) => !esFechaPasada(refFechaAudiovideo(w)),
+                    const rAudiovideo = filtrarConSalvaguarda(
+                        data.audiovideo,
+                        refFechaAudiovideo,
                     );
-                    if (
-                        nuevaAudiovideo.length !==
-                        (data.audiovideo || []).length
-                    ) {
-                        data.audiovideo = nuevaAudiovideo;
-                        cambioAudiovideo = true;
-                    }
 
-                    if (cambioSalidas) {
+                    if (rSalidas.removed > 0) {
+                        data.salidas = rSalidas.nueva;
                         renderSalidas();
                         saveSalidas();
                     }
-                    if (cambioVida) {
+                    if (rVida.removed > 0) {
+                        data.vidaymin = rVida.nueva;
                         renderVida();
                         saveVida();
                     }
-                    if (cambioFinde) {
+                    if (rFinde.removed > 0) {
+                        data.finde = rFinde.nueva;
                         renderFinde();
                         saveFinde();
                     }
-                    if (cambioLimpieza) {
+                    if (rLimpieza.removed > 0) {
+                        data.limpieza = rLimpieza.nueva;
                         renderLimpieza();
                         saveLimpieza();
                     }
-                    if (cambioAcomodadores) {
+                    if (rAcomodadores.removed > 0) {
+                        data.acomodadores = rAcomodadores.nueva;
                         renderAcomodadores();
                         saveAcomodadores();
                     }
-                    if (cambioAudiovideo) {
+                    if (rAudiovideo.removed > 0) {
+                        data.audiovideo = rAudiovideo.nueva;
                         renderAudiovideo();
                         saveAudiovideo();
                     }
+
+                    return {
+                        salidas: rSalidas.removed,
+                        vida: rVida.removed,
+                        finde: rFinde.removed,
+                        limpieza: rLimpieza.removed,
+                        acomodadores: rAcomodadores.removed,
+                        audiovideo: rAudiovideo.removed,
+                    };
+                }
+
+                function iniciarLimpiezaManual() {
+                    const rSalidas = filtrarConSalvaguarda(
+                        data.salidas,
+                        (d) => d.fecha,
+                    );
+                    const rVida = filtrarConSalvaguarda(
+                        data.vidaymin,
+                        (w) => w.diaJueves,
+                    );
+                    const rFinde = filtrarConSalvaguarda(
+                        data.finde,
+                        (w) => w.diaDomingo,
+                    );
+                    const rLimpieza = filtrarConSalvaguarda(
+                        data.limpieza,
+                        refFechaLimpieza,
+                    );
+                    const rAcomodadores = filtrarConSalvaguarda(
+                        data.acomodadores,
+                        refFechaAcomodadores,
+                    );
+                    const rAudiovideo = filtrarConSalvaguarda(
+                        data.audiovideo,
+                        refFechaAudiovideo,
+                    );
+
+                    const total =
+                        rSalidas.removed +
+                        rVida.removed +
+                        rFinde.removed +
+                        rLimpieza.removed +
+                        rAcomodadores.removed +
+                        rAudiovideo.removed;
+
+                    if (total === 0) {
+                        alert("No hay nada vencido para borrar por ahora.");
+                        return;
+                    }
+
+                    const partes = [];
+                    if (rSalidas.removed)
+                        partes.push(`Salidas: ${rSalidas.removed}`);
+                    if (rVida.removed)
+                        partes.push(`Vida y Ministerio: ${rVida.removed}`);
+                    if (rFinde.removed)
+                        partes.push(`Fin de Semana: ${rFinde.removed}`);
+                    if (rLimpieza.removed)
+                        partes.push(`Limpieza: ${rLimpieza.removed}`);
+                    if (rAcomodadores.removed)
+                        partes.push(
+                            `Acomodadores: ${rAcomodadores.removed}`,
+                        );
+                    if (rAudiovideo.removed)
+                        partes.push(`Audio y Video: ${rAudiovideo.removed}`);
+
+                    showConfirm(
+                        "Limpiar fechas vencidas",
+                        `Se van a borrar ${total} entrada(s) con fecha pasada (${partes.join(", ")}). Siempre se deja al menos la más reciente en cada sección. ¿Continuar?`,
+                        () => {
+                            limpiarDatosPasados();
+                            alert("Listo, se limpiaron los datos vencidos.");
+                        },
+                    );
                 }
 
                 function scheduleSave(key, getValue, flag) {
@@ -7017,6 +7068,14 @@
                     '<span class="eb-icon">📥</span><span class="eb-label">Restaurar</span>';
                 restoreBtn.addEventListener("click", elegirArchivoRespaldo);
                 ebActions.appendChild(restoreBtn);
+
+                const cleanupBtn = document.createElement("button");
+                cleanupBtn.className = "btn btn-ghost btn-sm eb-action-btn";
+                cleanupBtn.title = "Limpiar fechas vencidas";
+                cleanupBtn.innerHTML =
+                    '<span class="eb-icon">🧹</span><span class="eb-label">Vencidos</span>';
+                cleanupBtn.addEventListener("click", iniciarLimpiezaManual);
+                ebActions.appendChild(cleanupBtn);
 
                 loadAll();
             })();
