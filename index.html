@@ -6423,7 +6423,7 @@
                 document
                     .getElementById("addFindeBtn")
                     .addEventListener("click", () => {
-                        data.finde.unshift({
+                        data.finde.push({
                             id: uid(),
                             actual: false,
                             rango: "",
@@ -6443,7 +6443,7 @@
                 document
                     .getElementById("addLimpiezaBtn")
                     .addEventListener("click", () => {
-                        data.limpieza.unshift({
+                        data.limpieza.push({
                             id: uid(),
                             actual: false,
                             rango: "",
@@ -6458,7 +6458,7 @@
                 document
                     .getElementById("addAcomodadoresBtn")
                     .addEventListener("click", () => {
-                        data.acomodadores.unshift({
+                        data.acomodadores.push({
                             id: uid(),
                             actual: false,
                             rango: "",
@@ -6471,7 +6471,7 @@
                 document
                     .getElementById("addAudiovideoBtn")
                     .addEventListener("click", () => {
-                        data.audiovideo.unshift({
+                        data.audiovideo.push({
                             id: uid(),
                             actual: false,
                             rango: "",
