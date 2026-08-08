@@ -3136,8 +3136,8 @@
                     const val = (territorioStr || "").trim();
                     if (!val) return "—";
                     const partes = val
-                        .split(/[,/]/)
-                        .map((p) => p.trim())
+                        .split(/,|\/|\s+y\s+|\s+e\s+|-/i)
+                        .map((p) => p.replace(/[^\d]/g, "").trim())
                         .filter(Boolean);
                     if (partes.length === 0) return esc(val);
                     return partes
