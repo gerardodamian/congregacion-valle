@@ -3897,6 +3897,7 @@
                             rango: "29 de junio a 5 de julio",
                             diaDomingo: "26/07",
                             oracionInicial: "",
+                            cancionInicial: "",
                             presidente: "",
                             conferenciante: "",
                             congregacionConferenciante: "",
@@ -3910,6 +3911,7 @@
                             actual: false,
                             rango: "6-12 de julio",
                             oracionInicial: "",
+                            cancionInicial: "",
                             presidente: "",
                             conferenciante: "",
                             congregacionConferenciante: "",
@@ -3923,6 +3925,7 @@
                             actual: false,
                             rango: "13-19 de julio",
                             oracionInicial: "",
+                            cancionInicial: "",
                             presidente: "",
                             conferenciante: "",
                             congregacionConferenciante: "",
@@ -3936,6 +3939,7 @@
                             actual: false,
                             rango: "20-26 de julio",
                             oracionInicial: "",
+                            cancionInicial: "",
                             presidente: "",
                             conferenciante: "",
                             congregacionConferenciante: "",
@@ -5600,7 +5604,7 @@
                 }
 
                 function findeMetaEditHTML(week) {
-                    return `<div class="week-edit-grid"> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="finde-field" data-finde-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del domingo.</div>`;
+                    return `<div class="week-edit-grid"> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="finde-field" data-finde-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> <label class="span2">Título de la conferencia <input aria-label="Título de la conferencia" data-role="finde-field" data-finde-id="${week.id}" data-field="tituloConferencia" value="${esc(week.tituloConferencia)}" placeholder="Título del discurso público"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> <label>Presidente <input aria-label="Presidente" data-role="finde-field" data-finde-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Conferenciante <input aria-label="Conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="conferenciante" value="${esc(week.conferenciante)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="finde-field" data-finde-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}" placeholder="N.º de canción" inputmode="numeric"> </label> <label>Congregación del conferenciante <input aria-label="Congregación del conferenciante" data-role="finde-field" data-finde-id="${week.id}" data-field="congregacionConferenciante" value="${esc(week.congregacionConferenciante)}"> </label> <label>Conductor de La Atalaya <input aria-label="Conductor de La Atalaya" data-role="finde-field" data-finde-id="${week.id}" data-field="conductorAtalaya" value="${esc(week.conductorAtalaya)}"> </label> <label>Lector <input aria-label="Lector" data-role="finde-field" data-finde-id="${week.id}" data-field="lector" value="${esc(week.lector)}"> </label> <label>Oración final <input aria-label="Oración final" data-role="finde-field" data-finde-id="${week.id}" data-field="oracionFinal" value="${esc(week.oracionFinal)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del domingo.</div>`;
                 }
 
                 function findeMetaViewHTML(week) {
@@ -5608,7 +5612,7 @@
                         esc(week.tituloConferencia) ||
                         "Sin título de conferencia";
                     const actual = isSemanaActual(null, week.diaDomingo);
-                    return `<div class="week-head-top"> <div> <h3>Domingo${week.diaDomingo ? ` <span class="week-day-num-badge">${esc(week.diaDomingo)}</span>` : ""}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span class="titulo-destacado">${titulo}</span></div></div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || "—"}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || "—"}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || "—"}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || "—"}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || "—"}</span></div> </div>`;
+                    return `<div class="week-head-top"> <div> <h3>Domingo${week.diaDomingo ? ` <span class="week-day-num-badge">${esc(week.diaDomingo)}</span>` : ""}</h3> <div class="week-lectura"><div class="meta-item"><b>Título de la conferencia</b><span class="titulo-destacado">${titulo}</span></div></div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Conferenciante</b><span>${esc(week.conferenciante) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Congregación del conferenciante</b><span>${esc(week.congregacionConferenciante) || "—"}</span></div> <div class="meta-item"><b>Conductor de La Atalaya</b><span>${esc(week.conductorAtalaya) || "—"}</span></div> <div class="meta-item"><b>Lector</b><span>${esc(week.lector) || "—"}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(week.oracionFinal) || "—"}</span></div> </div>`;
                 }
 
                 function findeCardHTML(week) {
@@ -6646,6 +6650,7 @@
                             rango: "",
                             diaDomingo: "",
                             oracionInicial: "",
+                            cancionInicial: "",
                             presidente: "",
                             conferenciante: "",
                             congregacionConferenciante: "",
