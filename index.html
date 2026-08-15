@@ -1493,6 +1493,17 @@
                 margin-right: 2px;
             }
 
+            .super-week-day-title {
+                margin: 22px 0 8px;
+                padding-bottom: 6px;
+                border-bottom: 2px solid var(--accent-soft);
+                color: var(--accent-dark);
+                font-size: 1rem;
+            }
+            .super-week-day-title:first-of-type {
+                margin-top: 6px;
+            }
+
             .territorio-link {
                 background: none;
                 border: none;
@@ -2561,6 +2572,86 @@
             </div>
         </div>
 
+        <!-- Modal Semana del Superintendente -->
+        <div id="superWeekModal" class="modal">
+            <div
+                class="modal-content"
+                style="max-width: 700px; max-height: 88vh; overflow-y: auto"
+            >
+                <button
+                    class="modal-close"
+                    onclick="cerrarSuperWeekModal()"
+                    aria-label="Cerrar"
+                >
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M18.3 5.71a1 1 0 00-1.41 0L12 10.59 7.11 5.7A1 1 0 105.7 7.11L10.59 12l-4.9 4.89a1 1 0 101.41 1.41L12 13.41l4.89 4.9a1 1 0 001.41-1.41L13.41 12l4.9-4.89a1 1 0 000-1.4z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                </button>
+                <div class="modal-body" style="padding: 20px">
+                    <h2 style="margin-bottom: 4px">
+                        Semana de la visita del superintendente
+                    </h2>
+                    <p
+                        class="tip"
+                        style="margin: 0 0 16px"
+                    >
+                        💡 Empieza el martes con Vida y Ministerio y termina
+                        el domingo con la Reunión de Fin de Semana. Los
+                        cambios se guardan solos.
+                    </p>
+
+                    <h3 class="super-week-day-title">
+                        Martes · Vida y Ministerio
+                    </h3>
+                    <div id="superMartesCont"></div>
+                    <div id="superMartesExtraCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Miércoles · Salidas a predicar
+                    </h3>
+                    <div id="superMiercolesCont"></div>
+                    <div id="superMiercolesReunionCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Jueves · Salidas a predicar
+                    </h3>
+                    <div id="superJuevesCont"></div>
+                    <div id="superJuevesReunionCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Viernes · Salidas a predicar
+                    </h3>
+                    <div id="superViernesCont"></div>
+                    <div id="superViernesReunionCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Sábado · Salidas a predicar
+                    </h3>
+                    <div id="superSabadoCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Domingo · Salidas a predicar
+                    </h3>
+                    <div id="superDomingoSalidasCont"></div>
+
+                    <h3 class="super-week-day-title">
+                        Domingo · Reunión de Fin de Semana
+                    </h3>
+                    <div id="superDomingoReunionCont"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="tabs">
             <button class="tab active" data-tab="salidas">
                 <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -3233,6 +3324,283 @@
                         .classList.remove("active");
                 }
                 window.cerrarTerritorioModal = cerrarTerritorioModal;
+
+                /* ============================================================
+               MODAL — SEMANA DE VISITA DEL SUPERINTENDENTE
+               Reutiliza weekCardHTML/dayCardHTML (las mismas tarjetas que
+               Vida y Ministerio / Salidas) sobre una estructura separada en
+               data.eventos.visitaSuperintendente.semana, sin tocar los datos
+               reales de esas pestañas.
+               ============================================================ */
+                function stripDeleteWeekBtn(html) {
+                    return html.replace(
+                        /<div class="week-card-actions edit-only">[\s\S]*?<\/button> <\/div>/,
+                        "",
+                    );
+                }
+                function stripDeleteDayBtn(html) {
+                    return html.replace(
+                        /<button class="btn btn-icon btn-danger" data-action="delete-day"[\s\S]*?<\/button>/,
+                        "",
+                    );
+                }
+                function findSuperDiaById(id) {
+                    const semana = ensureSuperWeek();
+                    return [
+                        semana.miercoles,
+                        semana.jueves,
+                        semana.viernes,
+                        semana.sabado,
+                        semana.domingoSalidas,
+                    ].find((d) => d && d.id === id);
+                }
+
+                function superMartesExtraHTML(week) {
+                    if (state.editing) {
+                        return `<div class="week-card"> <div class="week-head"> <div class="week-edit-grid"> <label class="span2">Discurso final del superintendente — Título <input aria-label="Discurso final del superintendente" data-role="super-extra-field" data-section="martes-extra" data-field="discursoFinalSuperintendente" value="${esc(week.discursoFinalSuperintendente)}" placeholder="Título del discurso"> </label> </div> </div> </div>`;
+                    }
+                    return `<div class="week-card"> <div class="week-head"> <div class="week-meta"> <div class="meta-item" style="flex:1 1 100%"><b>Discurso final del superintendente</b><span>${esc(week.discursoFinalSuperintendente) || "—"}</span></div> </div> </div> </div>`;
+                }
+
+                function reunionEspecialHTML(dia, seccion) {
+                    const r = dia.reunionEspecial;
+                    if (!r) return "";
+                    if (state.editing) {
+                        const tipoOptions = `<option value="precursores" ${r.tipo === "precursores" ? "selected" : ""}>Reunión de precursores</option><option value="ancianos" ${r.tipo === "ancianos" ? "selected" : ""}>Reunión de ancianos y siervos ministeriales</option>`;
+                        const extra = r.hay
+                            ? `<label>Tipo <select data-role="super-extra-field" data-section="${seccion}" data-field="tipo">${tipoOptions}</select> </label> <label>Hora <input data-role="super-extra-field" data-section="${seccion}" data-field="hora" value="${esc(r.hora)}" placeholder="ej: 19:00"> </label> <label class="span2">Lugar <input data-role="super-extra-field" data-section="${seccion}" data-field="lugar" value="${esc(r.lugar)}" placeholder="Salón del Reino"> </label>`
+                            : "";
+                        return `<div class="week-card"> <div class="week-head"> <div class="week-edit-grid"> <label class="span2"><input type="checkbox" data-role="super-extra-field" data-section="${seccion}" data-field="hay" data-checkbox="1" ${r.hay ? "checked" : ""}> ¿Hay reunión especial este día (precursores / ancianos y siervos)?</label> ${extra} </div> </div> </div>`;
+                    }
+                    if (!r.hay) return "";
+                    const tipoTexto =
+                        r.tipo === "ancianos"
+                            ? "Reunión de ancianos y siervos ministeriales"
+                            : "Reunión de precursores";
+                    return `<div class="week-card"> <div class="week-head"> <div class="week-meta"> <div class="meta-item"><b>${tipoTexto}</b><span>${esc(r.hora) || "—"} · ${esc(r.lugar) || "—"}</span></div> </div> </div> </div>`;
+                }
+
+                function superDomingoReunionCardHTML() {
+                    const r = ensureSuperWeek().domingoReunion;
+                    if (state.editing) {
+                        return `<div class="week-card"> <div class="week-head"> <div class="week-edit-grid"> <label>Presidente <input data-role="super-extra-field" data-section="domingo-reunion" data-field="presidente" value="${esc(r.presidente)}"> </label> <label>Canción inicial <input data-role="super-extra-field" data-section="domingo-reunion" data-field="cancionInicial" value="${esc(r.cancionInicial)}"> </label> <label>Oración inicial <input data-role="super-extra-field" data-section="domingo-reunion" data-field="oracionInicial" value="${esc(r.oracionInicial)}"> </label> <label>Discurso público <select data-role="super-extra-field" data-section="domingo-reunion" data-field="discursoPublicoTipo"><option value="discurso" ${r.discursoPublicoTipo === "discurso" ? "selected" : ""}>Discurso (a cargo del superintendente)</option><option value="video" ${r.discursoPublicoTipo === "video" ? "selected" : ""}>Video</option></select> </label> <label class="span2">${r.discursoPublicoTipo === "video" ? "Título del video" : "Título del discurso"} <input data-role="super-extra-field" data-section="domingo-reunion" data-field="discursoPublicoTitulo" value="${esc(r.discursoPublicoTitulo)}"> </label> <label>Conductor del Estudio de La Atalaya <input data-role="super-extra-field" data-section="domingo-reunion" data-field="conductorAtalaya" value="${esc(r.conductorAtalaya)}"> </label> <label class="span2">Discurso final del superintendente — Título <input data-role="super-extra-field" data-section="domingo-reunion" data-field="discursoFinalTitulo" value="${esc(r.discursoFinalTitulo)}"> </label> <label>Canción final <input data-role="super-extra-field" data-section="domingo-reunion" data-field="cancionFinal" value="${esc(r.cancionFinal)}"> </label> <label>Oración final <input data-role="super-extra-field" data-section="domingo-reunion" data-field="oracionFinal" value="${esc(r.oracionFinal)}"> </label> </div> </div> </div>`;
+                    }
+                    const tipoLabel =
+                        r.discursoPublicoTipo === "video"
+                            ? "Video"
+                            : "Discurso (a cargo del superintendente)";
+                    return `<div class="week-card"> <div class="week-head"> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(r.presidente) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(r.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(r.oracionInicial) || "—"}</span></div> <div class="meta-item"><b>${tipoLabel}</b><span class="titulo-destacado">${esc(r.discursoPublicoTitulo) || "—"}</span></div> <div class="meta-item"><b>Estudio de La Atalaya — Conductor</b><span>${esc(r.conductorAtalaya) || "—"}</span></div> <div class="meta-item"><b>Discurso final del superintendente</b><span>${esc(r.discursoFinalTitulo) || "—"}</span></div> <div class="meta-item"><b>Canción final</b><span>${esc(r.cancionFinal) || "—"}</span></div> <div class="meta-item"><b>Oración final</b><span>${esc(r.oracionFinal) || "—"}</span></div> </div> </div> </div>`;
+                }
+
+                function renderSuperWeekModal() {
+                    const semana = ensureSuperWeek();
+
+                    document.getElementById("superMartesCont").innerHTML =
+                        stripDeleteWeekBtn(weekCardHTML(semana.martes));
+                    document.getElementById(
+                        "superMartesExtraCont",
+                    ).innerHTML = superMartesExtraHTML(semana.martes);
+
+                    document.getElementById("superMiercolesCont").innerHTML =
+                        stripDeleteDayBtn(dayCardHTML(semana.miercoles));
+                    document.getElementById(
+                        "superMiercolesReunionCont",
+                    ).innerHTML = reunionEspecialHTML(
+                        semana.miercoles,
+                        "miercoles-reunion",
+                    );
+
+                    document.getElementById("superJuevesCont").innerHTML =
+                        stripDeleteDayBtn(dayCardHTML(semana.jueves));
+                    document.getElementById(
+                        "superJuevesReunionCont",
+                    ).innerHTML = reunionEspecialHTML(
+                        semana.jueves,
+                        "jueves-reunion",
+                    );
+
+                    document.getElementById("superViernesCont").innerHTML =
+                        stripDeleteDayBtn(dayCardHTML(semana.viernes));
+                    document.getElementById(
+                        "superViernesReunionCont",
+                    ).innerHTML = reunionEspecialHTML(
+                        semana.viernes,
+                        "viernes-reunion",
+                    );
+
+                    document.getElementById("superSabadoCont").innerHTML =
+                        stripDeleteDayBtn(dayCardHTML(semana.sabado));
+
+                    document.getElementById(
+                        "superDomingoSalidasCont",
+                    ).innerHTML = stripDeleteDayBtn(
+                        dayCardHTML(semana.domingoSalidas),
+                    );
+
+                    document.getElementById(
+                        "superDomingoReunionCont",
+                    ).innerHTML = superDomingoReunionCardHTML();
+                }
+
+                function abrirSuperWeekModal() {
+                    ensureSuperWeek();
+                    renderSuperWeekModal();
+                    document
+                        .getElementById("superWeekModal")
+                        .classList.add("active");
+                }
+                window.abrirSuperWeekModal = abrirSuperWeekModal;
+
+                function cerrarSuperWeekModal() {
+                    document
+                        .getElementById("superWeekModal")
+                        .classList.remove("active");
+                }
+                window.cerrarSuperWeekModal = cerrarSuperWeekModal;
+
+                function handleSuperWeekFieldEvent(e) {
+                    const t = e.target;
+                    const semana = ensureSuperWeek();
+
+                    if (t.dataset.role === "week-field") {
+                        semana.martes[t.dataset.field] = t.value;
+                        saveEventos();
+                    } else if (t.dataset.role === "part-field") {
+                        const part = (
+                            semana.martes[t.dataset.section] || []
+                        ).find((p) => p.id === t.dataset.partId);
+                        if (part) {
+                            part[t.dataset.field] = t.value;
+                            saveEventos();
+                        }
+                    } else if (t.dataset.role === "day-field") {
+                        const dia = findSuperDiaById(t.dataset.dayId);
+                        if (dia) {
+                            dia[t.dataset.field] = t.value;
+                            saveEventos();
+                        }
+                    } else if (t.dataset.role === "entry-field") {
+                        const dia = findSuperDiaById(t.dataset.dayId);
+                        if (dia) {
+                            const entry = dia.entries.find(
+                                (en) => en.id === t.dataset.entryId,
+                            );
+                            if (entry) {
+                                entry[t.dataset.field] = t.value;
+                                saveEventos();
+                            }
+                        }
+                    } else if (t.dataset.role === "super-extra-field") {
+                        const seccion = t.dataset.section;
+                        const field = t.dataset.field;
+                        const value =
+                            t.dataset.checkbox === "1" ? t.checked : t.value;
+                        let target = null;
+                        if (seccion === "martes-extra") target = semana.martes;
+                        else if (seccion === "miercoles-reunion")
+                            target = semana.miercoles.reunionEspecial;
+                        else if (seccion === "jueves-reunion")
+                            target = semana.jueves.reunionEspecial;
+                        else if (seccion === "viernes-reunion")
+                            target = semana.viernes.reunionEspecial;
+                        else if (seccion === "domingo-reunion")
+                            target = semana.domingoReunion;
+                        if (target) {
+                            target[field] = value;
+                            saveEventos();
+                            if (
+                                t.dataset.checkbox === "1" ||
+                                t.tagName === "SELECT"
+                            ) {
+                                renderSuperWeekModal();
+                            }
+                        }
+                    }
+                }
+
+                document
+                    .getElementById("superWeekModal")
+                    .addEventListener("input", handleSuperWeekFieldEvent);
+                document
+                    .getElementById("superWeekModal")
+                    .addEventListener("change", handleSuperWeekFieldEvent);
+
+                document
+                    .getElementById("superWeekModal")
+                    .addEventListener("click", (e) => {
+                        const btn = e.target.closest("[data-action]");
+                        if (!btn) return;
+                        const action = btn.dataset.action;
+                        const semana = ensureSuperWeek();
+
+                        if (action === "add-part") {
+                            semana.martes[btn.dataset.section].push({
+                                id: uid(),
+                                numero: "",
+                                titulo: "",
+                                minutos: "",
+                                principal: "",
+                                auxiliar: "",
+                                auxiliar2: "",
+                            });
+                            saveEventos();
+                            renderSuperWeekModal();
+                        } else if (action === "delete-part") {
+                            showConfirm(
+                                "Eliminar parte",
+                                "¿Eliminar esta parte del programa?",
+                                () => {
+                                    semana.martes[btn.dataset.section] =
+                                        semana.martes[
+                                            btn.dataset.section
+                                        ].filter(
+                                            (p) =>
+                                                p.id !== btn.dataset.partId,
+                                        );
+                                    saveEventos();
+                                    renderSuperWeekModal();
+                                },
+                            );
+                        } else if (action === "add-entry") {
+                            const dia = findSuperDiaById(btn.dataset.dayId);
+                            if (dia) {
+                                dia.entries.push({
+                                    id: uid(),
+                                    hora: "",
+                                    lugar: "",
+                                    grupo: "",
+                                    conductor: "",
+                                    territorio: "",
+                                });
+                                saveEventos();
+                                renderSuperWeekModal();
+                            }
+                        } else if (action === "delete-entry") {
+                            const dia = findSuperDiaById(btn.dataset.dayId);
+                            showConfirm(
+                                "Eliminar salida",
+                                "¿Eliminar esta salida de predicación?",
+                                () => {
+                                    if (dia) {
+                                        dia.entries = dia.entries.filter(
+                                            (en) =>
+                                                en.id !==
+                                                btn.dataset.entryId,
+                                        );
+                                        saveEventos();
+                                        renderSuperWeekModal();
+                                    }
+                                },
+                            );
+                        }
+                    });
+
+                window.addEventListener("click", function (event) {
+                    const swModal = document.getElementById("superWeekModal");
+                    if (event.target === swModal) {
+                        cerrarSuperWeekModal();
+                    }
+                });
 
                 document.addEventListener("click", (e) => {
                     const btn = e.target.closest(
@@ -4102,6 +4470,84 @@
                     ];
                 }
 
+                /* ============================================================
+               SEMANA DE VISITA DEL SUPERINTENDENTE
+               Estructura separada (no toca vidaymin/salidas/finde reales) que
+               reutiliza el mismo formato de tarjetas para que se vea igual.
+               ============================================================ */
+                function blankSuperVidaWeek() {
+                    return {
+                        id: uid(),
+                        actual: false,
+                        rango: "",
+                        diaJueves: "",
+                        lectura: "",
+                        presidente: "",
+                        consejero: "",
+                        cancionInicial: "",
+                        oracionInicial: "",
+                        tesoros: [],
+                        seamos: [],
+                        cancionMedia: "",
+                        vidaCristiana: [],
+                        cancionFinal: "",
+                        oracionFinal: "",
+                        discursoFinalSuperintendente: "",
+                    };
+                }
+                function blankSuperDia(nombreDia) {
+                    return {
+                        id: uid(),
+                        dia: nombreDia,
+                        fecha: "",
+                        entries: [],
+                    };
+                }
+                function blankReunionEspecial() {
+                    return { hay: false, tipo: "precursores", hora: "", lugar: "" };
+                }
+                function blankSuperWeek() {
+                    return {
+                        martes: blankSuperVidaWeek(),
+                        miercoles: Object.assign(blankSuperDia("Miércoles"), {
+                            reunionEspecial: blankReunionEspecial(),
+                        }),
+                        jueves: Object.assign(blankSuperDia("Jueves"), {
+                            reunionEspecial: blankReunionEspecial(),
+                        }),
+                        viernes: Object.assign(blankSuperDia("Viernes"), {
+                            reunionEspecial: blankReunionEspecial(),
+                        }),
+                        sabado: blankSuperDia("Sábado"),
+                        domingoSalidas: blankSuperDia("Domingo"),
+                        domingoReunion: {
+                            presidente: "",
+                            oracionInicial: "",
+                            cancionInicial: "",
+                            discursoPublicoTipo: "discurso",
+                            discursoPublicoTitulo: "",
+                            conductorAtalaya: "",
+                            discursoFinalTitulo: "",
+                            cancionFinal: "",
+                            oracionFinal: "",
+                        },
+                    };
+                }
+                function ensureSuperWeek() {
+                    if (!data.eventos) data.eventos = seedEventos();
+                    if (!data.eventos.visitaSuperintendente) {
+                        data.eventos.visitaSuperintendente = {
+                            fecha: "",
+                            nombre: "",
+                            semana: blankSuperWeek(),
+                        };
+                    } else if (!data.eventos.visitaSuperintendente.semana) {
+                        data.eventos.visitaSuperintendente.semana =
+                            blankSuperWeek();
+                    }
+                    return data.eventos.visitaSuperintendente.semana;
+                }
+
                 function seedEventos() {
                     return {
                         circuito1: {
@@ -4115,7 +4561,11 @@
                         regional: { titulo: "Felices para siempre", fecha: "" },
                         precursoresAncianos: { fecha: "" },
                         precursoresCircuito: { fecha: "" },
-                        visitaSuperintendente: { fecha: "", nombre: "" },
+                        visitaSuperintendente: {
+                            fecha: "",
+                            nombre: "",
+                            semana: blankSuperWeek(),
+                        },
                         memorial: { fecha: "", hora: "" },
                     };
                 }
@@ -4615,6 +5065,7 @@
                                     seedEventos(),
                                     doc.data(),
                                 );
+                                ensureSuperWeek();
                             } else if (!firstLoad.eventos && !doc.metadata.fromCache) {
                                 data.eventos = seedEventos();
                                 suppressEcho.eventos = true;
@@ -5532,12 +5983,12 @@
                 }
 
                 function weekMetaEditHTML(week) {
-                    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25/07"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del jueves.</div>`;
+                    return `<div class="week-edit-grid"> <label>Fecha (martes) <input aria-label="Fecha (martes)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25/07"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del jueves.</div>`;
                 }
 
                 function weekMetaViewHTML(week) {
                     const actual = isSemanaActual(week.diaJueves, null);
-                    return `<div class="week-head-top"> <div> <h3>Jueves${week.diaJueves ? ` <span class="week-day-num-badge">${esc(week.diaJueves)}</span>` : ""}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> </div>`;
+                    return `<div class="week-head-top"> <div> <h3>Martes${week.diaJueves ? ` <span class="week-day-num-badge">${esc(week.diaJueves)}</span>` : ""}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> </div>`;
                 }
 
                 function esEstudioBiblico(titulo) {
@@ -5659,7 +6110,7 @@
                 }
 
                 function limpiezaMetaEditHTML(week) {
-                    return `<div class="week-edit-grid"> <label>Fecha (jueves) <input aria-label="Fecha (jueves)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2/07"> </label> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> </div> ${grupoLimpiezaEditHTML(week, "grupoA", "Grupo A")} ${grupoLimpiezaEditHTML(week, "grupoB", "Grupo B")} <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
+                    return `<div class="week-edit-grid"> <label>Fecha (Martes) <input aria-label="Fecha (martes)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 2/07"> </label> <label>Fecha (domingo) <input aria-label="Fecha (domingo)" data-role="limpieza-field" data-limpieza-id="${week.id}" data-field="diaDomingo" value="${esc(week.diaDomingo)}" placeholder="ej: 5/07"> </label> </div> ${grupoLimpiezaEditHTML(week, "grupoA", "Grupo A")} ${grupoLimpiezaEditHTML(week, "grupoB", "Grupo B")} <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según las fechas de jueves y domingo.</div>`;
                 }
 
                 function limpiezaMetaViewHTML(week) {
@@ -5835,7 +6286,7 @@
                         ? `<label>Hora <input aria-label="Hora" data-role="evento-field" data-key="${key}" data-field="hora" value="${esc(ev.hora)}" placeholder="ej: 19:30"> </label>`
                         : "";
                     const nombreField = showNombre
-                        ? `<label>Nombre del superintendente <input aria-label="Nombre del superintendente" data-role="evento-field" data-key="${key}" data-field="nombre" value="${esc(ev.nombre)}" placeholder="Nombre y apellido"> </label>`
+                        ? `<label>Nombre del superintendente <input aria-label="Nombre del superintendente" data-role="evento-field" data-key="${key}" data-field="nombre" value="${esc(ev.nombre)}" placeholder="Nombre y apellido"> </label>${key === "visitaSuperintendente" ? `<button type="button" class="btn btn-accent btn-sm" style="align-self:flex-end" onclick="abrirSuperWeekModal()">📅 Ver semana</button>` : ""}`
                         : "";
                     const fechaLabel =
                         diasDuracion > 1
@@ -5846,6 +6297,7 @@
 
                 function eventoCardViewHTML(
                     ev,
+                    key,
                     tituloFija,
                     showTitulo,
                     showHora,
@@ -5877,7 +6329,7 @@
                     } else if (fInicio) {
                         diaTexto = diaSemanaDeFecha(fInicio);
                     }
-                    return `<div class="week-head-top"> <div>${tituloHTML}</div> </div> <div class="week-meta"> <div class="meta-item"><b>Fecha</b><span>${fechaTexto}</span></div> <div class="meta-item"><b>Día</b><span>${diaTexto}</span></div> ${showHora ? `<div class="meta-item"><b>Hora</b><span>${esc(ev.hora) || "—"}</span></div>` : ""} ${showNombre ? `<div class="meta-item"><b>Superintendente</b><span>${esc(ev.nombre) || "—"}</span></div>` : ""} </div>`;
+                    return `<div class="week-head-top"> <div>${tituloHTML}</div> </div> <div class="week-meta"> <div class="meta-item"><b>Fecha</b><span>${fechaTexto}</span></div> <div class="meta-item"><b>Día</b><span>${diaTexto}</span></div> ${showHora ? `<div class="meta-item"><b>Hora</b><span>${esc(ev.hora) || "—"}</span></div>` : ""} ${showNombre ? `<div class="meta-item"><b>Superintendente</b><span>${esc(ev.nombre) || "—"}</span></div>` : ""} ${key === "visitaSuperintendente" ? `<div class="meta-item"><button type="button" class="btn btn-accent btn-sm" onclick="abrirSuperWeekModal()">📅 Ver semana</button></div>` : ""} </div>`;
                 }
 
                 function eventoCard(
@@ -5900,6 +6352,7 @@
                           )
                         : eventoCardViewHTML(
                               ev,
+                              key,
                               tituloFija,
                               showTitulo,
                               showHora,
