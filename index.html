@@ -3395,11 +3395,17 @@
                 function renderSuperWeekModal() {
                     const semana = ensureSuperWeek();
 
+                    const martesFootHTML = weekFootHTML(semana.martes);
+                    const martesCardHTML = stripDeleteWeekBtn(
+                        weekCardHTML(semana.martes),
+                    ).replace(martesFootHTML, "");
                     document.getElementById("superMartesCont").innerHTML =
-                        stripDeleteWeekBtn(weekCardHTML(semana.martes));
+                        martesCardHTML;
                     document.getElementById(
                         "superMartesExtraCont",
-                    ).innerHTML = superMartesExtraHTML(semana.martes);
+                    ).innerHTML =
+                        superMartesExtraHTML(semana.martes) +
+                        `<div class="week-card"> <div class="week-head">${martesFootHTML}</div> </div>`;
 
                     document.getElementById("superMiercolesCont").innerHTML =
                         stripDeleteDayBtn(dayCardHTML(semana.miercoles));
