@@ -4486,6 +4486,7 @@
                         id: uid(),
                         actual: false,
                         rango: "",
+                        diaLabel: "Martes",
                         diaJueves: "",
                         lectura: "",
                         presidente: "",
@@ -4550,6 +4551,14 @@
                     } else if (!data.eventos.visitaSuperintendente.semana) {
                         data.eventos.visitaSuperintendente.semana =
                             blankSuperWeek();
+                    }
+                    if (
+                        data.eventos.visitaSuperintendente.semana.martes &&
+                        !data.eventos.visitaSuperintendente.semana.martes
+                            .diaLabel
+                    ) {
+                        data.eventos.visitaSuperintendente.semana.martes.diaLabel =
+                            "Martes";
                     }
                     return data.eventos.visitaSuperintendente.semana;
                 }
@@ -5989,12 +5998,12 @@
                 }
 
                 function weekMetaEditHTML(week) {
-                    return `<div class="week-edit-grid"> <label>Fecha (Jueves) <input aria-label="Fecha (Jueves)" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25/07"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del jueves.</div>`;
+                    return `<div class="week-edit-grid"> <label>Fecha (${week.diaLabel || "Jueves"}) <input aria-label="Fecha (${week.diaLabel || "Jueves"})" data-role="week-field" data-week-id="${week.id}" data-field="diaJueves" value="${esc(week.diaJueves)}" placeholder="ej: 25/07"> </label> <label class="span2">Lectura de la Biblia <input aria-label="Lectura de la Biblia" data-role="week-field" data-week-id="${week.id}" data-field="lectura" value="${esc(week.lectura)}" placeholder="ej: Jeremías 9, 10"> </label> <label>Presidente <input aria-label="Presidente" data-role="week-field" data-week-id="${week.id}" data-field="presidente" value="${esc(week.presidente)}"> </label> <label>Consejero sala auxiliar <input aria-label="Consejero sala auxiliar" data-role="week-field" data-week-id="${week.id}" data-field="consejero" value="${esc(week.consejero)}"> </label> <label>Canción inicial <input aria-label="Canción inicial" data-role="week-field" data-week-id="${week.id}" data-field="cancionInicial" value="${esc(week.cancionInicial)}"> </label> <label>Oración inicial <input aria-label="Oración inicial" data-role="week-field" data-week-id="${week.id}" data-field="oracionInicial" value="${esc(week.oracionInicial)}"> </label> </div> <div class="week-auto-note edit-only">🗓️ Esta semana se marca como actual automáticamente según la fecha del ${(week.diaLabel || "Jueves").toLowerCase()}.</div>`;
                 }
 
                 function weekMetaViewHTML(week) {
                     const actual = isSemanaActual(week.diaJueves, null);
-                    return `<div class="week-head-top"> <div> <h3>Jueves${week.diaJueves ? ` <span class="week-day-num-badge">${esc(week.diaJueves)}</span>` : ""}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> </div>`;
+                    return `<div class="week-head-top"> <div> <h3>${week.diaLabel || "Jueves"}${week.diaJueves ? ` <span class="week-day-num-badge">${esc(week.diaJueves)}</span>` : ""}</h3> <div class="week-lectura">Lectura de la Biblia: ${esc(week.lectura)}</div> </div> ${actual ? '<span class="actual-flag">ESTA SEMANA</span>' : ""} </div> <div class="week-meta"> <div class="meta-item"><b>Presidente</b><span>${esc(week.presidente) || "—"}</span></div> <div class="meta-item"><b>Consejero sala aux.</b><span>${esc(week.consejero) || "—"}</span></div> <div class="meta-item"><b>Canción inicial</b><span>${esc(week.cancionInicial) || "—"}</span></div> <div class="meta-item"><b>Oración inicial</b><span>${esc(week.oracionInicial) || "—"}</span></div> </div>`;
                 }
 
                 function esEstudioBiblico(titulo) {
